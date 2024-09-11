@@ -1,3 +1,9 @@
+<script lang="ts" setup>
+// export default {
+//   name: 'Error'
+// };
+</script>
+
 <template>
   <div class="container">
     <Breadcrumb :items="['menu.result', 'menu.resultError']" />
@@ -36,14 +42,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup></script>
-
-<script lang="ts">
-export default {
-  name: 'Error'
-};
-</script>
 
 <style scoped lang="less">
 .container {

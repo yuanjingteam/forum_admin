@@ -9,7 +9,7 @@ const USER: AppRouteRecordRaw = {
     locale: '个人中心',
     icon: 'icon-user',
     requiresAuth: true,
-    order: 7
+    order: 5
   },
   children: [
     {
