@@ -1,7 +1,7 @@
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
-const RESULT: AppRouteRecordRaw = {
+const ACL: AppRouteRecordRaw = {
   path: '/acl',
   name: 'acl',
   component: DEFAULT_LAYOUT,
@@ -9,7 +9,7 @@ const RESULT: AppRouteRecordRaw = {
     locale: '权限管理',
     icon: 'icon-check-circle',
     requiresAuth: true,
-    order: 9
+    order: 5
   },
   children: [
     {
@@ -45,4 +45,4 @@ const RESULT: AppRouteRecordRaw = {
   ]
 };
 
-export default RESULT;
+export default ACL;
