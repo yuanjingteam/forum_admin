@@ -3,7 +3,7 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
   path: '/article',
-  name: 'article',
+  name: 'articleManager',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '文章管理',
