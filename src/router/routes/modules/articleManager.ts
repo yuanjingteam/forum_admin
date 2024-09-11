@@ -2,14 +2,14 @@ import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
-  path: '/userManager',
-  name: 'userManager',
+  path: '/article',
+  name: 'articleManager',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: '用户管理',
+    locale: '文章管理',
     requiresAuth: true,
     icon: 'icon-list',
-    order: 1,
+    order: 2,
     hideChildrenMenu: true // 隐藏子菜单项
   },
   // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
@@ -19,10 +19,10 @@ const LIST: AppRouteRecordRaw = {
   children: [
     {
       path: '', // 使用空路径以匹配父路由
-      name: 'role', // 子路由名称
-      component: () => import('@/views/userManager/index.vue'),
+      name: 'article', // 子路由名称
+      component: () => import('@/views/articleManager/index.vue'),
       meta: {
-        locale: '查询表格',
+        locale: '文章管理',
         requiresAuth: true,
         roles: ['*']
       }

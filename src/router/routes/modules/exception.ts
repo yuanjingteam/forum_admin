@@ -10,7 +10,7 @@ const EXCEPTION: AppRouteRecordRaw = {
     locale: '异常页',
     requiresAuth: true,
     icon: 'icon-exclamation-circle',
-    order: 6
+    order: 11
   },
   children: [
     {

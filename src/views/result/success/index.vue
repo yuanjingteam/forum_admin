@@ -1,3 +1,9 @@
+<script lang="ts" setup>
+// export default {
+//   name: 'Success'
+// };
+</script>
+
 <template>
   <div class="container">
     <Breadcrumb :items="['menu.result', 'menu.resultSuccess']" />
@@ -31,12 +37,6 @@
 </template>
 
 <script lang="ts" setup></script>
-
-<script lang="ts">
-export default {
-  name: 'Success'
-};
-</script>
 
 <style scoped lang="less">
 .container {

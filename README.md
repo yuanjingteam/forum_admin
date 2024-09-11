@@ -16,12 +16,6 @@
 <img alt="Version" src="https://img.shields.io/github/package-json/v/oljc/arco-admin/main">
 
 *📌项目还在快速开发中敬请期待，目前可当启动模板使用👈🏻*
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://next.ossinsight.io/widgets/official/compose-last-28-days-stats/thumbnail.png?repo_id=725470717&image_size=auto&color_scheme=dark" width="655" height="auto">
-  <img alt="oljc/arco-admin 近 28 天统计" src="https://next.ossinsight.io/widgets/official/compose-last-28-days-stats/thumbnail.png?repo_id=725470717&image_size=auto&color_scheme=light" width="655" height="auto">
-</picture>
-
 </div>
 
 ## 特性
