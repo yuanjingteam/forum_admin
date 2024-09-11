@@ -1,15 +1,15 @@
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
-const LIsaST: AppRouteRecordRaw = {
-  path: '/dictionary',
-  name: 'dictionary',
+const LIST: AppRouteRecordRaw = {
+  path: '/article',
+  name: 'article',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: '字典管理',
+    locale: '文章管理',
     requiresAuth: true,
     icon: 'icon-list',
-    order: 3,
+    order: 2,
     hideChildrenMenu: true // 隐藏子菜单项
   },
   // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
@@ -19,10 +19,10 @@ const LIsaST: AppRouteRecordRaw = {
   children: [
     {
       path: '', // 使用空路径以匹配父路由
-      name: 'dictionary', // 子路由名称
-      component: () => import('@/views/dictionaryManager/index.vue'),
+      name: 'article', // 子路由名称
+      component: () => import('@/views/articleManager/index.vue'),
       meta: {
-        locale: '字典管理',
+        locale: '文章管理',
         requiresAuth: true,
         roles: ['*']
       }
@@ -30,4 +30,4 @@ const LIsaST: AppRouteRecordRaw = {
   ]
 };
 
-export default LIsaST;
+export default LIST;

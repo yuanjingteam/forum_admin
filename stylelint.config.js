@@ -4,7 +4,7 @@ export default {
   extends: [
     'stylelint-config-standard',
     'stylelint-config-html/vue',
-    'stylelint-config-recess-order',
+    'stylelint-config-recess-order'
   ],
   plugins: ['stylelint-order', 'stylelint-less', 'stylelint-prettier'],
   rules: {
@@ -34,16 +34,16 @@ export default {
           'mixin',
           'extend',
           'content',
-          'use',
-        ],
-      },
+          'use'
+        ]
+      }
     ],
     // 空行规则
     'rule-empty-line-before': [
       'always',
       {
-        ignore: ['after-comment', 'first-nested'],
-      },
+        ignore: ['after-comment', 'first-nested']
+      }
     ],
     'order/order': [
       [
@@ -53,16 +53,16 @@ export default {
         'declarations',
         {
           type: 'at-rule',
-          name: 'supports',
+          name: 'supports'
         },
         {
           type: 'at-rule',
-          name: 'media',
+          name: 'media'
         },
-        'rules',
+        'rules'
       ],
-      { severity: 'warning' },
-    ],
+      { severity: 'warning' }
+    ]
   },
   overrides: [
     {
@@ -72,14 +72,14 @@ export default {
         // 禁止未知的伪类选择器
         'selector-pseudo-class-no-unknown': [
           true,
-          { ignorePseudoClasses: ['deep', 'global'] },
+          { ignorePseudoClasses: ['deep', 'global'] }
         ],
         // 禁止未知的伪元素选择器
         'selector-pseudo-element-no-unknown': [
           true,
-          { ignorePseudoElements: ['v-deep', 'v-global', 'v-slotted'] },
-        ],
-      },
+          { ignorePseudoElements: ['v-deep', 'v-global', 'v-slotted'] }
+        ]
+      }
     },
     {
       files: ['*.less', '**/*.less'],
@@ -87,9 +87,9 @@ export default {
       extends: ['stylelint-config-standard-less'],
       rules: {
         'less/color-no-invalid-hex': true,
-        'less/no-duplicate-variables': true,
-      },
-    },
+        'less/no-duplicate-variables': true
+      }
+    }
   ],
-  ignoreFiles: ['**/*.js', '**/*.jsx', '**/*.tsx', '**/*.ts'],
+  ignoreFiles: ['**/*.js', '**/*.jsx', '**/*.tsx', '**/*.ts']
 };
