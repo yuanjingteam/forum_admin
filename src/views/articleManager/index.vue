@@ -1,5 +1,5 @@
-<script setup></script>
+<template><div>1111</div></template>
 
-<template>dawda</template>
+<script setup></script>
 
 <style scoped></style>

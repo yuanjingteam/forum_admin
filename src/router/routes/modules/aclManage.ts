@@ -3,13 +3,14 @@ import type { AppRouteRecordRaw } from '../types';
 
 const ACL: AppRouteRecordRaw = {
   path: '/acl',
-  name: 'acl',
+  name: 'Acl',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '权限管理',
     icon: 'icon-check-circle',
     requiresAuth: true,
-    order: 5
+    order: 12,
+    hideChildrenMenu: false // 隐藏子菜单项
   },
   children: [
     {
@@ -19,7 +20,7 @@ const ACL: AppRouteRecordRaw = {
       meta: {
         locale: '角色管理',
         requiresAuth: true,
-        roles: ['admin']
+        roles: ['*']
       }
     },
     {
@@ -29,7 +30,7 @@ const ACL: AppRouteRecordRaw = {
       meta: {
         locale: '菜单管理',
         requiresAuth: true,
-        roles: ['admin']
+        roles: ['*']
       }
     },
     {
@@ -39,7 +40,7 @@ const ACL: AppRouteRecordRaw = {
       meta: {
         locale: 'api管理',
         requiresAuth: true,
-        roles: ['admin']
+        roles: ['*']
       }
     }
   ]

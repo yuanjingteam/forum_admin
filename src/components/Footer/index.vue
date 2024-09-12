@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <slot>这是方腾飞的</slot>
+    <slot>这是韩硕博的</slot>
   </footer>
 </template>
 

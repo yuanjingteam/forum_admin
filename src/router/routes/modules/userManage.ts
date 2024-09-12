@@ -22,7 +22,7 @@ const LIST: AppRouteRecordRaw = {
       name: 'userManager', // 子路由名称
       component: () => import('@/views/userManager/index.vue'),
       meta: {
-        locale: '查询表格',
+        locale: '查询表格111',
         requiresAuth: true,
         roles: ['*']
       }
