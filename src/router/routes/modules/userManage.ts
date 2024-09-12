@@ -19,7 +19,7 @@ const LIST: AppRouteRecordRaw = {
   children: [
     {
       path: '', // 使用空路径以匹配父路由
-      name: 'role', // 子路由名称
+      name: 'userManager', // 子路由名称
       component: () => import('@/views/userManager/index.vue'),
       meta: {
         locale: '查询表格',

@@ -21,6 +21,20 @@ export interface RightVerify {
   msg: string;
 }
 
+export interface UserList {
+  code: number;
+  data: {
+    user_list: Array<Object>;
+  };
+  msg: string;
+}
+
+export interface UserItem {
+  code: number;
+  data: {};
+  msg: string;
+}
+
 export function login(data: LoginData) {
   return request.post<LoginRes>('/api/user/login', data);
 }
@@ -36,4 +50,15 @@ export function getUserInfo() {
 // 获取图形验证码
 export function getPicCode() {
   return request.post<RightVerify>('/user/get_verification'); // 这里会自动拼接 baseURL
+}
+
+// 获取所有用户列表
+export function getUserList() {
+  return request.post<UserList>('/user/list'); // 这里会自动拼接 baseURL
+}
+
+// 获取当前列
+export function getUerItem(data: Object) {
+  data;
+  return request.post<UserItem>('/user/edit', data); // 这里会自动拼接 baseURL
 }
