@@ -19,7 +19,7 @@ const LIST: AppRouteRecordRaw = {
   children: [
     {
       path: '', // 使用空路径以匹配父路由
-      name: 'article', // 子路由名称
+      name: 'articleManager', // 子路由名称
       component: () => import('@/views/articleManager/index.vue'),
       meta: {
         locale: '文章管理',
