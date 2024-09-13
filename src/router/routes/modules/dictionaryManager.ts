@@ -19,7 +19,7 @@ const LIsaST: AppRouteRecordRaw = {
   children: [
     {
       path: '', // 使用空路径以匹配父路由
-      name: 'dictionary', // 子路由名称
+      name: 'dictionaryManager', // 子路由名称
       component: () => import('@/views/dictionaryManager/index.vue'),
       meta: {
         locale: '字典管理',
