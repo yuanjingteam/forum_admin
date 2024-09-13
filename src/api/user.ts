@@ -58,7 +58,12 @@ export function getUserList() {
 }
 
 // 获取当前列
-export function getUerItem(data: Object) {
+export function editUserInfo(data: Object) {
   data;
   return request.post<UserItem>('/user/edit', data); // 这里会自动拼接 baseURL
+}
+
+export function deleteUserInfo(data: Object) {
+  data;
+  return request.post<UserItem>('/user/delete', data); // 这里会自动拼接 baseURL
 }
