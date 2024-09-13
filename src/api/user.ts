@@ -4,7 +4,6 @@ import type { UserState } from '@/store/modules/user/types';
 export interface LoginData {
   username: string;
   password: string;
-  captcha: string;
 }
 
 export interface LoginRes {
@@ -36,7 +35,7 @@ export interface UserItem {
 }
 
 export function login(data: LoginData) {
-  return request.post<LoginRes>('/api/user/login', data);
+  return request.post<LoginRes>('/backstage/login', data);
 }
 
 export function logout() {
@@ -45,11 +44,6 @@ export function logout() {
 
 export function getUserInfo() {
   return request.post<UserState>('/api/user/info');
-}
-
-// 获取图形验证码
-export function getPicCode() {
-  return request.post<RightVerify>('/user/get_verification'); // 这里会自动拼接 baseURL
 }
 
 // 获取所有用户列表
