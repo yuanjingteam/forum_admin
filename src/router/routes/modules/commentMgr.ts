@@ -2,11 +2,11 @@ import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
-  path: '/dictionary',
-  name: 'dictionaryManager',
+  path: '/comment',
+  name: 'commentMgr',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: '字典管理',
+    locale: '评论管理',
     requiresAuth: true,
     icon: 'icon-list',
     order: 3,
@@ -19,10 +19,10 @@ const LIsaST: AppRouteRecordRaw = {
   children: [
     {
       path: '', // 使用空路径以匹配父路由
-      name: 'dictionaryManager', // 子路由名称
-      component: () => import('@/views/dictionaryManager/index.vue'),
+      name: 'commentMgr', // 子路由名称
+      component: () => import('@/views/commentMgr/index.vue'),
       meta: {
-        locale: '字典管理',
+        locale: '评论管理',
         requiresAuth: true,
         roles: ['*']
       }

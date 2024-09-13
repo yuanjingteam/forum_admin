@@ -13,18 +13,11 @@ const useUserStore = defineStore('user', {
   state: (): UserState => ({
     name: undefined,
     avatar: undefined,
-    job: undefined,
-    organization: undefined,
-    location: undefined,
     email: undefined,
-    introduction: undefined,
     personalWebsite: undefined,
-    jobName: undefined,
-    organizationName: undefined,
     locationName: undefined,
     phone: undefined,
     registrationDate: undefined,
-    accountId: undefined,
     certification: undefined,
     role: ''
   }),
@@ -42,17 +35,17 @@ const useUserStore = defineStore('user', {
         resolve(this.role);
       });
     },
-    // Set user's information
+    // 设置用户信息
     setInfo(partial: Partial<UserState>) {
       this.$patch(partial);
     },
 
-    // Reset user's information
+    // 重置用户信息
     resetInfo() {
       this.$reset();
     },
 
-    // Get user's information
+    // 获取用户信息
     async info() {
       const res = await getUserInfo();
 
