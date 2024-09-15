@@ -132,10 +132,9 @@ const handleCancel = async () => {
   itemVisible.value = false;
 };
 
-// 删除单个用户
-const toDelete = async id => {
+// 删除用户
+const deleteThis = async () => {
   deleteVisible.value = true;
-  deleteUsers.value.push(id);
 };
 
 // 取消删除
@@ -228,14 +227,7 @@ const selectCancel = user => {
             </a-button>
           </span>
           <span>
-            <a-button
-              type="outline"
-              status="danger"
-              size="mini"
-              @click="toDelete(record.id)"
-            >
-              删除
-            </a-button>
+            <a-button type="outline" status="danger" size="mini">删除</a-button>
           </span>
         </div>
       </template>
