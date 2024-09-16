@@ -71,7 +71,7 @@
     "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
     "pinia": "^2.1.7",
-    "query-string": "^9.0.0",
+    "query-string": "^9.1.0",
     "sortablejs": "^1.15.2",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
