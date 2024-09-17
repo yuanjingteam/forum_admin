@@ -4,23 +4,20 @@ import {
   TableColumnData,
   TableRowSelection
 } from '@arco-design/web-vue';
+
 import { getCommentList, deleteComment } from '@/api/comment';
-import {
-  ref,
-  reactive,
-  onMounted,
-  defineExpose,
-  defineModel,
-  defineEmits,
-  watch
-} from 'vue';
+import { ref, reactive, onMounted, defineModel, defineEmits, watch } from 'vue';
 
 // 定义接收的 props
 const props = defineProps({
   type: {
     type: String, // 根据实际类型定义
     required: true // 可选，是否必需
-  }
+  },
+  email: String,
+  nickname: String,
+  title: String,
+  parent_nickname: String
 });
 
 // 定义更新事件
@@ -47,7 +44,7 @@ const columns: TableColumnData[] = [
     dataIndex: 'id'
   },
   {
-    title: '作者',
+    title: '发布者',
     dataIndex: 'nickname',
     width: 290,
     slotName: 'author'
@@ -111,7 +108,11 @@ const getList = async () => {
     const { data } = await getCommentList({
       offset: curPage.value,
       limit: limit.value,
-      type: Number(itemType.value)
+      type: Number(itemType.value),
+      email: props.email,
+      nickname: props.nickname,
+      title: props.title,
+      parent_nickname: props.parent_nickname
     });
 
     console.log(itemType.value, '当前选项');
@@ -262,6 +263,7 @@ defineExpose({ reFresh });
       <template #title>确认删除</template>
       <div>确认批量删除吗,删除之后无法再恢复</div>
     </a-modal>
+
     <a-spin :loading="formLoading" tip="This may take a while..." class="main">
       <a-table
         v-model:selectedKeys="selectedKeys"
@@ -345,37 +347,58 @@ defineExpose({ reFresh });
 </template>
 
 <style>
+.custom-filter {
+  float: left;
+  padding: 20px;
+  background: var(--color-bg-5);
+  border: 1px solid var(--color-neutral-3);
+  border-radius: var(--border-radius-medium);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
+}
+
+.custom-filter-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
 .main {
   width: 100%;
 }
+
 .left {
   float: left;
   margin-right: 15px;
 }
+
 .left img {
   width: 50px;
   height: 50px;
   object-fit: cover; /* 或使用 'cover' */
 }
+
 .right {
-  float: left;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  float: left;
 }
+
 .custom-link {
+  margin: 0 8px 0 -3px;
   color: #5bc0de; /* 浅蓝色 */
   text-decoration: none; /* 去除下划线 */
-  margin: 0 8px 0 -3px;
 }
+
 .inherit-color {
   color: inherit; /* 继承父元素的颜色 */
 }
+
 .option {
   button {
     margin-right: 3px;
   }
 }
+
 .arco-mention textarea {
   min-height: 100px;
   max-height: 380px;
