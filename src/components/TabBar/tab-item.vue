@@ -88,80 +88,104 @@ const props = defineProps({
 const router = useRouter();
 const route = useRoute();
 const tabBarStore = useTabBarStore();
-
+// 跳转到指定标签对应的路由
 const goto = (tag: TagProps) => {
-  router.push({ ...tag });
+  router.push({ ...tag }); // 使用 router.push 方法导航到标签的路由
 };
+
+// 计算属性，获取标签列表
 const tagList = computed(() => {
-  return tabBarStore.getTabList;
+  return tabBarStore.getTabList; // 从状态管理中获取标签列表
 });
 
+// 计算属性，判断是否允许重新加载
 const disabledReload = computed(() => {
+  // 如果当前路由的完整路径与 itemData 的路径不相同，则允许重新加载
   return props.itemData.fullPath !== route.fullPath;
 });
 
+// 计算属性，判断当前标签是否为第一个标签
 const disabledCurrent = computed(() => {
-  return props.index === 0;
+  return props.index === 0; // 如果索引为 0，返回 true，表示当前标签是第一个
 });
 
+// 计算属性，判断是否可以向左移动标签
 const disabledLeft = computed(() => {
+  // 如果索引为 0 或 1，返回 true，表示不能向左移动
   return [0, 1].includes(props.index);
 });
 
+// 计算属性，判断是否可以向右移动标签
 const disabledRight = computed(() => {
+  // 如果当前索引是标签列表的最后一个，返回 true，表示不能向右移动
   return props.index === tagList.value.length - 1;
 });
 
+// 关闭标签的处理函数
 const tagClose = (tag: TagProps, idx: number) => {
-  tabBarStore.deleteTag(idx, tag);
+  tabBarStore.deleteTag(idx, tag); // 从状态管理中删除指定标签
+  // 如果关闭的标签是当前路由对应的标签
   if (props.itemData.fullPath === route.fullPath) {
-    const latest = tagList.value[idx - 1]; // 获取队列的前一个tab
-    router.push({ name: latest.name });
+    const latest = tagList.value[idx - 1]; // 获取队列中前一个标签
+    router.push({ name: latest.name }); // 导航到前一个标签
   }
 };
 
+// 查找当前路由在标签列表中的索引
 const findCurrentRouteIndex = () => {
+  // 返回当前路由的索引，如果找不到则返回 -1
   return tagList.value.findIndex(el => el.fullPath === route.fullPath);
 };
+// 处理标签操作的异步函数
 const actionSelect = async (value: any) => {
-  const { itemData, index } = props;
-  const copyTagList = [...tagList.value];
-  if (value === Eaction.current) {
-    tagClose(itemData, index);
-  } else if (value === Eaction.left) {
-    const currentRouteIdx = findCurrentRouteIndex();
-    copyTagList.splice(1, props.index - 1);
+  const { itemData, index } = props; // 解构 props，获取当前标签的数据和索引
+  const copyTagList = [...tagList.value]; // 创建当前标签列表的副本，以便进行修改
 
-    tabBarStore.freshTabList(copyTagList);
+  // 判断用户选择的操作类型
+  if (value === Eaction.current) {
+    // 如果选择的是“关闭当前标签”
+    tagClose(itemData, index); // 调用 tagClose 函数关闭当前标签
+  } else if (value === Eaction.left) {
+    // 如果选择的是“向左移动标签”
+    const currentRouteIdx = findCurrentRouteIndex(); // 找到当前路由在标签列表中的索引
+    copyTagList.splice(1, props.index - 1); // 从第二个标签开始删除到当前索引之前的标签
+
+    tabBarStore.freshTabList(copyTagList); // 更新标签列表
+    // 如果当前路由的索引小于被关闭标签的索引，则导航到当前标签
     if (currentRouteIdx < index) {
       router.push({ name: itemData.name });
     }
   } else if (value === Eaction.right) {
-    const currentRouteIdx = findCurrentRouteIndex();
-    copyTagList.splice(props.index + 1);
+    // 如果选择的是“向右移动标签”
+    const currentRouteIdx = findCurrentRouteIndex(); // 找到当前路由在标签列表中的索引
+    copyTagList.splice(props.index + 1); // 从当前索引的下一个标签开始删除到最后的标签
 
-    tabBarStore.freshTabList(copyTagList);
+    tabBarStore.freshTabList(copyTagList); // 更新标签列表
+    // 如果当前路由的索引大于被关闭标签的索引，则导航到当前标签
     if (currentRouteIdx > index) {
       router.push({ name: itemData.name });
     }
   } else if (value === Eaction.others) {
+    // 如果选择的是“保留当前标签和第一个标签”
     const filterList = tagList.value.filter((_el, idx) => {
-      return idx === 0 || idx === props.index;
+      return idx === 0 || idx === props.index; // 仅保留第一个标签和当前标签
     });
-    tabBarStore.freshTabList(filterList);
-    router.push({ name: itemData.name });
+    tabBarStore.freshTabList(filterList); // 更新标签列表
+    router.push({ name: itemData.name }); // 导航到当前标签
   } else if (value === Eaction.reload) {
-    tabBarStore.deleteCache(itemData);
+    // 如果选择的是“重新加载标签”
+    tabBarStore.deleteCache(itemData); // 删除当前标签的缓存
     await router.push({
-      name: REDIRECT_ROUTE_NAME,
+      name: REDIRECT_ROUTE_NAME, // 导航到重定向路由
       params: {
-        path: route.fullPath
+        path: route.fullPath // 传递当前路由的完整路径作为参数
       }
     });
-    tabBarStore.addCache(itemData.name);
+    tabBarStore.addCache(itemData.name); // 将当前标签的名称添加到缓存
   } else {
-    tabBarStore.resetTabList();
-    router.push({ name: DEFAULT_ROUTE_NAME });
+    // 默认操作：重置标签列表
+    tabBarStore.resetTabList(); // 重置标签列表为默认状态
+    router.push({ name: DEFAULT_ROUTE_NAME }); // 导航到默认路由
   }
 };
 </script>

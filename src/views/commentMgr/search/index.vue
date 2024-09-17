@@ -1,30 +1,75 @@
-<script setup></script>
+<script setup lang="ts">
+import { reactive, ref, defineEmits } from 'vue';
+
+// 发布者
+const publisher = ref('');
+
+/// 文章标题
+const article_title = ref('');
+
+// 被回复的人:
+const author = ref('');
+
+const search = reactive({
+  nickname: publisher,
+  title: article_title,
+  parent_nickname: author
+});
+
+// 查询
+// 定义更新事件  清空
+const emit = defineEmits(['search', 'clearAll']);
+const handleSearch = () => {
+  // 通知父组件:
+  emit('search', search);
+};
+// 重置
+const handleReset = () => {
+  publisher.value = '';
+  article_title.value = '';
+  author.value = '';
+  emit('clearAll', search);
+};
+</script>
 
 <template>
-  <a-card class="general-card" title="查询表格">
+  <a-card class="general-card" title="搜索查询:">
     <a-row>
       <a-col :flex="1">
         <a-form
-          :model="formModel"
+          :model="search"
           :label-col-props="{ span: 6 }"
           :wrapper-col-props="{ span: 18 }"
           label-align="left"
         >
           <a-row :gutter="16">
-            <a-col :span="8">
-              <a-form-item field="number" label="集合编号">
+            <a-col :span="6">
+              <a-form-item field="email" label="邮箱:">
                 <a-input
-                  v-model="formModel.number"
-                  placeholder="请输入集合编号"
+                  v-model="search.parent_nickname"
+                  placeholder="用户邮箱"
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
-              <a-form-item field="name" label="名称">
-                <a-input v-model="formModel.name" placeholder="请输入名称" />
+            <a-col :span="6">
+              <a-form-item field="name" label="发布者:">
+                <a-input v-model="search.nickname" placeholder="评论摘要" />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="6">
+              <a-form-item field="number" label="文章标题:">
+                <a-input v-model="search.title" placeholder="请输入文章标题" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item field="name" label="回复给:">
+                <a-input
+                  v-model="search.parent_nickname"
+                  placeholder="回复给"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
               <a-form-item>
                 <a-button type="primary" @click="handleSearch">查询</a-button>
                 <a-button @click="handleReset">重置</a-button>
@@ -34,6 +79,5 @@
         </a-form>
       </a-col>
     </a-row>
-    <a-table :data-source="comments" :columns="columns" row-key="id" />
   </a-card>
 </template>
