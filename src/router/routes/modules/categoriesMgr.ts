@@ -4,6 +4,8 @@ import type { AppRouteRecordRaw } from '../types';
 const LIsaST: AppRouteRecordRaw = {
   path: '/categories',
   name: 'categories',
+  redirect: '/categoriesMgr',
+
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '分类管理',
@@ -18,7 +20,7 @@ const LIsaST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '', // 使用空路径以匹配父路由
+      path: '/categoriesMgr', // 使用空路径以匹配父路由
       name: 'categoriesMgr', // 子路由名称
       component: () => import('@/views/categoriesMgr/index.vue'),
       meta: {
