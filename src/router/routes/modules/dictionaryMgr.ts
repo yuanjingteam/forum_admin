@@ -3,7 +3,7 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
   path: '/dictionary',
-  name: 'dictionaryMgr',
+  name: 'dictionary',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '字典管理',

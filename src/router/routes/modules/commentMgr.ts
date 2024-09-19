@@ -3,7 +3,7 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
   path: '/comment',
-  name: 'commentMgr',
+  name: 'comment',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '评论管理',

@@ -3,7 +3,7 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
   path: '/categories',
-  name: 'categoriesMgr',
+  name: 'categories',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '分类管理',

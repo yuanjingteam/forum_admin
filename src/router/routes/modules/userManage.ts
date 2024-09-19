@@ -3,7 +3,7 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
   path: '/userManager',
-  name: 'userManager',
+  name: 'userMan',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '用户管理',
