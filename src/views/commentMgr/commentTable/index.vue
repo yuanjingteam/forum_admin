@@ -161,7 +161,7 @@ const getList = async () => {
       title: search.value.title,
       parent_nickname: search.value.parent_nickname
     });
-    console.log(search.value.email, 22232);
+    console.log(search.value.email, '筛选邮箱');
     console.log(props.itemType, '当前选项');
     console.log(curPage.value, '当前页');
 
@@ -257,12 +257,8 @@ const selectItem = (item: Array<number>) => {
 };
 
 // 全选,一次性选中当前页所有
-const selectAllChange = checked => {
-  if (checked) {
-    selectList.value = comments.value.map(item => item.id); // 全选
-  } else {
-    selectList.value = []; // 取消全选
-  }
+const selectAllChange = item => {
+  selectList.value = item;
 };
 
 // 删除一个
@@ -354,6 +350,8 @@ const confirmAuditOne = async () => {
 // 批量删除
 const confirmDeleteSelect = async () => {
   try {
+    console.log(props.itemType, 21331);
+
     formLoading.value = true;
     await deleteComment({ list: [selectList] });
     // 删除完毕后清空 selectList
@@ -414,7 +412,6 @@ const reFresh = () => {
   // 清空
   comments.value = [];
   beforePage.value = [];
-  curPage.value = 1;
   getList();
 };
 
@@ -476,7 +473,7 @@ defineExpose({ reFresh });
         :pagination="pagination"
         :page="curPage"
         @select="selectItem"
-        @select-all="selectAllChange"
+        @selection-change="selectAllChange"
         @page-change="changePage"
       >
         <template #author="{ record }">

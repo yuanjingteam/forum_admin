@@ -12,9 +12,9 @@ export function getCommentList(data) {
 }
 
 // 修改评论内容
-export function updateComment(data) {
-  return request.post<Data>('/backstage_comment/update', data); // 这里会自动拼接 baseURL
-}
+// export function updateComment(data) {
+//   return request.post<Data>('/backstage_comment/update', data); // 这里会自动拼接 baseURL
+// }
 
 // 删除评论列表
 export function deleteComment(data) {

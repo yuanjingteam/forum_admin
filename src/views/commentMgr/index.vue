@@ -17,9 +17,9 @@ const auditDialog = ref(false);
 // 控制按钮的启用状态
 const isButtonEnabled = ref(false);
 // 创建对子组件的引用
-const comTable1 = ref(null);
-const comTable2 = ref(null);
-const comTable3 = ref(null);
+const comTable1 = ref();
+const comTable2 = ref();
+const comTable3 = ref();
 
 const total_1 = ref(0);
 const total_2 = ref(0);
@@ -31,7 +31,7 @@ const notifyRefresh = () => {
     comTable1.value.reFresh(); // 调用子组件的 refresh 方法
   } else if (itemType.value == '2') {
     comTable2.value.reFresh(); // 调用子组件的 refresh 方法
-  } else {
+  } else if (itemType.value == '3') {
     comTable3.value.reFresh(); // 调用子组件的 refresh 方法
   }
 };
