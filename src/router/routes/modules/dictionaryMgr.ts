@@ -3,13 +3,15 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
   path: '/dictionary',
-  name: 'dictionaryMgr',
+  name: 'dictionary',
+  redirect: '/dictionaryMgr',
+
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '字典管理',
     requiresAuth: true,
     icon: 'icon-list',
-    order: 3,
+    order: 4,
     hideChildrenMenu: true // 隐藏子菜单项
   },
   // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
@@ -18,7 +20,7 @@ const LIsaST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '', // 使用空路径以匹配父路由
+      path: '/dictionaryMgr', // 使用空路径以匹配父路由
       name: 'dictionaryMgr', // 子路由名称
       component: () => import('@/views/dictionaryMgr/index.vue'),
       meta: {

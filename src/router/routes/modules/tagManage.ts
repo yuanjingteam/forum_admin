@@ -2,16 +2,16 @@ import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
-  path: '/categories',
-  name: 'categories',
-  redirect: '/categoriesMgr',
+  path: '/tag',
+  name: 'Tag',
+  redirect: '/tagMgr',
 
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: '分类管理',
+    locale: '标签管理',
     requiresAuth: true,
     icon: 'icon-list',
-    order: 3,
+    order: 6,
     hideChildrenMenu: true // 隐藏子菜单项
   },
   // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
@@ -20,11 +20,11 @@ const LIsaST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '/categoriesMgr', // 使用空路径以匹配父路由
-      name: 'categoriesMgr', // 子路由名称
-      component: () => import('@/views/categoriesMgr/index.vue'),
+      path: '/tagMgr', // 使用空路径以匹配父路由
+      name: 'tagMgr', // 子路由名称
+      component: () => import('@/views/tagMgr/index.vue'),
       meta: {
-        locale: '分类管理',
+        locale: '标签管理',
         requiresAuth: true,
         roles: ['*']
       }

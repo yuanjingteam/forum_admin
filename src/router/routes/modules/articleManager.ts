@@ -3,7 +3,9 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
   path: '/article',
-  name: 'articleManager',
+  name: 'article',
+  redirect: '/articleManager',
+
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '文章管理',
@@ -18,7 +20,7 @@ const LIST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '', // 使用空路径以匹配父路由
+      path: '/articleManager', // 使用空路径以匹配父路由
       name: 'articleManager', // 子路由名称
       component: () => import('@/views/articleManager/index.vue'),
       meta: {
