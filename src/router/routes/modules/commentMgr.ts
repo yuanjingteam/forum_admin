@@ -23,6 +23,7 @@ const LIsaST: AppRouteRecordRaw = {
       name: 'commentMgr', // 子路由名称
       component: () => import('@/views/commentMgr/index.vue'),
       meta: {
+        activeMenu: 'comment',
         locale: '评论管理',
         requiresAuth: true,
         roles: ['*']

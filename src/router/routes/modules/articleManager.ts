@@ -4,9 +4,8 @@ import type { AppRouteRecordRaw } from '../types';
 const LIST: AppRouteRecordRaw = {
   path: '/article',
   name: 'article',
-  redirect: '/articleManager',
-
   component: DEFAULT_LAYOUT,
+  redirect: '/articleManager',
   meta: {
     locale: '文章管理',
     requiresAuth: true,
@@ -24,6 +23,7 @@ const LIST: AppRouteRecordRaw = {
       name: 'articleManager', // 子路由名称
       component: () => import('@/views/articleManager/index.vue'),
       meta: {
+        activeMenu: 'article',
         locale: '文章管理',
         requiresAuth: true,
         roles: ['*']

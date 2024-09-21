@@ -24,6 +24,7 @@ const LIsaST: AppRouteRecordRaw = {
       name: 'tagMgr', // 子路由名称
       component: () => import('@/views/tagMgr/index.vue'),
       meta: {
+        activeMenu: 'Tag',
         locale: '标签管理',
         requiresAuth: true,
         roles: ['*']

@@ -24,6 +24,7 @@ const LIsaST: AppRouteRecordRaw = {
       name: 'dictionaryMgr', // 子路由名称
       component: () => import('@/views/dictionaryMgr/index.vue'),
       meta: {
+        activeMenu: 'dictionary',
         locale: '字典管理',
         requiresAuth: true,
         roles: ['*']

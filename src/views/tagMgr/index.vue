@@ -1,111 +1,67 @@
 <script setup lang="ts">
-import { TableColumnData, TableRowSelection } from '@arco-design/web-vue';
-import { ref, reactive } from 'vue';
-import { getTagList } from '@/api/tag';
-const columns: TableColumnData[] = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    align: 'center'
-  },
-  {
-    title: '标签头像',
-    dataIndex: 'path',
-    slotName: 'path',
-    align: 'center'
-  },
-  {
-    title: '标签名',
-    dataIndex: 'name',
-    align: 'center'
-  },
-  {
-    title: '标签描述',
-    dataIndex: 'description',
-    align: 'center'
-  },
-  {
-    title: '关联的文章数量',
-    dataIndex: 'article_count',
-    align: 'center'
-  },
-  {
-    title: '标签热度',
-    dataIndex: 'heat',
-    align: 'center',
-    sortable: {
-      sortDirections: ['ascend']
-    }
-  },
-  {
-    title: '关注人数',
-    dataIndex: 'fans_count',
-    align: 'center'
-  },
-  {
-    title: '操作',
-    dataIndex: 'optional',
-    slotName: 'optional',
-    align: 'center'
-  }
-];
+import { ref } from 'vue';
+import search from '@/views/tagMgr/search/index.vue';
+import TagTable from '@/views/tagMgr/tagTable/index.vue';
 
-const tag_list = ref([]);
+const tagTable = ref(null);
+const total = ref(0);
+const deleteDialog = ref(false);
+// 控制按钮的启用状态
+const isButtonEnabled = ref(false);
 
-// 行的唯一标识数据
-const selectedKeys = ref<string[]>([]); // 确保这里初始化为一个空数组
-
-const pagination = { pageSize: 5 };
-
-// 行配置
-const rowSelection: TableRowSelection = reactive({
-  type: 'checkbox',
-  showCheckedAll: true,
-  onlyCurrent: false
+const searchTerm = ref({
+  name: ''
 });
-
-// 获取列表数据
-const getList = async () => {
-  const { data } = await getTagList({});
-  tag_list.value = [...tag_list.value, ...data.data.tag_list];
+// 子组键在当前条件下刷新
+const notifyRefresh = () => {
+  tagTable.value.reFresh(); // 调用子组件的 refresh 方法
 };
 
-getList();
-const selectItem = item => {
-  console.log(item);
+// 在当前条件下搜索
+const handleSearch = (term: any) => {
+  searchTerm.value = term; // 更新搜索关键词
+  console.log(searchTerm.value.name);
+  notifyRefresh();
 };
-const cancelItem = item => {
-  console.log(item);
+
+// 打开删除对话框
+const notifyDeleteSelect = () => {
+  deleteDialog.value = true;
 };
 </script>
 
 <template>
   <div>
-    <a-table
-      v-model:selectedKeys="selectedKeys"
-      :columns="columns"
-      :data="tag_list"
-      row-key="id"
-      stripe
-      :row-selection="rowSelection"
-      :pagination="pagination"
-      @select="selectItem"
-      @selection-change="cancelItem"
-    >
-      <template #path="{ record }">
-        <div class="headshot">
-          <img :src="record.path" alt="" />
-        </div>
-      </template>
-    </a-table>
+    <search @search="handleSearch" @clearAll="handleSearch"></search>
+    <div>
+      <span class="selectAll">
+        <a-button
+          type="outline"
+          status="danger"
+          :disabled="!isButtonEnabled"
+          @click="notifyDeleteSelect"
+        >
+          批量删除
+        </a-button>
+      </span>
+    </div>
+
+    <tag-table
+      ref="tagTable"
+      v-model:total="total"
+      v-model:delete="deleteDialog"
+      :search="searchTerm"
+    ></tag-table>
   </div>
 </template>
 
-<script scoped></script>
+<style>
+.sum {
+  font-size: 20px;
+  color: #fff;
+}
 
-<style scoped>
-.headshot img {
-  width: 60px;
-  height: 60px;
+.selectAll {
+  float: right;
 }
 </style>
