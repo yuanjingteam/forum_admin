@@ -1,17 +1,16 @@
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
-const LIST: AppRouteRecordRaw = {
-  path: '/userManager',
-  name: 'userMan',
-  redirect: '/userManager',
-
+const LIsaST: AppRouteRecordRaw = {
+  path: '/comment',
+  name: 'comment',
+  redirect: '/commentMgr',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: '用户管理',
+    locale: '评论管理',
     requiresAuth: true,
     icon: 'icon-list',
-    order: 1,
+    order: 5,
     hideChildrenMenu: true // 隐藏子菜单项
   },
   // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
@@ -20,11 +19,11 @@ const LIST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '/userManager', // 使用空路径以匹配父路由
-      name: 'userManager', // 子路由名称
-      component: () => import('@/views/userManager/index.vue'),
+      path: '/commentMgr', // 使用空路径以匹配父路由
+      name: 'commentMgr', // 子路由名称
+      component: () => import('@/views/commentMgr/index.vue'),
       meta: {
-        locale: '查询表格',
+        locale: '评论管理',
         requiresAuth: true,
         roles: ['*']
       }
@@ -32,4 +31,4 @@ const LIST: AppRouteRecordRaw = {
   ]
 };
 
-export default LIST;
+export default LIsaST;

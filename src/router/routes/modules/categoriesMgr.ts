@@ -2,11 +2,13 @@ import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const LIsaST: AppRouteRecordRaw = {
-  path: '/dictionary',
-  name: 'dictionaryManager',
+  path: '/categories',
+  name: 'categories',
+  redirect: '/categoriesMgr',
+
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: '字典管理',
+    locale: '分类管理',
     requiresAuth: true,
     icon: 'icon-list',
     order: 3,
@@ -18,11 +20,11 @@ const LIsaST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '', // 使用空路径以匹配父路由
-      name: 'dictionaryManager', // 子路由名称
-      component: () => import('@/views/dictionaryManager/index.vue'),
+      path: '/categoriesMgr', // 使用空路径以匹配父路由
+      name: 'categoriesMgr', // 子路由名称
+      component: () => import('@/views/categoriesMgr/index.vue'),
       meta: {
-        locale: '字典管理',
+        locale: '分类管理',
         requiresAuth: true,
         roles: ['*']
       }
