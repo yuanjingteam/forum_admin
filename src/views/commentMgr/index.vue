@@ -11,11 +11,14 @@ import search from '@/views/commentMgr/search/index.vue';
 const itemType = ref('1');
 
 // 批量删除
-const deleteDialog = ref(false);
+const deleteDialog1 = ref(false);
+const deleteDialog2 = ref(false);
+const deleteDialog3 = ref(false);
 // 批量审核
-const auditDialog = ref(false);
-// 控制按钮的启用状态
-const isButtonEnabled = ref(false);
+const auditDialog1 = ref(false);
+const auditDialog2 = ref(false);
+const auditDialog3 = ref(false);
+
 // 创建对子组件的引用
 const comTable1 = ref();
 const comTable2 = ref();
@@ -24,6 +27,17 @@ const comTable3 = ref();
 const total_1 = ref(0);
 const total_2 = ref(0);
 const total_3 = ref(0);
+
+// 控制按钮的启用状态
+const isButtonEnabled = ref(false);
+
+// 搜索子组件
+const searchTerm = ref({
+  email: '',
+  nickname: '',
+  title: '',
+  parent_nickname: ''
+});
 
 // 子组键在当前条件下刷新
 const notifyRefresh = () => {
@@ -43,23 +57,25 @@ const updateButtonState = (value: boolean) => {
 
 // // 打开批量删除对话框
 const notifyDeleteSelect = () => {
-  deleteDialog.value = true;
-  console.log(deleteDialog.value);
+  if (itemType.value === '1') {
+    deleteDialog1.value = true;
+  } else if (itemType.value == '2') {
+    deleteDialog2.value = true;
+  } else if (itemType.value == '3') {
+    deleteDialog3.value = true;
+  }
 };
 
 // 打开一键审核对话框
 const notifyAudit = () => {
-  auditDialog.value = true;
-  console.log(auditDialog.value);
+  if (itemType.value === '1') {
+    auditDialog1.value = true;
+  } else if (itemType.value == '2') {
+    auditDialog2.value = true;
+  } else if (itemType.value == '3') {
+    auditDialog3.value = true;
+  }
 };
-
-// 搜索子组件
-const searchTerm = ref({
-  email: '',
-  nickname: '',
-  title: '',
-  parent_nickname: ''
-});
 
 // 在当前条件下搜索
 const handleSearch = (term: any) => {
@@ -108,10 +124,10 @@ watch(itemType, newCount => {
       <a-tab-pane key="1" :title="`全部${total_1} `">
         <comment-table
           ref="comTable1"
-          v-model:delete="deleteDialog"
-          v-model:audit="auditDialog"
+          v-model:delete="deleteDialog1"
+          v-model:audit="auditDialog1"
           v-model:total="total_1"
-          v-model:search="searchTerm"
+          :search="searchTerm"
           itemType="1"
           @update:enabled="updateButtonState"
         ></comment-table>
@@ -119,10 +135,10 @@ watch(itemType, newCount => {
       <a-tab-pane key="2" :title="`待审${total_2}`">
         <comment-table
           ref="comTable2"
-          v-model:delete="deleteDialog"
-          v-model:audit="auditDialog"
-          v-model:search="searchTerm"
+          v-model:delete="deleteDialog2"
+          v-model:audit="auditDialog2"
           v-model:total="total_2"
+          :search="searchTerm"
           itemType="2"
           @update:enabled="updateButtonState"
         ></comment-table>
@@ -130,10 +146,10 @@ watch(itemType, newCount => {
       <a-tab-pane key="3" :title="`已批准${total_3}`">
         <comment-table
           ref="comTable3"
-          v-model:delete="deleteDialog"
-          v-model:audit="auditDialog"
-          v-model:search="searchTerm"
+          v-model:delete="deleteDialog3"
+          v-model:audit="auditDialog3"
           v-model:total="total_3"
+          :search="searchTerm"
           itemType="3"
           @update:enabled="updateButtonState"
         ></comment-table>

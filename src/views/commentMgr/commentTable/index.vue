@@ -24,6 +24,21 @@ const props = defineProps({
   itemType: {
     type: String,
     required: true
+  },
+  search: {
+    type: Object as () => {
+      email: String;
+      nickname: String;
+      title: String;
+      parent_nickname: String;
+    },
+    required: true,
+    default: () => ({
+      email: '',
+      nickname: '',
+      title: '',
+      parent_nickname: ''
+    })
   }
 });
 
@@ -36,22 +51,6 @@ const deleteSelectVisible = defineModel('delete', {
 const auditSelectVisible = defineModel('audit', {
   type: Boolean,
   required: true
-});
-// 定义 search 的双向绑定模型
-const search = defineModel('search', {
-  type: Object as () => {
-    email: String;
-    nickname: String;
-    title: String;
-    parent_nickname: String;
-  },
-  required: true,
-  default: () => ({
-    email: '',
-    nickname: '',
-    title: '',
-    parent_nickname: ''
-  })
 });
 
 // 定义行
@@ -156,16 +155,16 @@ const getList = async () => {
       offset: curPage.value,
       limit: limit.value,
       type: Number(props.itemType),
-      email: search.value.email,
-      nickname: search.value.nickname,
-      title: search.value.title,
-      parent_nickname: search.value.parent_nickname
+      email: props.search.email,
+      nickname: props.search.nickname,
+      title: props.search.title,
+      parent_nickname: props.search.parent_nickname
     });
-    console.log(search.value.email, '筛选邮箱');
+    console.log(props.search.email, '筛选邮箱');
     console.log(props.itemType, '当前选项');
     console.log(curPage.value, '当前页');
 
-    comments.value = [...comments.value, ...data.data.comlist];
+    comments.value.push(...data.data.comlist);
     total.value = data.data.total;
   } catch (error) {
     Message.info(error.msg);
@@ -275,24 +274,25 @@ const confirmDeleteOne = async () => {
       offset: curPage.value + 1,
       limit: 1,
       type: Number(props.itemType),
-      email: search.value.email,
-      nickname: search.value.nickname,
-      title: search.value.title,
-      parent_nickname: search.value.parent_nickname
+      email: props.search.email,
+      nickname: props.search.nickname,
+      title: props.search.title,
+      parent_nickname: props.search.parent_nickname
     });
     // 获取现有评论
     const existingComments = comments.value;
     const newComments = data.data.comlist;
-    // 合并之前检查重复项
+
+    // 使用 Set 来存储现有评论的 ID
+    const existingIds = new Set(existingComments.map(comment => comment.id));
+
+    // 过滤出唯一的新评论
     const uniqueNewComments = newComments.filter(
-      (newComment: { id: number }) =>
-        !existingComments.some(
-          (existingComment: { id: number }) =>
-            existingComment.id === newComment.id
-        )
+      (newComment: { id: number }) => !existingIds.has(newComment.id)
     );
+
     // 合并唯一的新评论
-    comments.value = [...existingComments, ...uniqueNewComments];
+    comments.value.push(...uniqueNewComments);
     // 更新总数
     total.value = comments.value.length;
     console.log(total.value);
@@ -319,24 +319,24 @@ const confirmAuditOne = async () => {
       offset: curPage.value + 1,
       limit: 1,
       type: Number(props.itemType),
-      email: search.value.email,
-      nickname: search.value.nickname,
-      title: search.value.title,
-      parent_nickname: search.value.parent_nickname
+      email: props.search.email,
+      nickname: props.search.nickname,
+      title: props.search.title,
+      parent_nickname: props.search.parent_nickname
     });
     // 获取现有评论
     const existingComments = comments.value;
-    const newComments = data.data.comlist;
-    // 合并之前检查重复项
-    const uniqueNewComments = newComments.filter(
-      (newComment: { id: number }) =>
-        !existingComments.some(
-          (existingComment: { id: number }) =>
-            existingComment.id === newComment.id
-        )
-    );
+
+    // 使用 Set 来存储现有评论的 ID
+    const existingIds = new Set(existingComments.map(comment => comment.id));
+
     // 合并唯一的新评论
-    comments.value = [...existingComments, ...uniqueNewComments];
+    const uniqueNewComments = data.data.comlist.filter(
+      (newComment: { id: number }) => !existingIds.has(newComment.id)
+    );
+
+    // 合并唯一的新评论
+    comments.value.push(...uniqueNewComments);
     // 更新总数
     total.value = comments.value.length;
     console.log(total.value);
@@ -354,12 +354,9 @@ const confirmDeleteSelect = async () => {
 
     formLoading.value = true;
     await deleteComment({ list: [selectList] });
-    // 删除完毕后清空 selectList
-    selectList.value = []; // 清空数组
     // 重新获取到第一页
     curPage.value = 1;
-    comments.value = [];
-    getList();
+    reFresh();
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -372,12 +369,10 @@ const confirmAuditSelect = async () => {
   try {
     formLoading.value = true;
     await auditComment({ list: [selectList] });
-    // 审批完毕后清空 selectList
-    selectList.value = []; // 清空数组
+
     // 重新获取到第一页
     curPage.value = 1;
-    comments.value = [];
-    getList();
+    reFresh();
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -389,6 +384,14 @@ const confirmAuditSelect = async () => {
 watch(selectList, newCount => {
   emit('update:enabled', newCount.length > 0);
 });
+// 监听 props.itemType
+watch(
+  () => props.itemType,
+  newValue => {
+    debugger; // 可以在这里调试
+    console.log('itemType changed:', newValue);
+  }
+);
 
 // 修改页码
 const changePage = item => {
@@ -552,7 +555,7 @@ defineExpose({ reFresh });
                 删除
               </a-button>
             </span>
-            <span v-if="props.itemType === '2'">
+            <span v-if="props.itemType === '2' || record.examine === 1">
               <a-button
                 type="outline"
                 status="success"
