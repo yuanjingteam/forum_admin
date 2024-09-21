@@ -24,6 +24,7 @@ const LIST: AppRouteRecordRaw = {
       name: 'userManager', // 子路由名称
       component: () => import('@/views/userManager/index.vue'),
       meta: {
+        activeMenu: 'userMan',
         locale: '查询表格',
         requiresAuth: true,
         roles: ['*']
