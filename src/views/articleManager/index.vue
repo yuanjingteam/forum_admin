@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <Breadcrumb :items="['menu.list', 'menu.searchTable']" />
+    <Breadcrumb :items="['文章管理']" />
     <a-card class="general-card" title="查询表格">
       <a-row>
         <a-col :flex="1">
