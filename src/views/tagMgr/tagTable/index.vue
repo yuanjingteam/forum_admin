@@ -7,6 +7,7 @@ import {
 import { ref, reactive, watch, defineEmits, onMounted } from 'vue';
 import { deleteTag } from '@/api/tag';
 import { getTagList } from '@/api/tag';
+import EditItem from '@/views/tagMgr/tagTable/EditItem/index.vue';
 
 const props = defineProps({
   search: {
@@ -84,7 +85,7 @@ const columns: TableColumnData[] = [
 ];
 
 // 行的唯一标识数据
-const selectedKeys = ref<string[]>([]); // 确保这里初始化为一个空数组
+const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数组
 
 const pagination = { pageSize: 5 };
 
@@ -104,16 +105,27 @@ const selectList = ref([]);
 // 加载
 const formLoading = ref(false);
 
-// 之前去过的历史页
-const beforePage = ref([]);
-
 // 单删框
 const deleteOneVisible = ref(false);
-// 当前页
-const curPage = ref(1);
+
+// 修改框
+const editVisible = ref(false);
+
+// // 当前项ID
+const editId = ref(-1);
+
+const editData = ref({
+  id: -1,
+  name: '',
+  description: '',
+  article_count: 0,
+  heat: 0,
+  fans_count: 0,
+  path: 'src/assets/images/green_dog.jpg'
+});
 
 // 当前选中的单个
-const selectOne = ref(-1);
+const selectOne = ref([]);
 
 // 获取列表数据
 const getList = async () => {
@@ -133,42 +145,82 @@ onMounted(() => {
 });
 
 // 单删
-const deleteOneDialog = id => {
+const deleteOneDialog = (id: number) => {
   deleteOneVisible.value = true;
-  selectOne.value = id;
+  selectOne.value = [id];
 };
 
-const confirmDeleteOne = async () => {
+// 记录已访问的页码
+const visitedPages: Set<number> = new Set();
+// 当前页
+const curPage = ref(1);
+const PAGE_LIMIT = 10; // 每页的数据条数
+let deleteCount = 0; // 删除的数据计数
+
+const checkPageData = async (page: number) => {
+  const { data } = await getTagList({
+    offset: page + 1,
+    limit: PAGE_LIMIT,
+    name: props.search.name
+  });
+  return data.data.tag_list;
+};
+
+const handlePageData = async (currentPageData: any[]) => {
+  if (currentPageData.length === 0 && deleteCount >= PAGE_LIMIT) {
+    // 当前页没有数据且删除数量达到了 PAGE_LIMIT
+    curPage.value -= 1; // 前往前一页
+
+    // 重新获取前一页的数据
+    const prevPageData = await checkPageData(curPage.value);
+
+    // 递归调用
+    await handlePageData(prevPageData);
+
+    // 如果前一页有数据，合并
+    if (prevPageData.length > 0) {
+      tag_list.value.push(...prevPageData);
+    } else {
+      // 如果前一页也没有数据，可以选择清空当前页
+      tag_list.value = [];
+    }
+  } else if (currentPageData.length > 0) {
+    // 如果当前页有数据，直接返回
+    return;
+  }
+};
+
+const confirmDeleteSelect = async (selectArray: Array<number>) => {
   try {
     formLoading.value = true;
-    await deleteTag({ list: [selectOne] });
-    // 筛选出不包含筛选数组的元素
+    // 删除选中的标签
+    await deleteTag({ list: selectArray });
+
+    // 记录删除数量
+    deleteCount++;
+
+    // 获取当前页的数据
+    const currentPageData = await checkPageData(curPage.value);
+
+    // 筛选 out 当前删除的标签
     tag_list.value = tag_list.value.filter(
-      tag_list => tag_list.id !== selectOne.value
-    );
-    // 获取最新的一条数据
-    const { data } = await getTagList({
-      offset: curPage.value + 1,
-      limit: 1,
-      name: props.search.name
-    });
-    // 获取现有评论
-    const existing = tag_list.value;
-    const newTag = data.data.tag_list;
-
-    // 使用 Set 来存储现有评论的 ID
-    const existingIds = new Set(existing.map(tag_list => tag_list.id));
-
-    // 过滤出唯一的新评论
-    const uniqueNewTag = newTag.filter(
-      (newComment: { id: number }) => !existingIds.has(newComment.id)
+      tag => !selectArray.includes(tag.id)
     );
 
-    // 合并唯一的新评论
-    tag_list.value.push(...uniqueNewTag);
+    selectedKeys.value = selectedKeys.value.filter(
+      key => !selectArray.includes(key)
+    );
+
+    // 检查当前页数据是否为空并递归处理
+    await handlePageData(currentPageData);
+
     // 更新总数
     total.value = tag_list.value.length;
     console.log(total.value);
+
+    // 记录当前页和下一页为已访问
+    visitedPages.add(curPage.value);
+    visitedPages.add(curPage.value + 1);
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -176,39 +228,48 @@ const confirmDeleteOne = async () => {
   }
 };
 
-// 批量删除
-const confirmDeleteSelect = async () => {
-  try {
-    formLoading.value = true;
-    await deleteTag({ list: [selectList] });
-    // 重新获取到第一页
-    curPage.value = 1;
-    reFresh();
-  } catch (error) {
-    Message.info(error.msg);
-  } finally {
-    formLoading.value = false;
+const changePage = (item: number) => {
+  // 当页码变化时，记录下一页为被访问的页
+  if (item > curPage.value) {
+    visitedPages.add(item);
   }
+  // 更新当前页
+  curPage.value = item;
+  // 重新计数
+  deleteCount = 0;
 };
 
 // 监听 selectedCount 的变化并发射事件
-watch(selectList, newCount => {
+watch(selectedKeys, newCount => {
   emit('update:enabled', newCount.length > 0);
 });
 
-const selectItem = item => {
-  console.log(item);
+// 单选,可勾选多个
+const selectItem = (item: Array<number>) => {
+  selectList.value = item;
 };
-const cancelItem = item => {
-  console.log(item);
+
+// 全选,一次性选中当前页所有
+const selectAllChange = (item: Array<number>) => {
+  selectList.value = item;
 };
 
 // 父组件刷新方法
 const reFresh = () => {
   // 清空
   tag_list.value = [];
-  beforePage.value = [];
+  visitedPages.clear();
   getList();
+};
+
+// 修改评论
+const toEditItem = async item => {
+  editVisible.value = true;
+  // 清空之前的,重新获取当前列的信息
+  if (editId.value !== item.id) {
+    editData.value = item;
+    editId.value = item.id;
+  }
 };
 
 defineExpose({ reFresh });
@@ -216,11 +277,18 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <a-modal v-model:visible="deleteOneVisible" @ok="confirmDeleteOne">
+    <edit-item v-model:visible="editVisible" :editData="editData"></edit-item>
+    <a-modal
+      v-model:visible="deleteOneVisible"
+      @ok="confirmDeleteSelect(selectOne)"
+    >
       <template #title>确认删除</template>
       <div>确认要删除当前项吗,删除之后无法再恢复</div>
     </a-modal>
-    <a-modal v-model:visible="deleteSelectVisible" @ok="confirmDeleteSelect">
+    <a-modal
+      v-model:visible="deleteSelectVisible"
+      @ok="confirmDeleteSelect(selectList)"
+    >
       <template #title>批量删除</template>
       <div style="text-align: center">
         确认批量删除选中评论吗?删除之后将无法再恢复。
@@ -237,15 +305,30 @@ defineExpose({ reFresh });
         :row-selection="rowSelection"
         :pagination="pagination"
         @select="selectItem"
-        @selection-change="cancelItem"
+        @selection-change="selectAllChange"
+        @page-change="changePage"
       >
         <template #path="{ record }">
-          <div class="headshot">
-            <img :src="record.path" alt="" />
-          </div>
+          <a-image
+            :src="record.path"
+            alt="图片"
+            width="60"
+            height="60"
+            fit="cover"
+          />
         </template>
         <template #optional="{ record }">
           <div class="option">
+            <span>
+              <a-button
+                status="success"
+                type="outline"
+                size="mini"
+                @click="toEditItem(record)"
+              >
+                修改
+              </a-button>
+            </span>
             <span>
               <a-button
                 type="outline"
@@ -263,15 +346,14 @@ defineExpose({ reFresh });
   </div>
 </template>
 
-<script scoped></script>
-
 <style scoped>
 .main {
   width: 100%;
 }
 
-.headshot img {
-  width: 60px;
-  height: 60px;
+.option {
+  button {
+    margin-right: 3px;
+  }
 }
 </style>

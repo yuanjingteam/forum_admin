@@ -13,5 +13,9 @@ export function getTagList(data) {
 
 // 批量删除标签
 export function deleteTag(data) {
-  return request.post<Data>('/backstage_tag/batch_delete', data); // 这里会自动拼接 baseURL
+  return request.post<Data>('/backstage_tag/batch_delete', data);
+}
+
+export function updateTag(formData: FormData) {
+  return request.post<Data>('/backstage_tag/update', formData);
 }

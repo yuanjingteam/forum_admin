@@ -28,30 +28,41 @@ const handleSearch = (term: any) => {
 const notifyDeleteSelect = () => {
   deleteDialog.value = true;
 };
+
+// 更新按钮状态,是否可以进行批量操作
+const updateButtonState = (value: boolean) => {
+  isButtonEnabled.value = value; // 根据子组件的值更新按钮状态
+};
 </script>
 
 <template>
   <div>
     <search @search="handleSearch" @clearAll="handleSearch"></search>
-    <div>
-      <span class="selectAll">
-        <a-button
-          type="outline"
-          status="danger"
-          :disabled="!isButtonEnabled"
-          @click="notifyDeleteSelect"
-        >
-          批量删除
-        </a-button>
-      </span>
-    </div>
+    <a-tabs type="line">
+      <template #extra>
+        <span class="selectAll">
+          <a-button type="outline" @click="notifyRefresh">刷新</a-button>
+          <a-button
+            type="outline"
+            status="danger"
+            :disabled="!isButtonEnabled"
+            @click="notifyDeleteSelect"
+          >
+            批量删除
+          </a-button>
+        </span>
+      </template>
 
-    <tag-table
-      ref="tagTable"
-      v-model:total="total"
-      v-model:delete="deleteDialog"
-      :search="searchTerm"
-    ></tag-table>
+      <a-tab-pane key="1" :title="`全部(${total}) `">
+        <tag-table
+          ref="tagTable"
+          v-model:total="total"
+          v-model:delete="deleteDialog"
+          :search="searchTerm"
+          @update:enabled="updateButtonState"
+        ></tag-table>
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
