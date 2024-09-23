@@ -86,7 +86,7 @@ const columns: TableColumnData[] = [
   }
 ];
 // 行的唯一标识数据
-const selectedKeys = ref<string[]>([]); // 确保这里初始化为一个空数组
+const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数组
 // 行配置
 const rowSelection: TableRowSelection = reactive({
   type: 'checkbox',
@@ -139,7 +139,7 @@ const selectList = ref([]);
 const deleteOneVisible = ref(false);
 
 // 当前选中的单个
-const selectOne = ref(-1);
+const selectOne = ref([]);
 
 // 之前去过的历史页
 const beforePage = ref([]);
@@ -239,7 +239,7 @@ const getList = async () => {
 // 单删弹框
 const deleteOneDialog = id => {
   deleteOneVisible.value = true;
-  selectOne.value = id;
+  selectOne.value = [id];
 };
 
 // 单审不弹框
@@ -265,37 +265,9 @@ const confirmDeleteOne = async () => {
   try {
     formLoading.value = true;
     await deleteComment({ list: [selectOne] });
-    // 筛选出不包含筛选数组的元素
-    comments.value = comments.value.filter(
-      comment => comment.id !== selectOne.value
-    );
-    // 获取最新的一条数据
-    const { data } = await getCommentList({
-      offset: curPage.value + 1,
-      limit: 1,
-      type: Number(props.itemType),
-      email: props.search.email,
-      nickname: props.search.nickname,
-      title: props.search.title,
-      parent_nickname: props.search.parent_nickname
-    });
-    // 获取现有评论
-    const existingComments = comments.value;
-    const newComments = data.data.comlist;
 
-    // 使用 Set 来存储现有评论的 ID
-    const existingIds = new Set(existingComments.map(comment => comment.id));
-
-    // 过滤出唯一的新评论
-    const uniqueNewComments = newComments.filter(
-      (newComment: { id: number }) => !existingIds.has(newComment.id)
-    );
-
-    // 合并唯一的新评论
-    comments.value.push(...uniqueNewComments);
-    // 更新总数
-    total.value = comments.value.length;
-    console.log(total.value);
+    selectedKeys.value = [];
+    reFresh();
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -307,39 +279,13 @@ const confirmDeleteOne = async () => {
 const confirmAuditOne = async () => {
   try {
     formLoading.value = true;
-
     await auditComment({ list: [selectOne] });
-    // 筛选出不包含筛选数组的元素
-    comments.value = comments.value.filter(
-      comment => comment.id !== selectOne.value
-    );
+    // selectedKeys.value = selectedKeys.value.filter(
+    //   key => !selectOne.value.includes(key)
+    // );
+    selectedKeys.value = [];
 
-    // 获取最新的一条数据
-    const { data } = await getCommentList({
-      offset: curPage.value + 1,
-      limit: 1,
-      type: Number(props.itemType),
-      email: props.search.email,
-      nickname: props.search.nickname,
-      title: props.search.title,
-      parent_nickname: props.search.parent_nickname
-    });
-    // 获取现有评论
-    const existingComments = comments.value;
-
-    // 使用 Set 来存储现有评论的 ID
-    const existingIds = new Set(existingComments.map(comment => comment.id));
-
-    // 合并唯一的新评论
-    const uniqueNewComments = data.data.comlist.filter(
-      (newComment: { id: number }) => !existingIds.has(newComment.id)
-    );
-
-    // 合并唯一的新评论
-    comments.value.push(...uniqueNewComments);
-    // 更新总数
-    total.value = comments.value.length;
-    console.log(total.value);
+    reFresh();
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -354,8 +300,10 @@ const confirmDeleteSelect = async () => {
 
     formLoading.value = true;
     await deleteComment({ list: [selectList] });
+
     // 重新获取到第一页
     curPage.value = 1;
+    selectedKeys.value = [];
     reFresh();
   } catch (error) {
     Message.info(error.msg);
@@ -372,6 +320,8 @@ const confirmAuditSelect = async () => {
 
     // 重新获取到第一页
     curPage.value = 1;
+    selectedKeys.value = [];
+
     reFresh();
   } catch (error) {
     Message.info(error.msg);
@@ -381,7 +331,7 @@ const confirmAuditSelect = async () => {
 };
 
 // 监听 selectedCount 的变化并发射事件
-watch(selectList, newCount => {
+watch(selectedKeys, newCount => {
   emit('update:enabled', newCount.length > 0);
 });
 // 监听 props.itemType
@@ -481,7 +431,13 @@ defineExpose({ reFresh });
       >
         <template #author="{ record }">
           <div class="left">
-            <img :src="record.path" alt="" />
+            <a-image
+              :src="record.path"
+              alt="图片"
+              width="60"
+              height="60"
+              fit="cover"
+            />
           </div>
           <div class="right">
             <span>{{ record.nickname }}</span>
@@ -513,8 +469,8 @@ defineExpose({ reFresh });
                         v-for="(src, index) in record.comment_path"
                         :key="index"
                         :src="src"
-                        width="80"
-                        height="80"
+                        width="50"
+                        height="50"
                         style="object-fit: contain"
                       />
                     </a-space>
@@ -594,12 +550,6 @@ defineExpose({ reFresh });
 .left {
   float: left;
   margin-right: 15px;
-}
-
-.left img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover; /* 或使用 'cover' */
 }
 
 .right {
