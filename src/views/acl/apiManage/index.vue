@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, nextTick, h } from 'vue';
+import { computed, ref, reactive, watch, nextTick } from 'vue';
 import useLoading from '@/hooks/useLoading';
-// import { queryPolicyList, PolicyRecord, PolicyParams } from '@/api/list';
 import {
   getApiListService,
   Api,
@@ -9,13 +8,12 @@ import {
   getApiMethodsService,
   getApiGroupsService,
   addApiService,
-  getApiDetailService
+  getApiDetailService,
+  deleteApiService,
+  editApiService
 } from '@/api/api';
-// import { Pagination } from '@/types/global';
-import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
-import { IconFaceSmileFill } from '@arco-design/web-vue/es/icon';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
 
@@ -96,10 +94,10 @@ const originForm = () => {
   return {
     path: '',
     brief_introduction: '',
-    grouping_id: 0,
-    request_method_id: 0,
+    grouping: '',
+    request_method: '',
     page: 1,
-    limit: 20
+    limit: 10
   };
 };
 //发送请求数据
@@ -163,9 +161,7 @@ const columns = computed<TableColumnData[]>(() => [
 ]);
 
 //请求获取表格数据
-const fetchData = async (page: number, limit: number) => {
-  apiForm.value.page = page;
-  apiForm.value.limit = limit;
+const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
@@ -181,23 +177,17 @@ const fetchData = async (page: number, limit: number) => {
     setLoading(false);
   }
 };
-fetchData(1, 20);
+fetchData();
 //点击查询按钮时调用方法
 const search = () => {
-  fetchData(1, 20);
+  fetchData();
 };
-//分页查询方法
-// const onPageChange = (page: number) => {
-//   fetchData(page);
-// };
 
 //重置方法
 const reset = () => {
   apiForm.value = originForm();
-  console.log(apiForm.value, 11);
-
   formModel.value = generateFormModel();
-  fetchData(1, 20);
+  fetchData();
 };
 
 const handleSelectDensity = (
@@ -267,30 +257,35 @@ watch(
   { deep: true, immediate: true }
 );
 
-//请求api列表
-const getApiList = async () => {
-  const res = await getApiListService({
-    page: 1,
-    limit: 8
-  });
-  console.log(res.data);
-  renderData.value = res.data.data.api;
-};
-getApiList();
-
-//
-const change = () => {
-  console.log(apiForm.value.request_method_id);
-  Message.success({
-    content: 'ghdfhsdf',
-    icon: () => h(IconFaceSmileFill)
-  });
+//-------------------批量删除数据-----------------------
+//批量删除
+const batchDeleteApi = () => {
+  if (selectedKeys.value.length > 0) {
+    visibleModal.value = true;
+  } else {
+    Message.error('请先选择要删除的行');
+  }
 };
 
-//------------------------抽屉-------------------------
-
+//批量删除的确认框
+const visibleModal = ref(false);
+//确认批量删除
+const handleOkModal = async () => {
+  visibleModal.value = false;
+  await deleteApiService({ ids: selectedKeys.value });
+  apiForm.value.page = 1;
+  fetchData();
+  Message.success('删除成功');
+};
+//取消批量删除
+const handleCancelModal = () => {
+  visibleModal.value = false;
+};
+//-------添加、删除、编辑-----------------抽屉-----
+//表单
+const formRef = ref(null);
 //控制抽屉是否显示
-const visible = ref(false);
+const visibleDrawer = ref(false);
 //抽屉标题
 const title = ref('添加API');
 //表示抽屉是添加还是编辑
@@ -299,8 +294,8 @@ const state = ref('');
 const originAddForm = () => {
   return {
     path: '',
-    request_method_id: 0,
-    grouping_id: 0,
+    request_method: '',
+    grouping: '',
     brief_introduction: ''
   };
 };
@@ -311,7 +306,7 @@ const addApi = () => {
   title.value = '添加API';
   state.value = 'add';
   addApiForm.value = originAddForm();
-  visible.value = true;
+  visibleDrawer.value = true;
 };
 //编辑当前api
 const editApi = async (id: number) => {
@@ -322,25 +317,49 @@ const editApi = async (id: number) => {
   const {
     data: { data }
   } = await getApiDetailService({ id: id });
-  console.log(data);
-
-  visible.value = true;
+  addApiForm.value.brief_introduction = data.brief_introduction;
+  addApiForm.value.path = data.path;
+  addApiForm.value.request_method = data.request_method;
+  addApiForm.value.grouping = data.grouping;
+  visibleDrawer.value = true;
 };
 //删除当前api
-const deleteApi = (id: number) => {};
+const deleteApi = async (id: number) => {
+  await deleteApiService({ ids: [id] });
+  fetchData();
+  Message.success('删除成功');
+};
 //抽屉确认事件
-const handleOk = async () => {
-  if (state.value == 'add') {
-    //调用添加api接口
-    await addApiService(addApiForm.value);
-  } else {
-    //调用编辑api接口
+const handleOkDrawer = async () => {
+  if (!(await formRef.value.validate())) {
+    if (state.value == 'add') {
+      //调用添加api接口
+      await addApiService(addApiForm.value);
+      Message.success('添加成功');
+    } else {
+      //调用编辑api接口
+      await editApiService(addApiForm.value);
+      Message.success('编辑成功');
+    }
+    fetchData();
+    visibleDrawer.value = false;
   }
-  visible.value = false;
 };
 //抽屉取消事件
-const handleCancel = () => {
-  visible.value = false;
+const handleCancelDrawer = () => {
+  visibleDrawer.value = false;
+};
+//--------------------分页--------------------
+//点击跳转改变当前页数
+const changePage = (current: number) => {
+  apiForm.value.page = current;
+  fetchData();
+};
+//改变每页条数
+const changePageSize = (pageSize: number) => {
+  apiForm.value.page = 1;
+  apiForm.value.limit = pageSize;
+  fetchData();
 };
 </script>
 
@@ -377,7 +396,7 @@ const handleCancel = () => {
                 <a-col :span="8">
                   <a-form-item field="grouping" label="API分组">
                     <a-select
-                      v-model="apiForm.grouping_id"
+                      v-model="apiForm.grouping"
                       :options="contentTypeOptions"
                       placeholder="请选择API分组"
                     />
@@ -386,10 +405,9 @@ const handleCancel = () => {
                 <a-col :span="8">
                   <a-form-item field="request_method" label="请求方法">
                     <a-select
-                      v-model="apiForm.request_method_id"
+                      v-model="apiForm.request_method"
                       :options="filterMethodOptions"
                       placeholder="请选择请求方法"
-                      @change="change"
                     />
                   </a-form-item>
                 </a-col>
@@ -426,7 +444,7 @@ const handleCancel = () => {
               </template>
               新建
             </a-button>
-            <a-button>
+            <a-button @click="batchDeleteApi()">
               <template #icon>
                 <icon-delete />
               </template>
@@ -512,12 +530,15 @@ const handleCancel = () => {
             </template>
             <template #default>编辑</template>
           </a-button>
-          <a-button type="text" @click="deleteApi(record.id)">
-            <template #icon>
-              <icon-delete />
-            </template>
-            <template #default>删除</template>
-          </a-button>
+
+          <a-popconfirm content="您确定要删除吗？" @ok="deleteApi(record.id)">
+            <a-button type="text">
+              <template #icon>
+                <icon-delete />
+              </template>
+              <template #default>删除</template>
+            </a-button>
+          </a-popconfirm>
         </template>
       </a-table>
       <a-pagination
@@ -528,45 +549,76 @@ const handleCancel = () => {
         show-page-size
         :current="apiForm.page"
         :page-size="apiForm.limit"
+        @change="changePage"
+        @page-size-change="changePageSize"
       />
     </a-card>
+    <a-drawer
+      :width="700"
+      :visible="visibleDrawer"
+      unmountOnClose
+      :title="title"
+      @ok="handleOkDrawer"
+      @cancel="handleCancelDrawer"
+    >
+      <div>
+        <a-form ref="formRef" :model="addApiForm" :style="{ width: '600px' }">
+          <a-form-item
+            field="path"
+            label="API路径"
+            required
+            :rules="[
+              { required: true, message: '请填写API路径' },
+              {
+                match: /^\/[a-zA-Z0-9]*$/,
+                message: 'API路径需以/开头，由字母数字组成'
+              }
+            ]"
+          >
+            <a-input v-model="addApiForm.path" placeholder="请输入API路径" />
+          </a-form-item>
+          <a-form-item
+            field="grouping"
+            label="API分组"
+            required
+            :rules="[{ required: true, message: '请选择API分组' }]"
+          >
+            <a-select
+              v-model="addApiForm.grouping"
+              :options="contentTypeOptions"
+              placeholder="请选择API分组"
+            />
+          </a-form-item>
+          <a-form-item
+            field="request_method"
+            label="请求方法"
+            required
+            :rules="[{ required: true, message: '请选择请求方法' }]"
+          >
+            <a-select
+              v-model="addApiForm.request_method"
+              :options="filterMethodOptions"
+              placeholder="请选择请求方法"
+            />
+          </a-form-item>
+          <a-form-item field="brief_introduction" label="API简介">
+            <a-input
+              v-model="addApiForm.brief_introduction"
+              placeholder="请输入API简介"
+            />
+          </a-form-item>
+        </a-form>
+      </div>
+    </a-drawer>
+    <a-modal
+      v-model:visible="visibleModal"
+      @ok="handleOkModal"
+      @cancel="handleCancelModal"
+    >
+      <template #title>批量删除</template>
+      <div>当前共有{{ selectedKeys.length }}条数据。您确定要删除吗？</div>
+    </a-modal>
   </div>
-  <a-drawer
-    :width="700"
-    :visible="visible"
-    unmountOnClose
-    :title="title"
-    @ok="handleOk"
-    @cancel="handleCancel"
-  >
-    <div>
-      <a-form :model="addApiForm" :style="{ width: '600px' }">
-        <a-form-item field="path" label="API路径" required>
-          <a-input v-model="addApiForm.path" placeholder="请输入API路径" />
-        </a-form-item>
-        <a-form-item field="grouping_id" label="API分组" required>
-          <a-select
-            v-model="addApiForm.grouping_id"
-            :options="contentTypeOptions"
-            placeholder="请选择API分组"
-          />
-        </a-form-item>
-        <a-form-item field="request_method_id" label="请求方法" required>
-          <a-select
-            v-model="addApiForm.request_method_id"
-            :options="filterMethodOptions"
-            placeholder="请选择请求方法"
-          />
-        </a-form-item>
-        <a-form-item field="brief_introduction" label="API简介">
-          <a-input
-            v-model="addApiForm.brief_introduction"
-            placeholder="请输入API简介"
-          />
-        </a-form-item>
-      </a-form>
-    </div>
-  </a-drawer>
 </template>
 
 <style scoped lang="less">
