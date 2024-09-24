@@ -4,7 +4,7 @@ import search from '@/views/tagMgr/search/index.vue';
 import TagTable from '@/views/tagMgr/tagTable/index.vue';
 
 const tagTable = ref(null);
-const total = ref(0);
+const total = ref(10);
 const deleteDialog = ref(false);
 // 控制按钮的启用状态
 const isButtonEnabled = ref(false);

@@ -4,7 +4,7 @@ import {
   TableRowSelection,
   Message
 } from '@arco-design/web-vue';
-import { ref, reactive, watch, defineEmits, onMounted } from 'vue';
+import { ref, reactive, watch, defineEmits, onMounted, computed } from 'vue';
 import { deleteTag } from '@/api/tag';
 import { getTagList } from '@/api/tag';
 import EditItem from '@/views/tagMgr/tagTable/EditItem/index.vue';
@@ -27,12 +27,6 @@ const emit = defineEmits(['update:enabled']);
 // 批量删除
 const deleteSelectVisible = defineModel('delete', {
   type: Boolean,
-  required: true
-});
-
-// 总数
-const total = defineModel('total', {
-  type: Number,
   required: true
 });
 
@@ -84,10 +78,40 @@ const columns: TableColumnData[] = [
   }
 ];
 
+// 当前页
+const curPage = ref(1);
+
+// 总数
+const total = defineModel('total', {
+  type: Number,
+  required: true
+});
+
+// 配置表格分页
+const pageSizes = ref([5, 10, 20]); // 可选择的每页条目数
+
+// 默认每页的数据条数
+const PAGE_LIMIT = ref(10);
+
+// 计算最大页码
+const maxPage = computed(() =>
+  Math.ceil(pagination.total / pagination.pageSize)
+);
+
+const pagination = reactive({
+  pageSize: PAGE_LIMIT,
+  defaultPageSize: PAGE_LIMIT,
+  current: curPage,
+  total: total, // 假设总共有100条数据
+  showTotal: true, // 设置为布尔值
+  showJumper: true,
+  showPageSize: true,
+  pageSizeOptions: pageSizes,
+  onChange: current => handlePageChange(current)
+});
+
 // 行的唯一标识数据
 const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数组
-
-const pagination = { pageSize: 5 };
 
 // 行配置
 const rowSelection: TableRowSelection = reactive({
@@ -133,6 +157,7 @@ const getList = async () => {
     formLoading.value = true;
     const { data } = await getTagList({});
     tag_list.value.push(...data.data.tag_list);
+    total.value = data.data.total;
   } catch {
   } finally {
     formLoading.value = false;
@@ -144,6 +169,14 @@ onMounted(() => {
   getList(); // 初始化时调用获取数据
 });
 
+// 表格分页
+const handlePageChange = current => {
+  console.log(111);
+  if (current <= maxPage.value && current > 0) {
+    pagination.current = current; // 更新当前页码
+  }
+};
+
 // 单删
 const deleteOneDialog = (id: number) => {
   deleteOneVisible.value = true;
@@ -152,9 +185,7 @@ const deleteOneDialog = (id: number) => {
 
 // 记录已访问的页码
 const visitedPages: Set<number> = new Set();
-// 当前页
-const curPage = ref(1);
-const PAGE_LIMIT = 10; // 每页的数据条数
+
 let deleteCount = 0; // 删除的数据计数
 
 const checkPageData = async (page: number) => {
@@ -167,7 +198,7 @@ const checkPageData = async (page: number) => {
 };
 
 const handlePageData = async (currentPageData: any[]) => {
-  if (currentPageData.length === 0 && deleteCount >= PAGE_LIMIT) {
+  if (currentPageData.length === 0 && deleteCount >= PAGE_LIMIT.value) {
     // 当前页没有数据且删除数量达到了 PAGE_LIMIT
     curPage.value -= 1; // 前往前一页
 
@@ -239,6 +270,14 @@ const changePage = (item: number) => {
   deleteCount = 0;
 };
 
+// 处理每页条目数变化
+const handlePageSizeChange = size => {
+  // 只接收 size
+  console.log(`每页条目数已更改为: ${size}`);
+  PAGE_LIMIT.value = size; // 更新每页条目数
+  curPage.value = 1; // 重置当前页为1
+};
+
 // 监听 selectedCount 的变化并发射事件
 watch(selectedKeys, newCount => {
   emit('update:enabled', newCount.length > 0);
@@ -307,6 +346,7 @@ defineExpose({ reFresh });
         @select="selectItem"
         @selection-change="selectAllChange"
         @page-change="changePage"
+        @page-size-change="handlePageSizeChange"
       >
         <template #path="{ record }">
           <a-image

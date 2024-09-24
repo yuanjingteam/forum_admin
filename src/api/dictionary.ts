@@ -1,16 +1,23 @@
 import request from '@/api/interceptor';
 
-export interface Data {
+export interface dicList {
   code: number;
   data: { dic_list: Array<Object>; total: number };
   msg: string;
 }
 
-export function login(data: Data) {
-  return request.post<Data>('/api/user/login', data);
+export interface dicItem {
+  code: number;
+  data: { dic_items: Array<Object>; total: number };
+  msg: string;
 }
 
-// 获取评论列表
+// 获取字典项
 export function getDicList(data) {
-  return request.get<Data>('/backstage_comment/list', data); // 这里会自动拼接 baseURL
+  return request.get<dicList>('/dict_item/get', data); // 这里会自动拼接 baseURL
+}
+
+// 获取字典详情
+export function getDicItem(data) {
+  return request.get<dicItem>('/dic_items/get', data); // 这里会自动拼接 baseURL
 }

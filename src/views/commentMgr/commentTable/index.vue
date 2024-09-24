@@ -13,7 +13,8 @@ import {
   defineProps,
   defineEmits,
   defineModel,
-  watch
+  watch,
+  computed
 } from 'vue';
 
 // 定义更新,是否可以进行批量操作
@@ -94,30 +95,11 @@ const rowSelection: TableRowSelection = reactive({
   onlyCurrent: false
 });
 
-// 当前页
-const curPage = ref(1);
-// 一共多少数据
-const total = defineModel('total', {
-  type: Number,
-  required: true
-});
-// 一页多少个
-const limit = ref(10);
-
-// 分页配置
-const pagination = reactive({
-  pageSize: limit,
-  defaultPageSize: limit,
-  current: curPage,
-  total: total // 假设总共有100条数据
-});
-
 // 编辑选框
 // const editVisible = ref(false);
 
 // 接收数据
 const comments = ref([]);
-
 // 选中列数组
 const selectList = ref([]);
 
@@ -137,18 +119,14 @@ const selectList = ref([]);
 // 删除一个
 
 const deleteOneVisible = ref(false);
-
 // 当前选中的单个
 const selectOne = ref([]);
-
 // 之前去过的历史页
 const beforePage = ref([]);
-
 // 删除loading
 const formLoading = ref(false);
-
 // 获取列表项
-const getList = async () => {
+const fetchComments = async () => {
   try {
     formLoading.value = true;
     const { data } = await getCommentList({
@@ -170,6 +148,48 @@ const getList = async () => {
     Message.info(error.msg);
   } finally {
     formLoading.value = false;
+  }
+};
+
+// 配置表格分页
+// 当前页
+const curPage = ref(1);
+
+// 一共多少数据
+const total = defineModel('total', {
+  type: Number,
+  required: true
+});
+
+// 可选择的每页条目数
+const pageSizes = ref([5, 10, 20]);
+
+// 默认每页的数据条数
+const limit = ref(10);
+
+// 计算最大页码
+const maxPage = computed(() =>
+  Math.ceil(pagination.total / pagination.pageSize)
+);
+
+// 分页配置
+const pagination = reactive({
+  pageSize: limit,
+  defaultPageSize: limit,
+  current: curPage,
+  total: total, // 假设总共有100条数据
+  showTotal: true, // 设置为布尔值
+  showJumper: true,
+  showPageSize: true,
+  pageSizeOptions: pageSizes,
+  onChange: current => handlePageChange(current)
+});
+
+// 表格分页
+const handlePageChange = current => {
+  console.log(111);
+  if (current <= maxPage.value && current > 0) {
+    pagination.current = current; // 更新当前页码
   }
 };
 
@@ -244,7 +264,7 @@ const deleteOneDialog = id => {
 
 // 单审不弹框
 const auditOneDialog = id => {
-  selectOne.value = id;
+  selectOne.value = [id];
   // 调用单审方法直接审核
   confirmAuditOne();
 };
@@ -264,9 +284,7 @@ const selectAllChange = item => {
 const confirmDeleteOne = async () => {
   try {
     formLoading.value = true;
-    await deleteComment({ list: [selectOne] });
-
-    selectedKeys.value = [];
+    await deleteComment({ list: selectOne.value });
     reFresh();
   } catch (error) {
     Message.info(error.msg);
@@ -279,15 +297,11 @@ const confirmDeleteOne = async () => {
 const confirmAuditOne = async () => {
   try {
     formLoading.value = true;
-    await auditComment({ list: [selectOne] });
-    // selectedKeys.value = selectedKeys.value.filter(
-    //   key => !selectOne.value.includes(key)
-    // );
-    selectedKeys.value = [];
-
+    await auditComment({ list: selectOne.value });
     reFresh();
   } catch (error) {
-    Message.info(error.msg);
+    console.log(error);
+    // Message.info(error.msg);
   } finally {
     formLoading.value = false;
   }
@@ -297,13 +311,10 @@ const confirmAuditOne = async () => {
 const confirmDeleteSelect = async () => {
   try {
     console.log(props.itemType, 21331);
-
     formLoading.value = true;
     await deleteComment({ list: [selectList] });
-
     // 重新获取到第一页
     curPage.value = 1;
-    selectedKeys.value = [];
     reFresh();
   } catch (error) {
     Message.info(error.msg);
@@ -317,17 +328,34 @@ const confirmAuditSelect = async () => {
   try {
     formLoading.value = true;
     await auditComment({ list: [selectList] });
-
     // 重新获取到第一页
     curPage.value = 1;
-    selectedKeys.value = [];
-
     reFresh();
   } catch (error) {
     Message.info(error.msg);
   } finally {
     formLoading.value = false;
   }
+};
+
+// 修改页码
+const changePage = item => {
+  // 没有访问过就渲染数据
+  if (!beforePage.value.includes(item)) {
+    fetchComments();
+    // 标记已选择
+    beforePage.value.push(item);
+  }
+  // 切换到当前页
+  curPage.value = item;
+};
+
+// 处理每页条目数变化
+const handlePageSizeChange = size => {
+  // 只接收 size
+  console.log(`每页条目数已更改为: ${size}`);
+  limit.value = size; // 更新每页条目数
+  curPage.value = 1; // 重置当前页为1
 };
 
 // 监听 selectedCount 的变化并发射事件
@@ -343,30 +371,19 @@ watch(
   }
 );
 
-// 修改页码
-const changePage = item => {
-  // 没有访问过就渲染数据
-  if (!beforePage.value.includes(item)) {
-    getList();
-    // 标记已选择
-    beforePage.value.push(item);
-  }
-  // 切换到当前页
-  curPage.value = item;
-};
-
-// 在组件挂载时获取数据
-onMounted(() => {
-  getList(); // 初始化时调用获取数据
-});
-
 // 父组件刷新方法
 const reFresh = () => {
   // 清空
   comments.value = [];
   beforePage.value = [];
-  getList();
+  selectedKeys.value = [];
+  fetchComments();
 };
+
+// 在组件挂载时获取数据
+onMounted(() => {
+  fetchComments(); // 初始化时调用获取数据
+});
 
 // 暴露方法给父组件
 defineExpose({ reFresh });
@@ -428,6 +445,7 @@ defineExpose({ reFresh });
         @select="selectItem"
         @selection-change="selectAllChange"
         @page-change="changePage"
+        @page-size-change="handlePageSizeChange"
       >
         <template #author="{ record }">
           <div class="left">
