@@ -4,34 +4,68 @@ import {
   TableColumnData,
   TableRowSelection
 } from '@arco-design/web-vue';
-import { ref, reactive, onMounted, defineModel, computed } from 'vue';
+import {
+  ref,
+  reactive,
+  onMounted,
+  defineProps,
+  defineModel,
+  computed,
+  watch
+} from 'vue';
 import { getDicItem } from '@/api/dictionary';
 const columns: TableColumnData[] = [
   {
     title: '字典编号',
     dataIndex: 'id',
+    width: 100
+  },
+  {
+    title: '字典标签',
+    dataIndex: 'label',
+    width: 100,
     align: 'center'
   },
   {
-    title: '字典名称',
-    dataIndex: 'dic_name',
-    slotName: 'dicName'
+    title: '字典类型',
+    width: 100,
+    align: 'center',
+    dataIndex: 'dict_type_code'
   },
   {
-    title: '字典类型',
-    dataIndex: 'dic_type'
+    title: '字典键值',
+    width: 100,
+    align: 'center',
+    dataIndex: 'value'
+  },
+  {
+    title: '排序',
+    width: 100,
+    align: 'center',
+    dataIndex: 'sort'
   },
   {
     title: '状态',
-    dataIndex: 'dic_state'
+    width: 100,
+    align: 'center',
+    dataIndex: 'status'
   },
   {
-    title: '备注',
-    dataIndex: 'dic_remark'
+    title: '描述',
+    dataIndex: 'description',
+    slotName: 'description',
+    align: 'center',
+    width: 200
+  },
+  {
+    title: '扩展值',
+    align: 'center',
+    dataIndex: 'extend_value'
   },
   {
     title: '创建时间',
-    dataIndex: 'create_time'
+    align: 'center',
+    dataIndex: 'create_at'
   },
   {
     title: '操作',
@@ -68,19 +102,26 @@ const beforePage = ref([]);
 // 删除loading
 const formLoading = ref(false);
 
+const props = defineProps({
+  dict_type: {
+    type: String,
+    require: true
+  }
+});
+
 const search = defineModel('search', {
   type: Object as () => {
-    dic_name: String;
-    dic_type: String;
-    dic_state: String;
-    create_time: String;
+    label: String;
+    dict_type_code: String;
+    status: String;
+    create_at: String;
   },
   required: true,
   default: () => ({
-    dic_name: '',
-    dic_type: '',
-    dic_state: '',
-    create_time: ''
+    label: '',
+    dict_type_code: '',
+    status: '',
+    create_at: ''
   })
 });
 
@@ -90,7 +131,7 @@ const curPage = ref(1);
 const total = ref(10);
 
 // 可选择的每页条目数
-const pageSizes = ref([5, 10, 20]);
+const pageSizes = ref([5, 10, 15]);
 
 // 默认每页的数据条数
 const limit = ref(10);
@@ -126,12 +167,15 @@ const getList = async () => {
   try {
     formLoading.value = true;
     const { data } = await getDicItem({
-      dic_name: search.value.dic_name,
-      dic_type: search.value.dic_type,
-      dic_state: search.value.dic_state,
-      create_time: search.value.create_time
+      dict_type_code: props.dict_type,
+      label: search.value.label,
+      status: search.value.status,
+      create_at: search.value.create_at,
+      page: curPage,
+      limit: limit
     });
-    dictionary.value.push(...data.data.dic_items);
+    dictionary.value.push(...data.data.dict_item_list);
+
     total.value = data.data.total;
   } catch (error) {
     Message.info(error.msg);
@@ -160,16 +204,37 @@ const handlePageSizeChange = size => {
   curPage.value = 1; // 重置当前页为1
 };
 
+const reFresh = () => {
+  // 清空重新获取数据
+  dictionary.value = [];
+  beforePage.value = [];
+  selectList.value = [];
+  selectedKeys.value = [];
+  getList();
+};
+
 // 在组件挂载时获取数据
 onMounted(() => {
   getList(); // 初始化时调用获取数据
 });
 
+// 监听切换
+watch(
+  () => props.dict_type,
+  () => {
+    reFresh();
+  }
+);
+
+// 单选可勾选多个
 const selectItem = item => {
-  console.log(item);
+  selectList.value = item;
+  console.log(selectList.value);
 };
-const cancelItem = item => {
-  console.log(item);
+// 全选,一次性选中当前页所有
+const selectAllChange = item => {
+  selectList.value = item;
+  console.log(selectList.value);
 };
 </script>
 
@@ -184,14 +249,20 @@ const cancelItem = item => {
       :row-selection="rowSelection"
       :pagination="pagination"
       @select="selectItem"
-      @selection-change="cancelItem"
+      @selection-change="selectAllChange"
       @page-change="changePage"
       @page-size-change="handlePageSizeChange"
     >
-      <template #headshot="{ record }">
-        <div>
-          <img :src="record.headshot" alt="" class="uer-headshot" />
-        </div>
+      <template #description="{ record }">
+        <a-typography-paragraph
+          :ellipsis="{
+            rows: 2,
+            showTooltip: true,
+            expandable: true
+          }"
+        >
+          {{ record.description }}
+        </a-typography-paragraph>
       </template>
     </a-table>
   </div>

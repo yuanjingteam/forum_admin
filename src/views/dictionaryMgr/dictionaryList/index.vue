@@ -1,25 +1,52 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, defineEmits } from 'vue';
 import { getDicList } from '@/api/dictionary';
 
 const dic_list = ref([]);
 
-const selectedKeys = computed(() => {
-  return dic_list.value.length > 0 ? [String(dic_list.value[0].id)] : [];
+// 定义 `check` 事件,切换列表
+const emit = defineEmits(['check']);
+
+// 绑定选中行
+const selectedKeys = ref([0]);
+
+// 待扩展的搜索功能
+const search = defineModel('search', {
+  type: Object as () => {
+    name: String;
+    code: String;
+    status: String;
+    create_at: String;
+  },
+  required: true,
+  default: () => ({
+    name: '',
+    code: '',
+    status: '',
+    create_at: ''
+  })
 });
 
-const emit = defineEmits(['check']); // 定义 `check` 事件
 const featchDicList = async () => {
-  const { data } = await getDicList({});
-  dic_list.value = data.data.dic_list;
+  const { data } = await getDicList({
+    name: search.value.name,
+    code: search.value.code,
+    status: search.value.status,
+    create_at: search.value.create_at,
+    page: 1,
+    limit: 10
+  });
+  dic_list.value = data.data.dict_type_list;
+  selectedKeys.value[0] = dic_list.value[0]?.id;
 };
 
-const switchCheck = itemId => {
-  emit('check', itemId); // 发射 `check` 事件，并传递 itemId
+// 发射 `check` 事件，并传递 itemCode
+const switchCheck = (itemCode: string) => {
+  emit('check', itemCode);
 };
 
-onMounted(() => {
-  featchDicList();
+onMounted(async () => {
+  await featchDicList();
 });
 </script>
 
@@ -28,10 +55,9 @@ onMounted(() => {
   <a-space direction="vertical" size="large" class="main">
     <strong>字典列表</strong>
     <a-menu :default-selected-keys="selectedKeys">
-      <a-menu-item v-for="(item, index) in dic_list" :key="item.id">
-        <div class="layout">
-          <div>{{ index }}</div>
-          <span @click="switchCheck(item.id)">{{ item.dic_name }}</span>
+      <a-menu-item v-for="item in dic_list" :key="item.id">
+        <div class="layout" @click="switchCheck(item.code)">
+          <span>{{ item.name }}</span>
           <span>111</span>
         </div>
       </a-menu-item>
@@ -41,7 +67,7 @@ onMounted(() => {
 
 <style scoped>
 .main {
-  width: 100%;
+  min-width: 100%;
 }
 
 .layout {
