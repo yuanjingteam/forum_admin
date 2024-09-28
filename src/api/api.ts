@@ -50,12 +50,14 @@ export interface ApiForm {
   briefIntroduction?: string;
   //api分组
   groupingid?: number;
+  grouping?: string;
   limit?: number;
   page?: number;
   //api路径
   path?: string;
   //请求方法id
   requestMethodid?: number;
+  requestMethod?: string;
   [property: string]: any;
 }
 
