@@ -16,6 +16,7 @@ export function deleteTag(data) {
   return request.post<Data>('/backstage_tag/batch_delete', data);
 }
 
-export function updateTag(formData: FormData) {
-  return request.post<Data>('/backstage_tag/update', formData);
+// 修改标签
+export function updateTag(data) {
+  return request.post<Data>('/backstage_tag/update', data);
 }

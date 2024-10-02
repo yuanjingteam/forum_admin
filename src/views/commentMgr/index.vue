@@ -92,11 +92,12 @@ watch(itemType, newCount => {
 </script>
 
 <template>
-  <div>
+  <div class="main">
+    <Breadcrumb :items="['评论管理']" />
     <div>
       <search @search="handleSearch" @clearAll="handleSearch"></search>
     </div>
-    <a-tabs v-model:active-key="itemType">
+    <a-tabs v-model:active-key="itemType" type="line">
       <template #extra>
         <div class="deletSelect">
           <a-button type="outline" @click="notifyRefresh">刷新</a-button>
@@ -120,7 +121,6 @@ watch(itemType, newCount => {
           </span>
         </div>
       </template>
-
       <a-tab-pane key="1" :title="`全部${total_1} `">
         <comment-table
           ref="comTable1"
@@ -159,6 +159,14 @@ watch(itemType, newCount => {
 </template>
 
 <style scoped>
+:deep(.arco-tabs-content) {
+  padding-top: 0;
+}
+
+.main {
+  margin: 0 15px;
+}
+
 .deletSelect button {
   margin: 0 7px;
 }

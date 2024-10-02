@@ -13,7 +13,11 @@ import {
   computed,
   watch
 } from 'vue';
-import { getDicItem } from '@/api/dictionary';
+import { getDicItem, delDicItem, updateDicItem } from '@/api/dictionary';
+// import AddItemfrom from '@/views/dictionaryMgr/dictionaryItem/AddItem/index.vue';
+import EditItem from '@/views/dictionaryMgr/dictionaryItem/EditItem/index.vue';
+
+// 定义行
 const columns: TableColumnData[] = [
   {
     title: '字典编号',
@@ -40,25 +44,26 @@ const columns: TableColumnData[] = [
   },
   {
     title: '排序',
-    width: 100,
+    width: 80,
     align: 'center',
     dataIndex: 'sort'
   },
   {
     title: '状态',
-    width: 100,
+    width: 120,
     align: 'center',
-    dataIndex: 'status'
+    dataIndex: 'status',
+    slotName: 'status'
   },
   {
     title: '描述',
     dataIndex: 'description',
     slotName: 'description',
-    align: 'center',
-    width: 200
+    align: 'center'
   },
   {
     title: '扩展值',
+    width: 100,
     align: 'center',
     dataIndex: 'extend_value'
   },
@@ -69,6 +74,7 @@ const columns: TableColumnData[] = [
   },
   {
     title: '操作',
+    width: 120,
     dataIndex: 'optional',
     slotName: 'optional',
     align: 'center'
@@ -85,46 +91,7 @@ const rowSelection: TableRowSelection = reactive({
   onlyCurrent: false
 });
 
-// 接收数据
-const dictionary = ref([]);
-
-// 选中列数组
-const selectList = ref([]);
-
-// 删除单选框
-const deleteOneVisible = ref(false);
-// 当前选中的单个值
-const selectOne = ref(-1);
-
-// 之前去过的历史页
-const beforePage = ref([]);
-
-// 删除loading
-const formLoading = ref(false);
-
-const props = defineProps({
-  dict_type: {
-    type: String,
-    require: true
-  }
-});
-
-const search = defineModel('search', {
-  type: Object as () => {
-    label: String;
-    dict_type_code: String;
-    status: String;
-    create_at: String;
-  },
-  required: true,
-  default: () => ({
-    label: '',
-    dict_type_code: '',
-    status: '',
-    create_at: ''
-  })
-});
-
+// 当前页
 const curPage = ref(1);
 
 // 一共多少数据
@@ -134,7 +101,7 @@ const total = ref(10);
 const pageSizes = ref([5, 10, 15]);
 
 // 默认每页的数据条数
-const limit = ref(10);
+const limit = ref(5);
 
 // 计算最大页码
 const maxPage = computed(() =>
@@ -162,20 +129,64 @@ const handlePageChange = current => {
   }
 };
 
+// 接收数据
+const dictionary = ref([]);
+
+// 删除loading
+const formLoading = ref(false);
+
+// 编辑可见框
+const editVisible = ref(false);
+
+const props = defineProps({
+  dict_type: {
+    type: String,
+    require: true
+  }
+});
+
+const search = defineModel('search', {
+  type: Object as () => {
+    label: String;
+    dict_type_code: String;
+    status: String;
+    start_time: String;
+    end_time: String;
+  },
+  required: true,
+  default: () => ({
+    label: '',
+    dict_type_code: '',
+    status: '',
+    start_time: '',
+    end_time: ''
+  })
+});
+
+const editData = ref({
+  id: -1,
+  label: '',
+  value: 0,
+  sort: 0,
+  status: 0,
+  description: '',
+  extend_value: ''
+});
+
 // 获取数据
 const getList = async () => {
+  formLoading.value = true;
   try {
-    formLoading.value = true;
     const { data } = await getDicItem({
       dict_type_code: props.dict_type,
       label: search.value.label,
       status: search.value.status,
-      create_at: search.value.create_at,
+      start_time: search.value.start_time,
+      end_time: search.value.end_time,
       page: curPage,
       limit: limit
     });
-    dictionary.value.push(...data.data.dict_item_list);
-
+    dictionary.value = data.data.dict_item_list;
     total.value = data.data.total;
   } catch (error) {
     Message.info(error.msg);
@@ -186,14 +197,10 @@ const getList = async () => {
 
 // 修改页码
 const changePage = item => {
-  // 没有访问过就渲染数据
-  if (!beforePage.value.includes(item)) {
-    // fetchComments();
-    // 标记已选择
-    beforePage.value.push(item);
-  }
   // 切换到当前页
   curPage.value = item;
+  // 获取当前页数据
+  getList();
 };
 
 // 处理每页条目数变化
@@ -204,12 +211,55 @@ const handlePageSizeChange = size => {
   curPage.value = 1; // 重置当前页为1
 };
 
-const reFresh = () => {
-  // 清空重新获取数据
-  dictionary.value = [];
-  beforePage.value = [];
-  selectList.value = [];
+// 单选可勾选多个
+const selectItem = item => {
+  console.log(item);
+};
+// 全选,一次性选中当前页所有
+const selectAllChange = item => {
+  console.log(item);
+};
+
+// 批量删除
+const deleteSelect = async () => {
+  await delDicItem({
+    dict_type_code: props.dict_type,
+    id_list: selectedKeys
+  });
   selectedKeys.value = [];
+  getList();
+};
+
+// 编辑
+const editSelect = record => {
+  editVisible.value = true;
+  editData.value = record;
+};
+
+// 单个删除
+const deleteItem = async (dict_type, id) => {
+  await delDicItem({
+    dict_type_code: dict_type,
+    id_list: [id]
+  });
+};
+
+// 改变状态
+const switchChange = async item => {
+  const mid = item;
+  console.log(mid.status, 242);
+  await updateDicItem({
+    id: mid.id,
+    label: mid.label,
+    value: mid.value,
+    sort: mid.sort,
+    status: mid.status,
+    description: mid.description,
+    extend_value: mid.extend_value
+  });
+};
+
+const reFresh = () => {
   getList();
 };
 
@@ -222,50 +272,89 @@ onMounted(() => {
 watch(
   () => props.dict_type,
   () => {
-    reFresh();
+    curPage.value = 1; // 重置当前页为1
+    getList();
   }
 );
 
-// 单选可勾选多个
-const selectItem = item => {
-  selectList.value = item;
-  console.log(selectList.value);
-};
-// 全选,一次性选中当前页所有
-const selectAllChange = item => {
-  selectList.value = item;
-  console.log(selectList.value);
-};
+// 暴露方法给父组件
+defineExpose({ reFresh });
 </script>
 
 <template>
-  <div>
-    <a-table
-      v-model:selectedKeys="selectedKeys"
-      :columns="columns"
-      :data="dictionary"
-      row-key="id"
-      stripe
-      :row-selection="rowSelection"
-      :pagination="pagination"
-      @select="selectItem"
-      @selection-change="selectAllChange"
-      @page-change="changePage"
-      @page-size-change="handlePageSizeChange"
-    >
-      <template #description="{ record }">
-        <a-typography-paragraph
-          :ellipsis="{
-            rows: 2,
-            showTooltip: true,
-            expandable: true
-          }"
-        >
-          {{ record.description }}
-        </a-typography-paragraph>
-      </template>
-    </a-table>
+  <div class="main">
+    <edit-item v-model:visible="editVisible" :editData="editData"></edit-item>
+    <a-spin :loading="formLoading" tip="This may take a while..." class="main">
+      <a-table
+        v-model:selectedKeys="selectedKeys"
+        :columns="columns"
+        :data="dictionary"
+        row-key="id"
+        stripe
+        :row-selection="rowSelection"
+        :pagination="pagination"
+        @select="selectItem"
+        @selection-change="selectAllChange"
+        @page-change="changePage"
+        @page-size-change="handlePageSizeChange"
+      >
+        <template #description="{ record }">
+          <a-typography-paragraph
+            :ellipsis="{
+              rows: 2,
+              showTooltip: true,
+              expandable: true
+            }"
+          >
+            {{ record.description }}
+          </a-typography-paragraph>
+        </template>
+        <template #status="{ record }">
+          <div>
+            <a-switch
+              v-model="record.status"
+              :default-checked="record.status == 0 ? true : false"
+              :checked-value="0"
+              :unchecked-value="1"
+              @change="switchChange(record)"
+            />
+            <span class="dic-state">
+              {{ record.status == 0 ? '开启' : '关闭' }}
+            </span>
+          </div>
+        </template>
+
+        <template #optional="{ record }">
+          <a-button type="text" @click="editSelect(record)">
+            <template #icon>
+              <icon-edit />
+            </template>
+            <template #default>编辑</template>
+          </a-button>
+
+          <a-popconfirm
+            content="您确定要删除吗？"
+            @ok="deleteItem(record.dict_type_code, record.id)"
+          >
+            <a-button type="text">
+              <template #icon>
+                <icon-delete />
+              </template>
+              <template #default>删除</template>
+            </a-button>
+          </a-popconfirm>
+        </template>
+      </a-table>
+    </a-spin>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.main {
+  width: 100%;
+}
+
+.dic-state {
+  margin-left: 12px;
+}
+</style>

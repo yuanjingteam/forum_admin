@@ -5,7 +5,7 @@ import {
   TableRowSelection,
   Message
 } from '@arco-design/web-vue';
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch } from 'vue';
 
 const columns: TableColumnData[] = [
   {
@@ -109,9 +109,11 @@ const editItem = async info => {
 
   itemVisible.value = true; // 打开抽屉
 };
-
 // 改变用户封禁状态
+const aaa = ref(false);
 const switchChange = state => {
+  deleteVisible.value = true;
+  aaa.value = !state;
   console.log(state);
 };
 
@@ -165,6 +167,10 @@ const selectUser = user => {
     console.log(user);
   }
 };
+const adwa = ref(false);
+const del = mid => {};
+const can = mid => {};
+
 // 取消选中
 const selectCancel = user => {
   if (user) {
@@ -175,6 +181,10 @@ const selectCancel = user => {
 
 <template>
   <div>
+    <a-modal v-model:visible="adwa" @ok="del" @cancel="can">
+      <template #title>确认删除</template>
+      <div>确认要删除吗,删除之后无法再恢复</div>
+    </a-modal>
     <a-modal
       v-model:visible="deleteVisible"
       @ok="deleteItem"
@@ -319,10 +329,12 @@ const selectCancel = user => {
   width: 50px;
   height: 30px;
 }
+
 .user-state {
   margin-left: 12px;
 }
+
 .edit button {
-  margin: 0px 5px;
+  margin: 0 5px;
 }
 </style>
