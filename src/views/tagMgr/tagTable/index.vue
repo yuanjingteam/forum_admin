@@ -129,9 +129,6 @@ const selectList = ref([]);
 // 加载
 const formLoading = ref(false);
 
-// 单删框
-const deleteOneVisible = ref(false);
-
 // 修改框
 const editVisible = ref(false);
 
@@ -147,9 +144,6 @@ const editData = ref({
   fans_count: 0,
   path: 'src/assets/images/green_dog.jpg'
 });
-
-// 当前选中的单个
-const selectOne = ref([]);
 
 // 获取列表数据
 const getList = async () => {
@@ -180,13 +174,7 @@ const handlePageChange = current => {
     pagination.current = current; // 更新当前页码
   }
 };
-
-// 单删
-const deleteOneDialog = (id: number) => {
-  deleteOneVisible.value = true;
-  selectOne.value = [id];
-};
-
+样式统一;
 // 删除
 const confirmDeleteSelect = async (selectArray: Array<number>) => {
   try {
@@ -260,13 +248,6 @@ defineExpose({ reFresh });
   <div class="main">
     <edit-item v-model:visible="editVisible" :editData="editData"></edit-item>
     <a-modal
-      v-model:visible="deleteOneVisible"
-      @ok="confirmDeleteSelect(selectOne)"
-    >
-      <template #title>确认删除</template>
-      <div>确认要删除当前项吗,删除之后无法再恢复</div>
-    </a-modal>
-    <a-modal
       v-model:visible="deleteSelectVisible"
       @ok="confirmDeleteSelect(selectList)"
     >
@@ -302,24 +283,15 @@ defineExpose({ reFresh });
         <template #optional="{ record }">
           <div class="option">
             <span>
-              <a-button
-                status="success"
-                type="outline"
-                size="mini"
-                @click="toEditItem(record)"
-              >
-                修改
-              </a-button>
+              <a-button type="text" @click="toEditItem(record)">修改</a-button>
             </span>
             <span>
-              <a-button
-                type="outline"
-                status="danger"
-                size="mini"
-                @click="deleteOneDialog(record.id)"
+              <a-popconfirm
+                content="您确定要删除吗？"
+                @ok="confirmDeleteSelect([record.id])"
               >
-                删除
-              </a-button>
+                <a-button type="text">删除</a-button>
+              </a-popconfirm>
             </span>
           </div>
         </template>

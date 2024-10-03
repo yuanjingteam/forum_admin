@@ -98,12 +98,6 @@ const rowSelection: TableRowSelection = reactive({
 // 接收数据
 const comments = ref([]);
 
-// 删除一个选框
-const deleteOneVisible = ref(false);
-
-// 当前选中的单个
-const selectOne = ref([]);
-
 // 删除loading
 const formLoading = ref(false);
 // 获取列表项
@@ -173,37 +167,17 @@ const handlePageChange = current => {
   }
 };
 
-// 单删弹框
-const deleteOneDialog = id => {
-  deleteOneVisible.value = true;
-  selectOne.value = [id];
-};
-
-// 单审不弹框
-const auditOneDialog = id => {
-  selectOne.value = [id];
-  // 调用单审方法直接审核
-  confirmAuditOne();
-};
-
-// 单选,可勾选多个
-const selectItem = (item: Array<number>) => {
-  console.log(item);
-};
-
 // 全选,一次性选中当前页所有
 const selectAllChange = item => {
   console.log(item);
 };
 
 // 删除一个
-const confirmDeleteOne = async () => {
+const confirmDeleteOne = async id => {
   try {
     formLoading.value = true;
-    await deleteComment({ list: selectOne.value });
-    selectedKeys.value = selectedKeys.value.filter(
-      key => !selectOne.value.includes(key)
-    );
+    await deleteComment({ list: [id] });
+    selectedKeys.value = selectedKeys.value.filter(key => key !== id.value);
     reFresh();
   } catch (error) {
     Message.info(error.msg);
@@ -213,14 +187,12 @@ const confirmDeleteOne = async () => {
 };
 
 // 审核一个
-const confirmAuditOne = async () => {
+const confirmAuditOne = async id => {
   try {
     formLoading.value = true;
-    await auditComment({ list: selectOne.value });
+    await auditComment({ list: [id] });
     // 筛选出去
-    selectedKeys.value = selectedKeys.value.filter(
-      key => !selectOne.value.includes(key)
-    );
+    selectedKeys.value = selectedKeys.value.filter(key => key !== id.value);
     reFresh();
   } catch (error) {
     console.log(error);
@@ -332,10 +304,6 @@ defineExpose({ reFresh });
       </a-upload>
     </a-modal> -->
 
-    <a-modal v-model:visible="deleteOneVisible" @ok="confirmDeleteOne">
-      <template #title>确认删除</template>
-      <div>确认要删除当前项吗,删除之后无法再恢复</div>
-    </a-modal>
     <a-modal v-model:visible="deleteSelectVisible" @ok="confirmDeleteSelect">
       <template #title>批量删除</template>
       <div style="text-align: center">
@@ -358,7 +326,6 @@ defineExpose({ reFresh });
         :row-selection="rowSelection"
         :pagination="pagination"
         :page="curPage"
-        @select="selectItem"
         @selection-change="selectAllChange"
         @page-change="changePage"
         @page-size-change="handlePageSizeChange"
@@ -436,24 +403,30 @@ defineExpose({ reFresh });
               </a-button>
             </span> -->
             <span>
-              <a-button
-                type="outline"
-                status="danger"
-                size="mini"
-                @click="deleteOneDialog(record.id)"
+              <a-popconfirm
+                content="您确定要删除吗？"
+                @ok="confirmDeleteOne(record.id)"
               >
-                删除
-              </a-button>
+                <a-button type="text">
+                  <template #icon>
+                    <icon-edit />
+                  </template>
+                  <template #default>删除</template>
+                </a-button>
+              </a-popconfirm>
             </span>
             <span v-if="props.itemType === '2' || record.examine === 1">
-              <a-button
-                type="outline"
-                status="success"
-                size="mini"
-                @click="auditOneDialog(record.id)"
+              <a-popconfirm
+                content="您确定要审核吗？"
+                @ok="confirmAuditOne(record.id)"
               >
-                审核
-              </a-button>
+                <a-button type="text">
+                  <template #icon>
+                    <icon-edit />
+                  </template>
+                  <template #default>审核</template>
+                </a-button>
+              </a-popconfirm>
             </span>
           </div>
         </template>

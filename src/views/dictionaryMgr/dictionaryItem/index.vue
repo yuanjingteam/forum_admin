@@ -22,23 +22,23 @@ const columns: TableColumnData[] = [
   {
     title: '字典编号',
     dataIndex: 'id',
-    width: 100
+    width: 90
   },
   {
     title: '字典标签',
     dataIndex: 'label',
-    width: 100,
+    width: 90,
     align: 'center'
   },
   {
     title: '字典类型',
-    width: 100,
+    width: 90,
     align: 'center',
     dataIndex: 'dict_type_code'
   },
   {
     title: '字典键值',
-    width: 100,
+    width: 90,
     align: 'center',
     dataIndex: 'value'
   },
@@ -58,23 +58,24 @@ const columns: TableColumnData[] = [
   {
     title: '描述',
     dataIndex: 'description',
+    width: 180,
     slotName: 'description',
     align: 'center'
   },
   {
     title: '扩展值',
-    width: 100,
+    width: 90,
     align: 'center',
     dataIndex: 'extend_value'
   },
   {
     title: '创建时间',
     align: 'center',
+    width: 180,
     dataIndex: 'create_at'
   },
   {
     title: '操作',
-    width: 120,
     dataIndex: 'optional',
     slotName: 'optional',
     align: 'center'

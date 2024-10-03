@@ -1,5 +1,3 @@
-<script setup></script>
-
 <script setup lang="ts">
 import { reactive, ref, defineEmits } from 'vue';
 
@@ -48,12 +46,12 @@ const onChange = (dateString, date) => {
           label-align="left"
         >
           <a-row :gutter="16">
-            <a-col :span="6">
+            <a-col :span="7">
               <a-form-item field="label" label="字典标签:">
                 <a-input v-model="search.label" placeholder="请输入标签名" />
               </a-form-item>
             </a-col>
-            <a-col :span="6">
+            <a-col :span="7">
               <a-form-item field="status" label="是否禁用:">
                 <a-select
                   v-model="search.status"
@@ -66,7 +64,7 @@ const onChange = (dateString, date) => {
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="6">
+            <a-col :span="7">
               <a-form-item field="create_at" label="创建时间:">
                 <a-range-picker
                   v-model="create_at"
