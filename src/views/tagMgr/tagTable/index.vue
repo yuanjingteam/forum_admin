@@ -174,7 +174,6 @@ const handlePageChange = current => {
     pagination.current = current; // 更新当前页码
   }
 };
-样式统一;
 // 删除
 const confirmDeleteSelect = async (selectArray: Array<number>) => {
   try {
