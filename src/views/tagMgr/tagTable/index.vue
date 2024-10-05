@@ -4,7 +4,7 @@ import {
   TableRowSelection,
   Message
 } from '@arco-design/web-vue';
-import { ref, reactive, watch, defineEmits, onMounted, computed } from 'vue';
+import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { deleteTag } from '@/api/tag';
 import { getTagList } from '@/api/tag';
 import EditItem from '@/views/tagMgr/tagTable/EditItem/index.vue';
@@ -245,7 +245,11 @@ defineExpose({ reFresh });
 
 <template>
   <div class="main">
-    <edit-item v-model:visible="editVisible" :editData="editData"></edit-item>
+    <edit-item
+      v-model:visible="editVisible"
+      :editData="editData"
+      @refresh="reFresh"
+    ></edit-item>
     <a-modal
       v-model:visible="deleteSelectVisible"
       @ok="confirmDeleteSelect(selectList)"
@@ -282,14 +286,24 @@ defineExpose({ reFresh });
         <template #optional="{ record }">
           <div class="option">
             <span>
-              <a-button type="text" @click="toEditItem(record)">修改</a-button>
+              <a-button type="text" @click="toEditItem(record)">
+                <template #icon>
+                  <icon-edit />
+                </template>
+                <template #default>修改</template>
+              </a-button>
             </span>
             <span>
               <a-popconfirm
                 content="您确定要删除吗？"
                 @ok="confirmDeleteSelect([record.id])"
               >
-                <a-button type="text">删除</a-button>
+                <a-button type="text">
+                  <template #icon>
+                    <icon-delete />
+                  </template>
+                  <template #default>删除</template>
+                </a-button>
               </a-popconfirm>
             </span>
           </div>

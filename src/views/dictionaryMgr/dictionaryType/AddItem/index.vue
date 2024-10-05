@@ -1,29 +1,36 @@
 <script setup lang="ts">
 import { addDicType } from '@/api/dictionary';
 import { Message } from '@arco-design/web-vue';
-import { reactive, defineEmits } from 'vue';
-
+import { reactive } from 'vue';
+import { AddList } from '@/api/dictionary';
+// 定义模型
 const addVisible = defineModel('visible', {
   type: Boolean,
   required: true
 });
 
-const emit = defineEmits(['update']);
+// 定义 emit 的类型
+const emit = defineEmits<{
+  (e: 'update'): void;
+}>();
 
-const initialState = {
+// 定义初始状态
+const initialState: AddList = {
   name: '',
   code: '',
-  status: 0,
+  status: 1,
   description: ''
 };
 
-const addType = reactive({
+// 使用 reactive 创建响应式对象
+const addType = reactive<AddList>({
   name: '',
   code: '',
-  status: 0,
+  status: 1,
   description: ''
 });
 
+// 提交添加函数
 const submitAdd = async () => {
   try {
     await addDicType(addType);
@@ -32,18 +39,19 @@ const submitAdd = async () => {
     // 将 addType 重置为初始状态
     Object.assign(addType, initialState);
   } catch (error) {
-    Message.info(error.msg);
+    Message.info(error.msg || '添加失败');
   }
 };
 
-const cancelAdd = async () => {
+// 取消添加函数
+const cancelAdd = (): void => {
   // 将 addType 重置为初始状态
   Object.assign(addType, initialState);
 };
 
-// 是否封禁
-const switchChange = state => {
-  console.log(state);
+// 切换状态函数
+const switchChange = (status: number): void => {
+  console.log(status);
 };
 </script>
 
@@ -82,13 +90,13 @@ const switchChange = state => {
           <div>
             <a-switch
               v-model="addType.status"
-              :default-checked="addType.status == 0 ? true : false"
-              :checked-value="0"
-              :unchecked-value="1"
+              :default-checked="addType.status == 1 ? true : false"
+              :checked-value="1"
+              :unchecked-value="2"
               @change="switchChange(addType.status)"
             />
             <span class="dic-state">
-              {{ addType.status == 0 ? '开启' : '关闭' }}
+              {{ addType.status == 1 ? '开启' : '关闭' }}
             </span>
           </div>
         </a-form-item>

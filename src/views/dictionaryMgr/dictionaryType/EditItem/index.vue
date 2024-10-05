@@ -1,36 +1,26 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import { updateTag } from '@/api/tag';
+import { updateDicType, EditorList } from '@/api/dictionary';
+
+const props = defineProps<{
+  editData: EditorList; // 使用定义的类型
+}>();
+
+// 定义emit通知更新
+const emit = defineEmits<{
+  (e: 'update'): void;
+}>();
 
 // 修改
 const editVisible = defineModel('visible', {
   type: Boolean,
   required: true
 });
-const props = defineProps({
-  editData: {
-    type: Object as () => {
-      id: number;
-      name: string;
-      code: string;
-      status: number;
-      description: string;
-    },
-    required: true,
-    default: () => ({
-      id: -1,
-      name: '',
-      code: '',
-      status: 0,
-      description: ''
-    })
-  }
-});
 
-const emit = defineEmits(['update']);
-const edit = ref({ ...props.editData }); // 创建一个拷贝
-const formLoading = ref(false);
+const edit = ref<EditorList>({ ...props.editData }); // 创建一个拷贝
+
+const formLoading = ref<boolean>(false);
 
 // 点击确定
 const editOk = () => {
@@ -40,12 +30,16 @@ const editOk = () => {
 // 取消修改
 const editCancel = () => {};
 
+const switchChange = (status: number): void => {
+  console.log(status);
+};
+
 // 提交修改
-const submitEdit = async () => {
+const submitEdit = async (): Promise<boolean> => {
   try {
     formLoading.value = true;
-    console.log(edit.value, 555555);
-    await updateTag(edit.value);
+    console.log(edit.value, '提交修改');
+    await updateDicType(edit.value);
     Message.info('修改成功');
     emit('update');
     return true;
@@ -57,16 +51,11 @@ const submitEdit = async () => {
   }
 };
 
-// 是否封禁
-const switchChange = state => {
-  console.log(state);
-};
-
 // 监听 props 的变化，更新本地响应式对象
 watch(
   () => props.editData,
-  async newValue => {
-    edit.value = { ...newValue };
+  async (newValue: EditorList) => {
+    edit.value = { ...newValue }; // 更新 edit 的值
   }
 );
 </script>
@@ -114,13 +103,13 @@ watch(
             <div>
               <a-switch
                 v-model="edit.status"
-                :default-checked="edit.status == 0 ? true : false"
-                :checked-value="0"
-                :unchecked-value="1"
+                :default-checked="edit.status == 1 ? true : false"
+                :checked-value="1"
+                :unchecked-value="2"
                 @change="switchChange(edit.status)"
               />
               <span class="dic-state">
-                {{ edit.status == 0 ? '开启' : '关闭' }}
+                {{ edit.status == 1 ? '开启' : '关闭' }}
               </span>
             </div>
           </a-form-item>

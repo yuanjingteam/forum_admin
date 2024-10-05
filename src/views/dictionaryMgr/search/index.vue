@@ -1,37 +1,52 @@
 <script setup lang="ts">
-import { reactive, ref, defineEmits } from 'vue';
+import { ref, computed } from 'vue';
+import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
 
-const label = ref('');
-const status = ref(0);
-const create_at = ref([]);
+export interface SearchItemModel {
+  label: string;
+  status: number;
+  create_at: string[]; // 根据实际需求调整类型，例如可以使用 Date[]
+}
 
-const search = reactive({
-  label: label,
-  status: status,
-  create_at: create_at
-});
+// 生成搜索模型的函数
+const generateSearchModel = (): SearchItemModel => {
+  return {
+    label: '',
+    status: 0,
+    create_at: []
+  };
+};
 
-// 查询
-// 定义更新事件  清空
-const emit = defineEmits(['search', 'clearAll']);
+const search = ref<SearchItemModel>(generateSearchModel());
+
+const selectOptions = computed<SelectOptionData[]>(() => [
+  { label: '全部', value: 0 },
+  { label: '正常', value: 1 },
+  { label: '禁用', value: 2 },
+  { label: '敬请期待', value: 3, disabled: true }
+]);
+
+// 定义更新事件
+const emit = defineEmits<{
+  (e: 'search', searchModel: SearchItemModel): void;
+  (e: 'clearAll', searchModel: SearchItemModel): void;
+}>();
 
 // 搜索
 const handleSearch = () => {
-  console.log(search, 2131);
-  emit('search', search);
+  console.log(search.value, 2131);
+  emit('search', search.value);
 };
 
 // 重置
 const handleReset = () => {
-  label.value = '';
-  status.value = 0;
-  create_at.value = [];
-  emit('clearAll', search);
+  search.value = generateSearchModel(); // 重置为初始状态
+  emit('clearAll', search.value);
 };
 
+// 日期变化处理
 const onChange = (dateString, date) => {
   console.log('onChange: ', dateString, date);
-  console.log(create_at.value, 12313);
 };
 </script>
 
@@ -52,22 +67,19 @@ const onChange = (dateString, date) => {
               </a-form-item>
             </a-col>
             <a-col :span="7">
-              <a-form-item field="status" label="是否禁用:">
+              <a-form-item field="status" label="启用状态:">
                 <a-select
                   v-model="search.status"
                   :style="{ width: '320px' }"
+                  :options="selectOptions"
                   placeholder="Please select ..."
-                >
-                  <a-option :value="0">正常</a-option>
-                  <a-option :value="1">禁用</a-option>
-                  <a-option disabled>敬请期待</a-option>
-                </a-select>
+                />
               </a-form-item>
             </a-col>
             <a-col :span="7">
               <a-form-item field="create_at" label="创建时间:">
                 <a-range-picker
-                  v-model="create_at"
+                  v-model="search.create_at"
                   style="width: 254px"
                   @change="onChange"
                 />

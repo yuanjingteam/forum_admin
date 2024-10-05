@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineModel } from 'vue';
+import { ref, watch } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { updateTag } from '@/api/tag';
 
@@ -31,8 +31,10 @@ const props = defineProps({
     })
   }
 });
+const emit = defineEmits<{
+  (event: 'update'): void;
+}>();
 
-const emit = defineEmits(['update']);
 const edit = ref({ ...props.editData }); // 创建一个拷贝
 const formLoading = ref(false);
 
@@ -48,7 +50,7 @@ const editCancel = () => {};
 const submitEdit = async () => {
   try {
     formLoading.value = true;
-    console.log(edit.value, 555555);
+    console.log(edit.value, 111111);
     await updateTag(edit.value);
     Message.info('修改成功');
     emit('update');
@@ -62,7 +64,7 @@ const submitEdit = async () => {
 };
 
 // 是否封禁
-const switchChange = state => {
+const switchChange = (state: number) => {
   console.log(state);
 };
 
@@ -118,13 +120,13 @@ watch(
             <div>
               <a-switch
                 v-model="edit.status"
-                :default-checked="edit.status == 0 ? true : false"
-                :checked-value="0"
-                :unchecked-value="1"
+                :default-checked="edit.status == 1 ? true : false"
+                :checked-value="1"
+                :unchecked-value="2"
                 @change="switchChange(edit.status)"
               />
               <span class="dic-state">
-                {{ edit.status == 0 ? '开启' : '关闭' }}
+                {{ edit.status == 1 ? '开启' : '关闭' }}
               </span>
             </div>
           </a-form-item>

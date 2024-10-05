@@ -2,21 +2,24 @@
 import {
   Message,
   TableColumnData,
+  TableData,
   TableRowSelection
 } from '@arco-design/web-vue';
-
 import { getCommentList, deleteComment, auditComment } from '@/api/comment';
-import {
-  ref,
-  reactive,
-  onMounted,
-  defineProps,
-  defineEmits,
-  defineModel,
-  watch,
-  computed
-} from 'vue';
+import { ref, Ref, reactive, onMounted, watch, computed } from 'vue';
 
+export interface ViewDetail {
+  nickname: string;
+  email: string;
+  path: string;
+  content: string;
+  comment_path: string;
+  parent_nickname: string;
+  parent_path: string;
+  parent_content: string;
+  parent_email: string;
+  parent_comment_path: string;
+}
 // 定义更新,是否可以进行批量操作
 const emit = defineEmits(['update:enabled']);
 
@@ -31,14 +34,14 @@ const props = defineProps({
       email: String;
       nickname: String;
       title: String;
-      parent_nickname: String;
+      parent_email: String;
     },
     required: true,
     default: () => ({
       email: '',
       nickname: '',
       title: '',
-      parent_nickname: ''
+      parent_email: ''
     })
   }
 });
@@ -55,37 +58,38 @@ const auditSelectVisible = defineModel('audit', {
 });
 
 // 定义行
-const columns: TableColumnData[] = [
+const columns = computed<TableColumnData[]>(() => [
   {
     title: 'ID',
-    width: 80,
+    width: 100,
     dataIndex: 'id'
   },
   {
     title: '发布者',
     dataIndex: 'nickname',
-    width: 290,
     slotName: 'author'
   },
   {
     title: '评论',
     dataIndex: 'content',
+    width: 400,
     slotName: 'content'
   },
   {
-    title: '回复至',
+    title: '所在文章',
+    width: 400,
+    align: 'center',
     dataIndex: 'parent',
-    width: 260,
     slotName: 'parent'
   },
   {
     title: '操作',
     dataIndex: 'optional',
-    width: 160,
+    width: 200,
     align: 'center',
     slotName: 'optional'
   }
-];
+]);
 // 行的唯一标识数据
 const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数组
 // 行配置
@@ -96,12 +100,16 @@ const rowSelection: TableRowSelection = reactive({
 });
 
 // 接收数据
-const comments = ref([]);
+const comments: Ref<TableData[]> = ref([]);
 
 // 删除loading
-const formLoading = ref(false);
+const formLoading = ref<boolean>(false);
+
+// 查看详情框
+const editVisible = ref<boolean>(false);
+
 // 获取列表项
-const fetchComments = async () => {
+const fetchComments = async (): Promise<void> => {
   try {
     formLoading.value = true;
     const { data } = await getCommentList({
@@ -111,7 +119,7 @@ const fetchComments = async () => {
       email: props.search.email,
       nickname: props.search.nickname,
       title: props.search.title,
-      parent_nickname: props.search.parent_nickname
+      parent_email: props.search.parent_email
     });
     console.log(props.search.email, '筛选邮箱');
     console.log(props.itemType, '当前选项');
@@ -127,7 +135,21 @@ const fetchComments = async () => {
 
 // 配置表格分页
 // 当前页
-const curPage = ref(1);
+const curPage = ref<number>(1);
+
+// 编辑项  查看详情
+const viewDetail = ref<ViewDetail>({
+  nickname: '',
+  email: '',
+  path: '',
+  content: '',
+  comment_path: '',
+  parent_nickname: '',
+  parent_path: '',
+  parent_content: '',
+  parent_email: '',
+  parent_comment_path: ''
+});
 
 // 一共多少数据
 const total = defineModel('total', {
@@ -136,10 +158,10 @@ const total = defineModel('total', {
 });
 
 // 可选择的每页条目数
-const pageSizes = ref([5, 10, 20]);
+const pageSizes = ref<number[]>([5, 10, 20]);
 
 // 默认每页的数据条数
-const limit = ref(10);
+const limit = ref<number>(10);
 
 // 计算最大页码
 const maxPage = computed(() =>
@@ -156,11 +178,11 @@ const pagination = reactive({
   showJumper: true,
   showPageSize: true,
   pageSizeOptions: pageSizes,
-  onChange: current => handlePageChange(current)
+  onChange: (current: number) => handlePageChange(current)
 });
 
 // 表格分页
-const handlePageChange = current => {
+const handlePageChange = (current: number) => {
   console.log(111);
   if (current <= maxPage.value && current > 0) {
     pagination.current = current; // 更新当前页码
@@ -168,16 +190,16 @@ const handlePageChange = current => {
 };
 
 // 全选,一次性选中当前页所有
-const selectAllChange = item => {
+const selectAllChange = (item: number[]) => {
   console.log(item);
 };
 
 // 删除一个
-const confirmDeleteOne = async id => {
+const confirmDeleteOne = async (id: number) => {
   try {
     formLoading.value = true;
     await deleteComment({ list: [id] });
-    selectedKeys.value = selectedKeys.value.filter(key => key !== id.value);
+    selectedKeys.value = selectedKeys.value.filter(key => key !== id);
     reFresh();
   } catch (error) {
     Message.info(error.msg);
@@ -187,12 +209,12 @@ const confirmDeleteOne = async id => {
 };
 
 // 审核一个
-const confirmAuditOne = async id => {
+const confirmAuditOne = async (id: number) => {
   try {
     formLoading.value = true;
     await auditComment({ list: [id] });
     // 筛选出去
-    selectedKeys.value = selectedKeys.value.filter(key => key !== id.value);
+    selectedKeys.value = selectedKeys.value.filter(key => key !== id);
     reFresh();
   } catch (error) {
     console.log(error);
@@ -236,14 +258,20 @@ const confirmAuditSelect = async () => {
 };
 
 // 修改页码
-const changePage = item => {
+const changePage = (item: number) => {
   // 切换到当前页
   curPage.value = item;
   fetchComments();
 };
 
+const editItem = (item: ViewDetail) => {
+  editVisible.value = true;
+  viewDetail.value = item;
+  console.log(viewDetail);
+};
+
 // 处理每页条目数变化
-const handlePageSizeChange = size => {
+const handlePageSizeChange = (size: number) => {
   // 只接收 size
   console.log(`每页条目数已更改为: ${size}`);
   limit.value = size; // 更新每页条目数
@@ -254,14 +282,6 @@ const handlePageSizeChange = size => {
 watch(selectedKeys, newCount => {
   emit('update:enabled', newCount.length > 0);
 });
-// 监听 props.itemType
-watch(
-  () => props.itemType,
-  newValue => {
-    debugger; // 可以在这里调试
-    console.log('itemType changed:', newValue);
-  }
-);
 
 // 父组件刷新方法
 const reFresh = () => {
@@ -279,13 +299,100 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <!-- <a-modal v-model:visible="editVisible" @ok="editOk">
+    <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose>
+      <template #title>查看评论详情:</template>
+      <a-spin
+        :loading="formLoading"
+        tip="This may take a while..."
+        class="main"
+      >
+        <div class="drawer">
+          <a-form
+            :model="viewDetail"
+            :style="{ width: '380px' }"
+            layout="vertical"
+          >
+            <div v-if="viewDetail.parent_email" class="details-other">
+              <a-form-item field="userInfo">
+                <div class="details">
+                  <div class="details-info">
+                    <a-image
+                      :src="viewDetail.parent_path"
+                      alt="图片"
+                      width="35"
+                      height="35"
+                      fit="cover"
+                    />
+                    <span>{{ viewDetail.parent_nickname }}</span>
+                  </div>
+                  <div>邮箱:{{ viewDetail.parent_email }}</div>
+                </div>
+              </a-form-item>
+              <a-form-item field="content" label="评论内容:">
+                <div>{{ viewDetail.parent_content }}</div>
+              </a-form-item>
+              <a-form-item field="content">
+                <div class="pic_Details">
+                  <a-image-preview-group infinite>
+                    <a-space>
+                      <a-image
+                        v-for="(src, index) in viewDetail.parent_comment_path"
+                        :key="index"
+                        :src="src"
+                        width="50"
+                        height="50"
+                        style="object-fit: contain"
+                      />
+                    </a-space>
+                  </a-image-preview-group>
+                </div>
+              </a-form-item>
+            </div>
+            <div class="details-self">
+              <a-form-item field="userInfo">
+                <div class="details">
+                  <div class="details-info">
+                    <a-image
+                      :src="viewDetail.path"
+                      alt="图片"
+                      width="35"
+                      height="35"
+                      fit="cover"
+                    />
+                    <span>{{ viewDetail.nickname }}</span>
+                  </div>
+                  <div>邮箱:{{ viewDetail.email }}</div>
+                </div>
+              </a-form-item>
+
+              <a-form-item field="content" label="回复评论内容:">
+                <div>{{ viewDetail.content }}</div>
+              </a-form-item>
+              <a-form-item field="content">
+                <div class="pic_Details">
+                  <a-image-preview-group infinite>
+                    <a-space>
+                      <a-image
+                        v-for="(src, index) in viewDetail.comment_path"
+                        :key="index"
+                        :src="src"
+                        width="50"
+                        height="50"
+                        style="object-fit: contain"
+                      />
+                    </a-space>
+                  </a-image-preview-group>
+                </div>
+              </a-form-item>
+            </div>
+          </a-form>
+        </div>
+      </a-spin>
+    </a-drawer>
+    <!-- <a-modal>
       <template #title>修改评论</template>
-      <a-mention
-        v-model="editContent"
-        type="textarea"
-        placeholder="please enter your username..."
-      />
+      <a-mention type="textarea" placeholder="please enter your username..." />
+
       <a-upload
         ref="uploadRef"
         list-type="picture"
@@ -346,13 +453,15 @@ defineExpose({ reFresh });
           </div>
         </template>
         <template #content="{ record }">
-          <div v-if="record.article_id">
-            <h4>
-              回复给
-              <router-link :to="{ path: './' }" class="custom-link">
-                {{ record.parent_nickname }}:
-              </router-link>
+          <div>
+            <h4 v-if="record.parent_nickname">
+              回复了
+              <span class="ohter-name">
+                {{ record.parent_nickname }}
+              </span>
+              的评论
             </h4>
+            <h4 v-else>回复到文章</h4>
             <a-typography-paragraph
               :ellipsis="{
                 rows: 2,
@@ -362,21 +471,13 @@ defineExpose({ reFresh });
             >
               {{ record.content }}
               <div v-if="record.comment_path.length > 0">
-                <h4>评论图片详情:</h4>
-                <div class="pic_Details">
-                  <a-image-preview-group infinite>
-                    <a-space>
-                      <a-image
-                        v-for="(src, index) in record.comment_path"
-                        :key="index"
-                        :src="src"
-                        width="50"
-                        height="50"
-                        style="object-fit: contain"
-                      />
-                    </a-space>
-                  </a-image-preview-group>
-                </div>
+                <span
+                  v-for="index in record.comment_path.length"
+                  :key="index"
+                  style="color: #165dff"
+                >
+                  [图片]
+                </span>
               </div>
             </a-typography-paragraph>
           </div>
@@ -397,11 +498,11 @@ defineExpose({ reFresh });
         </template>
         <template #optional="{ record }">
           <div class="option">
-            <!-- <span>
-              <a-button type="outline" size="mini" @click="editItem(record)">
-                修改
+            <span>
+              <a-button type="text" @click="editItem(record)">
+                查看详情
               </a-button>
-            </span> -->
+            </span>
             <span>
               <a-popconfirm
                 content="您确定要删除吗？"
@@ -435,7 +536,7 @@ defineExpose({ reFresh });
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .custom-filter {
   float: left;
   padding: 20px;
@@ -457,6 +558,10 @@ defineExpose({ reFresh });
 .left {
   float: left;
   margin-right: 15px;
+
+  :deep(img) {
+    border-radius: 30px;
+  }
 }
 
 .right {
@@ -470,6 +575,30 @@ defineExpose({ reFresh });
   margin: 0 8px 0 -3px;
   color: #5bc0de; /* 浅蓝色 */
   text-decoration: none; /* 去除下划线 */
+}
+
+.ohter-name {
+  color: #5bc0de; /* 浅蓝色 */
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+}
+
+.details-info {
+  :deep(img) {
+    border-radius: 30px;
+  }
+
+  span {
+    margin-left: 10px;
+  }
+}
+
+.details-self {
+  padding: 8px;
+  background-color: #f2f3f5;
 }
 
 .inherit-color {

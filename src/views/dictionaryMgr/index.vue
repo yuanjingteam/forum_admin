@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import DictionaryItem from '@/views/dictionaryMgr/dictionaryItem/index.vue';
 import DictionaryType from '@/views/dictionaryMgr/dictionaryType/index.vue';
+import { SearchItemModel } from '@/views/dictionaryMgr/search/index.vue';
 import search from '@/views/dictionaryMgr/search/index.vue';
 
 // 有待扩展
@@ -9,18 +10,22 @@ import search from '@/views/dictionaryMgr/search/index.vue';
 const searchList = ref({
   name: '',
   code: '',
-  status: '',
+  status: 1,
   create_at: ''
 });
 
+// 搜索字典项模型
+const searchItemModel = () => {
+  return {
+    label: '',
+    status: 0,
+    start_time: '',
+    end_time: ''
+  };
+};
+
 // 搜索字典项
-const searchItem = ref({
-  dict_type_code: '',
-  label: '',
-  status: '',
-  start_time: '',
-  end_time: ''
-});
+const searchItem = ref(searchItemModel());
 
 // 当前列
 const dict_type = ref('');
@@ -39,7 +44,7 @@ const notifyRefresh = () => {
 };
 
 // 在当前条件下搜索
-const handleSearch = (term: any) => {
+const handleSearch = (term: SearchItemModel) => {
   searchItem.value.label = term.label;
   searchItem.value.status = term.status;
   searchItem.value.start_time = term.create_at[0];
@@ -49,10 +54,9 @@ const handleSearch = (term: any) => {
 
 // 清空
 const handleClear = () => {
-  searchItem.value.label = '';
-  searchItem.value.status = '';
-  searchItem.value.start_time = '';
-  searchItem.value.end_time = '';
+  // 重置为初始状态
+  searchItem.value = searchItemModel();
+  console.log(searchItem.value, '重置');
   notifyRefresh();
 };
 </script>

@@ -1,57 +1,63 @@
 <script setup lang="ts">
-import { onMounted, ref, defineEmits } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { getDicType, delDicType } from '@/api/dictionary';
-import EditItem from '@/views/dictionaryMgr/dictionaryType/EditItem/index.vue';
-import AddItem from '@/views/dictionaryMgr/dictionaryType/AddItem/index.vue';
-const dic_list = ref([]);
+import { DicList, EditorList } from '@/api/dictionary';
+type DictTypeItem = DicList['data']['dict_type_list'][number];
+type DictType = DicList['data']['dict_type_list'];
+
+const dic_list = ref<DictType>([]);
 
 // 定义 `check` 事件,切换列表
-const emit = defineEmits(['check', 'update']);
+const emit = defineEmits<{
+  (e: 'check', payload: string);
+  (e: 'update'): void; // 可以根据需要指定 payload 的类型
+}>();
 
 // 绑定选中行
-const selectedKeys = ref([0]);
+const selectedKeys = ref<[number]>([0]);
 
 // 选择弹框
-const editType = ref(false);
-const deleteVisible = ref(false);
-const addVisible = ref(false);
+const editType = ref<boolean>(false); // editType 为 boolean 类型
+const deleteVisible = ref<boolean>(false); // deleteVisible 为 boolean 类型
+const addVisible = ref<boolean>(false); // addVisible 为 boolean 类型
 // 待扩展的搜索功能
 const search = defineModel('search', {
   type: Object as () => {
-    name: String;
-    code: String;
-    status: String;
-    create_at: String;
+    name: string;
+    code: string;
+    status: number;
+    create_at: string;
   },
   required: true,
   default: () => ({
     name: '',
     code: '',
-    status: 0,
+    status: 1,
     create_at: ''
   })
 });
 
 // 需要修改的值
-const editData = ref({
+const editData = ref<EditorList>({
   id: -1,
   name: '',
   code: '',
-  status: 0,
+  status: 1,
   description: ''
 });
 
 // 需要删除的值
-const deleteList = ref([0]);
+const deleteList = ref<[number]>([0]); // 初始值为一个包含一个数字的数组
 
 // 获取字典类型
 const featchDicList = async () => {
   const { data } = await getDicType({
     name: search.value.name,
     code: search.value.code,
+    create_at_begin: '',
+    create_at_end: '',
     status: search.value.status,
-    create_at: search.value.create_at,
     page: 1,
     limit: 100
   });
@@ -60,7 +66,7 @@ const featchDicList = async () => {
 };
 
 // 编辑
-const editSelect = item => {
+const editSelect = (item: DictTypeItem) => {
   editType.value = true;
   // 解构出筛选条件并赋值
   const { id, name, code, status, description } = item;
@@ -68,19 +74,19 @@ const editSelect = item => {
 };
 
 // 删除
-const deleteSelect = item => {
+const deleteSelect = (id: number) => {
   deleteVisible.value = true;
-  deleteList.value[0] = item;
+  deleteList.value[0] = id;
 };
 // 新增
 const addSelect = () => {
   addVisible.value = true;
 };
-
+// 确认删除
 const submitDelete = async () => {
   try {
     await delDicType({
-      id_list: deleteList
+      id_list: deleteList.value
     });
     Message.info('删除成功');
     // 更新

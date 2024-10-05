@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, defineModel, defineProps, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { updateTag } from '@/api/tag';
+import { upLoadFile } from '@/api/upload';
 
+const emit = defineEmits(['refresh']);
 // 批量删除
 const editVisible = defineModel('visible', {
   type: Boolean,
@@ -96,11 +98,17 @@ const submitEdit = async () => {
     formData.append('article_count', edit.value.article_count.toString());
     formData.append('heat', edit.value.heat.toString());
     formData.append('fans_count', edit.value.fans_count.toString());
-    formData.append('upload[]', file.value); // 使用上传的文件
-    console.log(file.value, 213123);
-
+    // // 返回一个在线链接存储
+    // const {
+    //   data: {
+    //     data: { upload }
+    //   }
+    // } = await upLoadFile({ 'upload[]': file.value, 'width': 20 });
+    // formData.append('uploads', upload); // 使用上传的文件
     await updateTag(formData);
+    emit('refresh');
     Message.info('修改成功');
+    // 通知父组件刷新
     return true;
   } catch (error) {
     Message.info(error.msg);

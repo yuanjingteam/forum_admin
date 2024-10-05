@@ -1,14 +1,25 @@
 import request from '@/api/interceptor';
 
+import type { TableData } from '@arco-design/web-vue';
+
 export interface Data {
   code: number;
-  data: { comlist: Array<Object>; total: number };
+  data: object;
+  msg: string;
+}
+
+export interface ComData {
+  code: number;
+  data: {
+    comlist: TableData[];
+    total: number;
+  };
   msg: string;
 }
 
 // 获取评论列表
 export function getCommentList(data) {
-  return request.get<Data>('/backstage_comment/list', data); // 这里会自动拼接 baseURL
+  return request.get<ComData>('/backstage_comment/list', data); // 这里会自动拼接 baseURL
 }
 
 // 修改评论内容
