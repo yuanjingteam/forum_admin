@@ -9,7 +9,7 @@ import {
   getDicItem,
   delDicItem,
   updateDicItem,
-  EditorItem
+  EditDicItem
 } from '@/api/dictionary';
 import EditItem from '@/views/dictionaryMgr/dictionaryItem/EditItem/index.vue';
 // 定义行
@@ -255,10 +255,10 @@ const deleteItem = async (dict_type: string, id: number) => {
 };
 
 // 改变状态
-const switchData = ref<EditorItem>();
+const switchData = ref<EditDicItem>();
 // 声明一个Promise等待用户做出选择后再进行后续操作
 let resolvePromise;
-const switchChange = async (item: EditorItem) => {
+const switchChange = async (item: EditDicItem) => {
   // 保存原始状态
   switchData.value = item;
   // 显示模态框
@@ -270,7 +270,7 @@ const switchChange = async (item: EditorItem) => {
   item.status = switchData.value.status;
 };
 
-const getSwitch = async (item: EditorItem) => {
+const getSwitch = async (item: EditDicItem) => {
   try {
     await updateDicItem(item);
     Message.info('修改成功');

@@ -17,7 +17,7 @@ export interface DicListForm {
   create_at_end: string;
 }
 // 获取字典类型
-export interface DicList {
+export interface GetDicList {
   code: number;
   data: {
     dict_type_list: Array<{
@@ -33,7 +33,7 @@ export interface DicList {
   msg: string;
 }
 // 新增字典类型
-export interface AddList {
+export interface AddDicList {
   name: string;
   code: string;
   status: number;
@@ -41,11 +41,11 @@ export interface AddList {
 }
 
 // 删除字典类型
-export interface DelList {
+export interface DelDicList {
   id_list: number[];
 }
 // 编辑字典类型
-export interface EditorList {
+export interface EditDicList {
   name: string;
   code: string;
   status: number;
@@ -66,7 +66,7 @@ export interface DicItemForm {
 }
 
 // 获取字典项
-export interface DicItem {
+export interface GetDicItem {
   code: number;
   data: {
     dict_item_list: TableData[];
@@ -76,7 +76,7 @@ export interface DicItem {
 }
 
 // 新增字典项
-export interface AddItem {
+export interface AddDicItem {
   dict_type_code: string;
   label: string;
   value: string;
@@ -87,13 +87,13 @@ export interface AddItem {
 }
 
 // 删除字典项
-export interface DelItem {
+export interface DelDicItem {
   id_list: number[];
   dict_type_code: string;
 }
 
 // 修改字典项
-export interface EditorItem {
+export interface EditDicItem {
   id: number;
   label: string;
   value: number;
@@ -105,40 +105,40 @@ export interface EditorItem {
 
 // 获取字典类型
 export function getDicType(data: DicListForm) {
-  return request.get<DicList>('/dict/get_type', { params: data });
+  return request.get<GetDicList>('/dict/get_type', { params: data });
 }
 
 // 新增字典类型
-export function addDicType(data: AddList) {
+export function addDicType(data: AddDicList) {
   return request.post<Data>('/dict/add_type', data);
 }
 
 // 删除字典类型
-export function delDicType(data: DelList) {
+export function delDicType(data: DelDicList) {
   return request.delete<Data>('/dict/delete_type', { params: data });
 }
 
 // 修改字典类型
-export function updateDicType(data: EditorList) {
+export function updateDicType(data: EditDicList) {
   return request.post<Data>('/dict/delete_type', data);
 }
 // -------------------------------------------------------------------------------------//
 // 获取字典项
 export function getDicItem(data: DicItemForm) {
-  return request.get<DicItem>('/dict/get_item', { params: data });
+  return request.get<GetDicItem>('/dict/get_item', { params: data });
 }
 
 // 新增字典项
-export function addDicItem(data: AddItem) {
+export function addDicItem(data: AddDicItem) {
   return request.get<Data>('/dict/add_item', { params: data });
 }
 
 // 删除字典项
-export function delDicItem(data: DelItem) {
+export function delDicItem(data: DelDicItem) {
   return request.delete<Data>('/dict/delete_item', { params: data });
 }
 
 // 修改字典项
-export function updateDicItem(data: EditorItem) {
+export function updateDicItem(data: EditDicItem) {
   return request.post<Data>('/dict/update_item', data);
 }

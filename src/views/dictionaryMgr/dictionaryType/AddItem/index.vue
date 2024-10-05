@@ -2,7 +2,7 @@
 import { addDicType } from '@/api/dictionary';
 import { Message } from '@arco-design/web-vue';
 import { reactive } from 'vue';
-import { AddList } from '@/api/dictionary';
+import { AddDicList } from '@/api/dictionary';
 // 定义模型
 const addVisible = defineModel('visible', {
   type: Boolean,
@@ -15,7 +15,7 @@ const emit = defineEmits<{
 }>();
 
 // 定义初始状态
-const initialState: AddList = {
+const initialState: AddDicList = {
   name: '',
   code: '',
   status: 1,
@@ -23,7 +23,7 @@ const initialState: AddList = {
 };
 
 // 使用 reactive 创建响应式对象
-const addType = reactive<AddList>({
+const addType = reactive<AddDicList>({
   name: '',
   code: '',
   status: 1,

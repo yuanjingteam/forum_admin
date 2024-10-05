@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import { updateDicType, EditorList } from '@/api/dictionary';
+import { updateDicType, EditDicList } from '@/api/dictionary';
 
 const props = defineProps<{
-  editData: EditorList; // 使用定义的类型
+  editData: EditDicList; // 使用定义的类型
 }>();
 
 // 定义emit通知更新
@@ -18,7 +18,7 @@ const editVisible = defineModel('visible', {
   required: true
 });
 
-const edit = ref<EditorList>({ ...props.editData }); // 创建一个拷贝
+const edit = ref<EditDicList>({ ...props.editData }); // 创建一个拷贝
 
 const formLoading = ref<boolean>(false);
 
@@ -54,7 +54,7 @@ const submitEdit = async (): Promise<boolean> => {
 // 监听 props 的变化，更新本地响应式对象
 watch(
   () => props.editData,
-  async (newValue: EditorList) => {
+  async (newValue: EditDicList) => {
     edit.value = { ...newValue }; // 更新 edit 的值
   }
 );

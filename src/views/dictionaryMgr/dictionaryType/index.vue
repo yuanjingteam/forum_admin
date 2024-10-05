@@ -2,9 +2,11 @@
 import { onMounted, ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { getDicType, delDicType } from '@/api/dictionary';
-import { DicList, EditorList } from '@/api/dictionary';
-type DictTypeItem = DicList['data']['dict_type_list'][number];
-type DictType = DicList['data']['dict_type_list'];
+import { GetDicList, EditDicList } from '@/api/dictionary';
+import EditItem from '@/views/dictionaryMgr/dictionaryType/EditItem/index.vue';
+import AddItem from '@/views/dictionaryMgr/dictionaryType/AddItem/index.vue';
+type DictTypeItem = GetDicList['data']['dict_type_list'][number];
+type DictType = GetDicList['data']['dict_type_list'];
 
 const dic_list = ref<DictType>([]);
 
@@ -39,7 +41,7 @@ const search = defineModel('search', {
 });
 
 // 需要修改的值
-const editData = ref<EditorList>({
+const editData = ref<EditDicList>({
   id: -1,
   name: '',
   code: '',
