@@ -135,7 +135,10 @@ const densityList = computed(() => [
 const columns = computed<TableColumnData[]>(() => [
   {
     title: 'ID',
-    dataIndex: 'id'
+    dataIndex: 'id',
+    sortable: {
+      sortDirections: ['ascend', 'descend']
+    }
   },
   {
     title: 'API路径',
