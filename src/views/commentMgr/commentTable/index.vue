@@ -61,7 +61,7 @@ const auditSelectVisible = defineModel('audit', {
 const columns = computed<TableColumnData[]>(() => [
   {
     title: 'ID',
-    width: 100,
+    width: 80,
     dataIndex: 'id'
   },
   {
