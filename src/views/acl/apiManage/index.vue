@@ -293,6 +293,7 @@ const state = ref('');
 //添加api表格数据原始数据
 const originAddForm = () => {
   return {
+    id: undefined,
     path: '',
     request_method: '',
     grouping: '',
@@ -317,6 +318,7 @@ const editApi = async (id: number) => {
   const {
     data: { data }
   } = await getApiDetailService({ id: id });
+  addApiForm.value.id = data.id;
   addApiForm.value.brief_introduction = data.brief_introduction;
   addApiForm.value.path = data.path;
   addApiForm.value.request_method = data.request_method;
@@ -563,6 +565,9 @@ const changePageSize = (pageSize: number) => {
     >
       <div>
         <a-form ref="formRef" :model="addApiForm" :style="{ width: '600px' }">
+          <a-form-item v-if="state == 'edit'" field="id" label="ID">
+            <a-input v-model="addApiForm.id" disabled />
+          </a-form-item>
           <a-form-item
             field="path"
             label="API路径"
