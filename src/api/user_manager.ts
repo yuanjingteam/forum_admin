@@ -137,10 +137,7 @@ export function resetUserService(id: number) {
 export function importUserService(file: File) {
   return request.post<Request>('/user/import', file);
 }
-//上传用户头像
-export function uploadHeadshotService(file: File, id: number) {
-  return request.post<Request>(`/user/upload/headshot?id=${id}`, file);
-}
+
 //下载用户表模版
 export function downloadTemService() {
   return request.get('/user/download_template');

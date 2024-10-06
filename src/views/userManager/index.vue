@@ -152,6 +152,9 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '个人热度',
     dataIndex: 'heat',
+    sortable: {
+      sortDirections: ['ascend', 'descend']
+    },
     filterable: {
       filter: (value, record) => record.heat >= value,
       slotName: 'name-filter',
@@ -161,6 +164,9 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '粉丝数',
     dataIndex: 'fans_count',
+    sortable: {
+      sortDirections: ['ascend', 'descend']
+    },
     filterable: {
       filter: (value, record) => record.fans_count >= value,
       slotName: 'name-filter',
@@ -505,7 +511,10 @@ const onChange = (_, currentFile) => {
 const onProgress = currentFile => {
   file.value = currentFile;
 };
-
+//确定上传
+const handleOkImport = () => {};
+//取消上传
+const handleCancelImport = () => {};
 //--------------重置密码-----------
 const resetUser = async (id: number) => {
   await resetUserService(id);
@@ -636,11 +645,11 @@ const importUser = () => {
             </a-button>
             <a-modal
               v-model:visible="importVisible"
-              @ok="handleOk"
-              @cancel="handleCancel"
+              @ok="handleOkImport"
+              @cancel="handleCancelImport"
             >
               <template #title>用户导入</template>
-              <a-upload draggable action="/" />
+              <a-upload draggable action="/" :auto-upload="false" />
               <div class="user-import">
                 <span>
                   仅允许导入xls、xlsx格式文件。
