@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import search from '@/views/tagMgr/search/index.vue';
 import TagTable from '@/views/tagMgr/tagTable/index.vue';
 
 const tagTable = ref(null);
-const total = ref(0);
+const total = ref(10);
 const deleteDialog = ref(false);
 // 控制按钮的启用状态
 const isButtonEnabled = ref(false);
 
-const searchTerm = ref({
+const searchTerm = reactive({
   name: ''
 });
 // 子组键在当前条件下刷新
@@ -19,9 +19,9 @@ const notifyRefresh = () => {
 
 // 在当前条件下搜索
 const handleSearch = (term: any) => {
-  searchTerm.value = term; // 更新搜索关键词
-  console.log(searchTerm.value.name);
-  notifyRefresh();
+  searchTerm.name = term.name; // 直接更新搜索关键词
+  console.log(searchTerm.name);
+  notifyRefresh(); // 调用相关处理
 };
 
 // 打开删除对话框
@@ -66,7 +66,15 @@ const updateButtonState = (value: boolean) => {
   </div>
 </template>
 
-<style>
+<style scoped>
+:deep(.arco-tabs-content) {
+  padding-top: 0;
+}
+
+.main {
+  margin: 0 15px;
+}
+
 .sum {
   font-size: 20px;
   color: #fff;

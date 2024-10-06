@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-
+import { SearchModel } from '@/views/commentMgr/search/index.vue';
 // 子组件1
 import CommentTable from '@/views/commentMgr/commentTable/index.vue';
 // 子组件2
@@ -11,32 +11,32 @@ import search from '@/views/commentMgr/search/index.vue';
 const itemType = ref('1');
 
 // 批量删除
-const deleteDialog1 = ref(false);
-const deleteDialog2 = ref(false);
-const deleteDialog3 = ref(false);
+const deleteDialog1 = ref<boolean>(false);
+const deleteDialog2 = ref<boolean>(false);
+const deleteDialog3 = ref<boolean>(false);
 // 批量审核
-const auditDialog1 = ref(false);
-const auditDialog2 = ref(false);
-const auditDialog3 = ref(false);
+const auditDialog1 = ref<boolean>(false);
+const auditDialog2 = ref<boolean>(false);
+const auditDialog3 = ref<boolean>(false);
 
 // 创建对子组件的引用
 const comTable1 = ref();
 const comTable2 = ref();
 const comTable3 = ref();
 
-const total_1 = ref(0);
-const total_2 = ref(0);
-const total_3 = ref(0);
+const total_1 = ref<number>(0);
+const total_2 = ref<number>(0);
+const total_3 = ref<number>(0);
 
 // 控制按钮的启用状态
-const isButtonEnabled = ref(false);
+const isButtonEnabled = ref<boolean>(false);
 
 // 搜索子组件
-const searchTerm = ref({
+const searchTerm = ref<SearchModel>({
   email: '',
   nickname: '',
   title: '',
-  parent_nickname: ''
+  parent_email: ''
 });
 
 // 子组键在当前条件下刷新
@@ -78,7 +78,7 @@ const notifyAudit = () => {
 };
 
 // 在当前条件下搜索
-const handleSearch = (term: any) => {
+const handleSearch = (term: SearchModel) => {
   searchTerm.value = term; // 更新搜索关键词
   notifyRefresh();
 };
@@ -92,11 +92,12 @@ watch(itemType, newCount => {
 </script>
 
 <template>
-  <div>
+  <div class="main">
+    <Breadcrumb :items="['评论管理']" />
     <div>
       <search @search="handleSearch" @clearAll="handleSearch"></search>
     </div>
-    <a-tabs v-model:active-key="itemType">
+    <a-tabs v-model:active-key="itemType" type="line">
       <template #extra>
         <div class="deletSelect">
           <a-button type="outline" @click="notifyRefresh">刷新</a-button>
@@ -120,7 +121,6 @@ watch(itemType, newCount => {
           </span>
         </div>
       </template>
-
       <a-tab-pane key="1" :title="`全部${total_1} `">
         <comment-table
           ref="comTable1"
@@ -159,6 +159,14 @@ watch(itemType, newCount => {
 </template>
 
 <style scoped>
+:deep(.arco-tabs-content) {
+  padding-top: 0;
+}
+
+.main {
+  margin: 0 15px;
+}
+
 .deletSelect button {
   margin: 0 7px;
 }
