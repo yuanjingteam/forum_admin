@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref, reactive, watch, nextTick, h } from 'vue';
 import useLoading from '@/hooks/useLoading';
+import request from '@/api/interceptor';
+import AvatarUpload from '@/views/userManager/avatarUpload/index.vue';
 import {
   UserForm,
   User,
@@ -330,6 +332,13 @@ const handleOkModal = async () => {
 const handleCancelModal = () => {
   visibleModal.value = false;
 };
+//------------------上传---------------
+//是否压缩文件
+const terserChecked = ref(false);
+//确定上传文件
+const handleOkImport = () => {};
+//取消上传文件
+const handleCancelImport = () => {};
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
 const formRef = ref(null);
@@ -346,13 +355,15 @@ const originAddForm = () => {
     nickname: '',
     email: '',
     user_status: undefined,
-    role_ids: []
+    role_ids: [],
+    avatar_path: ''
   };
 };
 //添加用户表格数据
 const addUserForm = ref(originAddForm());
 //添加用户
 const addUser = () => {
+  terserChecked.value = false;
   title.value = '添加用户';
   state.value = 'add';
   addUserForm.value = originAddForm();
@@ -360,6 +371,7 @@ const addUser = () => {
 };
 //编辑当前用户
 const editUser = async (id: number) => {
+  terserChecked.value = false;
   title.value = '编辑用户';
   state.value = 'edit';
 
@@ -372,8 +384,7 @@ const editUser = async (id: number) => {
   addUserForm.value.email = data.email;
   addUserForm.value.user_status = data.user_status;
   addUserForm.value.role_ids = data.role_ids;
-  //回显用户头像
-  // addUserForm.value.avatar_path = data.avatar_path;
+  addUserForm.value.avatar_path = data.avatar_path;
   visibleDrawer.value = true;
 };
 //删除当前用户
@@ -497,24 +508,7 @@ const changeRole = async (value, record) => {
   //清空数据
   addUserForm.value = originAddForm();
 };
-//------------------上传---------------
-//上传的file文件
-const file = ref();
-//上传状态变化时
-const onChange = (_, currentFile) => {
-  file.value = {
-    ...currentFile
-    // url: URL.createObjectURL(currentFile.file)
-  };
-};
-//上传进度变化时调用
-const onProgress = currentFile => {
-  file.value = currentFile;
-};
-//确定上传
-const handleOkImport = () => {};
-//取消上传
-const handleCancelImport = () => {};
+
 //--------------重置密码-----------
 const resetUser = async (id: number) => {
   await resetUserService(id);
@@ -852,50 +846,11 @@ const importUser = () => {
             />
           </a-form-item>
           <a-form-item field="avatar_path" label="头像" required>
-            <a-upload
-              action="http://127.0.0.1:4523/m1/4891553-0-default/user/upload/headshot?id=351335"
-              :fileList="file ? [file] : []"
-              :show-file-list="false"
-              @change="onChange"
-              @progress="onProgress"
-            >
-              <template #upload-button>
-                <div
-                  :class="`arco-upload-list-item${
-                    file && file.status === 'error'
-                      ? ' arco-upload-list-item-error'
-                      : ''
-                  }`"
-                >
-                  <div
-                    v-if="file && file.url"
-                    class="arco-upload-list-picture custom-upload-avatar"
-                  >
-                    <img :src="file.url" />
-                    <div class="arco-upload-list-picture-mask">
-                      <IconEdit />
-                    </div>
-                    <a-progress
-                      v-if="file.status === 'uploading' && file.percent < 100"
-                      :percent="file.percent"
-                      type="circle"
-                      size="mini"
-                      :style="{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translateX(-50%) translateY(-50%)'
-                      }"
-                    />
-                  </div>
-                  <div v-else class="arco-upload-picture-card">
-                    <div class="arco-upload-picture-card-text">
-                      <IconPlus />
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </a-upload>
+            <a-checkbox v-model="terserChecked">压缩</a-checkbox>
+            <avatar-upload
+              v-model="addUserForm.avatar_path"
+              :ifTerser="terserChecked"
+            />
           </a-form-item>
           <a-form-item
             field="email"
