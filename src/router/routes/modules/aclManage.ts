@@ -7,7 +7,7 @@ const ACL: AppRouteRecordRaw = {
   component: DEFAULT_LAYOUT,
   meta: {
     locale: '权限管理',
-    icon: 'icon-check-circle',
+    icon: 'icon-desktop',
     requiresAuth: true,
     order: 12,
     hideChildrenMenu: false // 隐藏子菜单项

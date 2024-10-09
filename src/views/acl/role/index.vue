@@ -14,7 +14,6 @@ import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
-import { STACK_FIELD_END_OffsetSilhouette } from '@visactor/vchart';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
@@ -108,11 +107,17 @@ const densityList = computed(() => [
 const columns = computed<TableColumnData[]>(() => [
   {
     title: 'ID',
-    dataIndex: 'id'
+    dataIndex: 'id',
+    sortable: {
+      sortDirections: ['ascend', 'descend']
+    }
   },
   {
     title: '创建时间',
-    dataIndex: 'created_at'
+    dataIndex: 'created_at',
+    sortable: {
+      sortDirections: ['ascend', 'descend']
+    }
   },
   {
     title: '角色名称',
@@ -273,6 +278,7 @@ const state = ref('');
 //添加角色表格数据原始数据
 const originAddForm = () => {
   return {
+    id: undefined,
     name: '',
     code: '',
     status: undefined,
@@ -297,6 +303,7 @@ const editRole = async (id: number) => {
   const {
     data: { data }
   } = await getRoleDetailService({ id: id });
+  addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;
   addRoleForm.value.status = data.status;
@@ -320,6 +327,7 @@ const handleOkDrawer = async () => {
       //调用编辑角色接口
       await editRoleService(addRoleForm.value);
       Message.success('编辑成功');
+      addRoleForm.value = originAddForm();
     }
     fetchData();
     visibleDrawer.value = false;
@@ -342,26 +350,29 @@ const changePageSize = (pageSize: number) => {
   fetchData();
 };
 //--------------------开关------------------------
-//设置变量记录临时的原始状态值
-let tempStatus = ref(0);
-//点击确认改变状态之后
-const changeStatus = async status => {
-  //当前状态为改变之后的值
-  if (status == 1) {
-    //记录原始状态值
-    tempStatus.value = 2;
-  } else {
-    tempStatus.value = 1;
-  }
-  //点击确认才真正发送请求
-  addRoleForm.value.status = status;
-  await editRoleService(addRoleForm.value);
-  Message.success('修改成功');
-};
-const popconfirmVisibleChange = async visible => {
-  //点击取消或者其他地方让弹出框消失
-  if (visible == false) {
-    fetchData();
+//切换拦截
+const handleChangeIntercept = async (newValue, id) => {
+  //newValue为改变后的值
+  //获取当前角色信息
+  const {
+    data: { data }
+  } = await getRoleDetailService({ id: id });
+  addRoleForm.value.id = data.id;
+  addRoleForm.value.name = data.name;
+  addRoleForm.value.code = data.code;
+  addRoleForm.value.status = newValue;
+  addRoleForm.value.sort = data.sort;
+  try {
+    await editRoleService(addRoleForm.value);
+    Message.success('编辑成功');
+    //清空数据
+    addRoleForm.value = originAddForm();
+    return true;
+  } catch {
+    Message.error('编辑失败');
+    //清空数据
+    addRoleForm.value = originAddForm();
+    return false;
   }
 };
 </script>
@@ -517,20 +528,15 @@ const popconfirmVisibleChange = async visible => {
         :pagination="false"
       >
         <template #status="{ record }">
-          <a-popconfirm
-            :content="
-              tempStatus === 1
-                ? `您确定要启用${record.name}角色吗？`
-                : `您确定要禁用${record.name}角色吗？`
-            "
-            @ok="confirmStatusChange(record)"
-            @popup-visible-change="popconfirmVisibleChange"
-          >
-            <a-switch
-              :checked="tempStatus === 1"
-              @change="tempStatus = $event ? 1 : 2"
-            />
-          </a-popconfirm>
+          <a-switch
+            v-model="record.status"
+            :checked-value="1"
+            :unchecked-value="2"
+            :beforeChange="checked => handleChangeIntercept(checked, record.id)"
+          />
+          <span class="user-status">
+            {{ record.status == 1 ? '启用' : '禁用' }}
+          </span>
         </template>
 
         <!-- 操作项 -->
@@ -580,6 +586,9 @@ const popconfirmVisibleChange = async visible => {
     >
       <div>
         <a-form ref="formRef" :model="addRoleForm" :style="{ width: '600px' }">
+          <a-form-item v-if="state == 'edit'" field="id" label="ID">
+            <a-input v-model="addRoleForm.id" disabled />
+          </a-form-item>
           <a-form-item
             field="name"
             label="角色名称"
@@ -675,5 +684,9 @@ const popconfirmVisibleChange = async visible => {
   justify-content: flex-end;
   margin-top: 10px;
   margin-right: 10px;
+}
+
+.user-status {
+  margin-left: 12px;
 }
 </style>

@@ -10,7 +10,7 @@ const LIST: AppRouteRecordRaw = {
   meta: {
     locale: '用户管理',
     requiresAuth: true,
-    icon: 'icon-list',
+    icon: 'icon-user-group',
     order: 1,
     hideChildrenMenu: true // 隐藏子菜单项
   },
