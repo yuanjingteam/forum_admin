@@ -5,6 +5,7 @@ import {
   Message
 } from '@arco-design/web-vue';
 import { ref, reactive, watch, onMounted, computed } from 'vue';
+import useLoading from '@/hooks/useLoading';
 import { deleteTag } from '@/api/tag';
 import { getTagList } from '@/api/tag';
 import EditItem from '@/views/tagMgr/tagTable/EditItem/index.vue';
@@ -127,7 +128,7 @@ const tag_list = ref([]);
 const selectList = ref([]);
 
 // 加载
-const formLoading = ref(false);
+const { loading, setLoading } = useLoading(false);
 
 // 修改框
 const editVisible = ref(false);
@@ -147,7 +148,7 @@ const editData = ref({
 
 // 获取列表数据
 const getList = async () => {
-  formLoading.value = true;
+  setLoading(true);
   try {
     const { data } = await getTagList({
       offset: curPage,
@@ -158,7 +159,7 @@ const getList = async () => {
     total.value = data.data.total;
   } catch {
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
@@ -244,7 +245,7 @@ defineExpose({ reFresh });
 </script>
 
 <template>
-  <div class="main">
+  <div>
     <edit-item
       v-model:visible="editVisible"
       :editData="editData"
@@ -260,7 +261,7 @@ defineExpose({ reFresh });
       </div>
     </a-modal>
 
-    <a-spin :loading="formLoading" tip="This may take a while..." class="main">
+    <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-table
         v-model:selectedKeys="selectedKeys"
         :columns="columns"
@@ -275,13 +276,15 @@ defineExpose({ reFresh });
         @page-size-change="handlePageSizeChange"
       >
         <template #path="{ record }">
-          <a-image
-            :src="record.path"
-            alt="图片"
-            width="60"
-            height="60"
-            fit="cover"
-          />
+          <div class="user-path">
+            <a-image
+              :src="record.path"
+              alt="图片"
+              width="45"
+              height="45"
+              fit="cover"
+            />
+          </div>
         </template>
         <template #optional="{ record }">
           <div class="option">
@@ -321,6 +324,12 @@ defineExpose({ reFresh });
 .option {
   button {
     margin-right: 3px;
+  }
+}
+
+.user-path {
+  :deep(img) {
+    border-radius: 30px;
   }
 }
 </style>

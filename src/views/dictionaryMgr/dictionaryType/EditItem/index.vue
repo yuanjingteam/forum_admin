@@ -38,7 +38,6 @@ const switchChange = (status: number): void => {
 const submitEdit = async (): Promise<boolean> => {
   try {
     formLoading.value = true;
-    console.log(edit.value, '提交修改');
     await updateDicType(edit.value);
     Message.info('修改成功');
     emit('update');

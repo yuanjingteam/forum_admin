@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { Message } from '@arco-design/web-vue';
+import useLoading from '@/hooks/useLoading';
 import { updateDicItem, addDicItem } from '@/api/dictionary';
 
 // 修改
@@ -42,7 +43,7 @@ const emit = defineEmits<{
 }>();
 
 const edit = ref({ ...props.editData }); // 创建一个拷贝
-const formLoading = ref(false);
+const { loading, setLoading } = useLoading(false);
 
 // 点击确定
 const editOk = () => {
@@ -55,7 +56,7 @@ const editCancel = () => {};
 // 提交操作:修改/新增
 const submitEdit = async () => {
   try {
-    formLoading.value = true;
+    setLoading(true);
     console.log(edit.value, 111111);
     if (props.type == 'edit') {
       await updateDicItem(edit.value);
@@ -82,7 +83,7 @@ const submitEdit = async () => {
     Message.info(error.msg);
     return false;
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
@@ -110,7 +111,7 @@ watch(
     @cancel="editCancel"
   >
     <template #title>修改标签信息:</template>
-    <a-spin :loading="formLoading" tip="This may take a while..." class="main">
+    <a-spin :loading="loading" tip="This may take a while..." class="main">
       <div class="drawer">
         <a-form :model="edit" :style="{ width: '380px' }">
           <a-form-item

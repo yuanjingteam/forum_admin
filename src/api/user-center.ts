@@ -42,9 +42,6 @@ export function saveUserInfo() {
 export interface BasicInfoModel {
   email: string;
   nickname: string;
-  countryRegion: string;
-  area: string;
-  address: string;
   profile: string;
 }
 
@@ -76,6 +73,7 @@ export function queryCertification() {
   return axios.post<UnitCertification>('/api/user/certification');
 }
 
+// 更新用户头像
 export function userUploadApi(
   data: FormData,
   config: {
@@ -84,5 +82,5 @@ export function userUploadApi(
   }
 ) {
   // const controller = new AbortController();
-  return axios.post('/api/user/upload', data, config);
+  return axios.post('/produce_image_url', data, config);
 }

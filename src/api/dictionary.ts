@@ -1,11 +1,7 @@
 import request from '@/api/interceptor';
 import type { TableData } from '@arco-design/web-vue';
+import type { Data } from '@/api/base';
 
-export interface Data {
-  data: object;
-  code: number;
-  msg: string;
-}
 // 请求字典类型
 export interface DicListForm {
   name: string;
@@ -120,7 +116,7 @@ export function delDicType(data: DelDicList) {
 
 // 修改字典类型
 export function updateDicType(data: EditDicList) {
-  return request.post<Data>('/dict/delete_type', data);
+  return request.post<Data>('/dict/update_type', data);
 }
 // -------------------------------------------------------------------------------------//
 // 获取字典项

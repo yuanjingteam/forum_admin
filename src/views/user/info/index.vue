@@ -1,6 +1,18 @@
+<script lang="ts" setup>
+import UserPanel from './components/user-panel.vue';
+import BasicInformation from './components/basic-information.vue';
+import SecuritySettings from './components/security-settings.vue';
+</script>
+
+<script lang="ts">
+export default {
+  name: 'Setting'
+};
+</script>
+
 <template>
   <div class="container">
-    <Breadcrumb :items="['menu.user', 'menu.userSetting']" />
+    <Breadcrumb :items="['用户菜单', '用户信息']" />
     <a-row style="margin-bottom: 16px">
       <a-col :span="24">
         <UserPanel />
@@ -20,18 +32,6 @@
     </a-row>
   </div>
 </template>
-
-<script lang="ts" setup>
-import UserPanel from './components/user-panel.vue';
-import BasicInformation from './components/basic-information.vue';
-import SecuritySettings from './components/security-settings.vue';
-</script>
-
-<script lang="ts">
-export default {
-  name: 'Setting'
-};
-</script>
 
 <style scoped lang="less">
 .container {

@@ -1,3 +1,26 @@
+<script lang="ts" setup>
+import { ref } from 'vue';
+import { FormInstance } from '@arco-design/web-vue/es/form';
+import { BasicInfoModel } from '@/api/user-center';
+
+const formRef = ref<FormInstance>();
+const formData = ref<BasicInfoModel>({
+  email: '',
+  nickname: '',
+  profile: ''
+});
+const validate = async () => {
+  const res = await formRef.value?.validate();
+  if (!res) {
+    // do some thing
+    // you also can use html-type to submit
+  }
+};
+const reset = async () => {
+  await formRef.value?.resetFields();
+};
+</script>
+
 <template>
   <a-form
     ref="formRef"
@@ -30,20 +53,6 @@
     >
       <a-input v-model="formData.nickname" placeholder="请输入您的昵称" />
     </a-form-item>
-    <a-form-item
-      field="countryRegion"
-      label="国家/地区"
-      :rules="[
-        {
-          required: true,
-          message: '请选择国家/地区'
-        }
-      ]"
-    >
-      <a-select v-model="formData.countryRegion" placeholder="请选择">
-        <a-option value="China">中国</a-option>
-      </a-select>
-    </a-form-item>
 
     <a-form-item
       field="profile"
@@ -58,7 +67,7 @@
     >
       <a-textarea
         v-model="formData.profile"
-        placeholder="请您输入您的个人简洁，最多不超过200字"
+        placeholder="请您输入您的个人简介，最多不超过200字"
       />
     </a-form-item>
     <a-form-item>
@@ -69,32 +78,6 @@
     </a-form-item>
   </a-form>
 </template>
-
-<script lang="ts" setup>
-import { ref } from 'vue';
-import { FormInstance } from '@arco-design/web-vue/es/form';
-import { BasicInfoModel } from '@/api/user-center';
-
-const formRef = ref<FormInstance>();
-const formData = ref<BasicInfoModel>({
-  email: '',
-  nickname: '',
-  countryRegion: '',
-  area: '',
-  address: '',
-  profile: ''
-});
-const validate = async () => {
-  const res = await formRef.value?.validate();
-  if (!res) {
-    // do some thing
-    // you also can use html-type to submit
-  }
-};
-const reset = async () => {
-  await formRef.value?.resetFields();
-};
-</script>
 
 <style scoped lang="less">
 .form {

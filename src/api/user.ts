@@ -7,14 +7,18 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  Authorization: string;
-  userInfo: {
-    nickname: string;
-    email: string;
-    user_status: number;
-    roles_ids: number[];
-    avatar_path: string;
+  code: string;
+  data: {
+    Authorization: string;
+    userInfo: {
+      nickname: string;
+      email: string;
+      user_status: number;
+      roles_ids: number[];
+      avatar_path: string;
+    };
   };
+  msg: string;
 }
 
 export interface RightVerify {
