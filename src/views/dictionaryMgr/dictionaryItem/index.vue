@@ -2,16 +2,18 @@
 import {
   Message,
   TableColumnData,
+  TableData,
   TableRowSelection
 } from '@arco-design/web-vue';
-import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { ref, Ref, reactive, onMounted, computed, watch } from 'vue';
 import {
   getDicItem,
   delDicItem,
   updateDicItem,
   EditDicItem
 } from '@/api/dictionary';
-import EditItem from '@/views/dictionaryMgr/dictionaryItem/EditItem/index.vue';
+import OptionsItem from '@/views/dictionaryMgr/dictionaryItem/optionsItem/index.vue';
+
 // 定义行
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -25,12 +27,12 @@ const columns = computed<TableColumnData[]>(() => [
     width: 90,
     align: 'center'
   },
-  {
-    title: '字典类型',
-    width: 90,
-    align: 'center',
-    dataIndex: 'dict_type_code'
-  },
+  // {
+  //   title: '字典类型',
+  //   width: 90,
+  //   align: 'center',
+  //   dataIndex: 'dict_type_code'
+  // },
   {
     title: '字典键值',
     width: 90,
@@ -125,7 +127,7 @@ const handlePageChange = (current: number) => {
 };
 
 // 接收数据
-const dictionary = ref([]);
+const dictionary: Ref<TableData[]> = ref([]);
 
 // 删除loading
 const formLoading = ref(false);
@@ -134,19 +136,7 @@ const formLoading = ref(false);
 const switchLoading = ref(false);
 
 // 编辑可见框
-const editVisible = ref(false);
-
-const editDataModel = () => {
-  return {
-    id: -1,
-    label: '',
-    value: 0,
-    sort: 0,
-    status: 0,
-    description: '',
-    extend_value: ''
-  };
-};
+const optionsVisible = ref(false);
 
 const props = defineProps({
   dict_type: {
@@ -154,6 +144,18 @@ const props = defineProps({
     require: true
   }
 });
+
+const editDataModel = () => {
+  return {
+    id: -1,
+    label: '',
+    value: 0,
+    sort: 0,
+    status: 1,
+    description: '',
+    extend_value: ''
+  };
+};
 
 const search = defineModel('search', {
   type: Object as () => {
@@ -172,6 +174,7 @@ const search = defineModel('search', {
 });
 
 const editData = ref(editDataModel());
+const selectType = ref('add');
 
 // 获取数据
 const getList = async () => {
@@ -220,40 +223,6 @@ const selectAllChange = item => {
   console.log(item);
 };
 
-// 批量删除
-const deleteSelect = async () => {
-  await delDicItem({
-    dict_type_code: props.dict_type,
-    id_list: selectedKeys.value
-  });
-  selectedKeys.value = [];
-  getList();
-};
-
-// 编辑
-const editSelect = record => {
-  editVisible.value = true;
-  const { id, label, value, status, sort, description, extend_value } = record;
-  editData.value = {
-    id,
-    label,
-    value,
-    sort,
-    status,
-    description,
-    extend_value
-  };
-};
-
-// 单个删除
-const deleteItem = async (dict_type: string, id: number) => {
-  await delDicItem({
-    dict_type_code: dict_type,
-    id_list: [id]
-  });
-  reFresh();
-};
-
 // 改变状态
 const switchData = ref<EditDicItem>();
 // 声明一个Promise等待用户做出选择后再进行后续操作
@@ -297,8 +266,48 @@ const cancelChange = () => {
   resolvePromise(); // 继续执行后续代码
 };
 
+// 单个删除
+const deleteItem = async (dict_type: string, id: number) => {
+  await delDicItem({
+    dict_type_code: dict_type,
+    id_list: [id]
+  });
+  reFresh();
+};
+
+// 批量删除
+const deleteSelect = async () => {
+  await delDicItem({
+    dict_type_code: props.dict_type,
+    id_list: selectedKeys.value
+  });
+  selectedKeys.value = [];
+  getList();
+};
+
+// 编辑
+const editSelect = record => {
+  optionsVisible.value = true;
+  const { id, label, value, status, sort, description, extend_value } = record;
+  editData.value = {
+    id,
+    label,
+    value,
+    sort,
+    status,
+    description,
+    extend_value
+  };
+  selectType.value = 'edit';
+};
+
 // 新增
-const addDicItem = () => {};
+const addDicItem = () => {
+  optionsVisible.value = true;
+  selectType.value = 'add';
+  editData.value = editDataModel();
+};
+
 // 批量删除
 const batchDeleteDic = () => {};
 
@@ -336,14 +345,16 @@ defineExpose({ reFresh });
       <div>确认要修改当前字典项的状态吗?</div>
     </a-modal>
 
-    <edit-item
-      v-model:visible="editVisible"
+    <options-item
+      v-model:visible="optionsVisible"
       :editData="editData"
+      :dict_type_code="props.dict_type"
+      :type="selectType"
       @update="reFresh()"
-    ></edit-item>
+    ></options-item>
     <a-spin :loading="formLoading" tip="This may take a while..." class="main">
       <a-space class="batch-operation">
-        <a-button type="primary" @click="addDicItem">
+        <a-button type="primary" @click="addDicItem()">
           <template #icon>
             <icon-plus />
           </template>

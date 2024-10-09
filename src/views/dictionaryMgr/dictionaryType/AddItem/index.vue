@@ -33,7 +33,6 @@ const formRef = ref();
 // 提交添加函数
 const submitAdd = async () => {
   const vaild = await formRef.value.validate();
-  console.log(vaild, 11111111111);
   try {
     if (!vaild) {
       await addDicType(addType);
@@ -73,12 +72,11 @@ const switchChange = (status: number): void => {
           label="标签名"
           label-col-flex="115px"
           :rules="[{ required: true, message: '标签名不能为空' }]"
-          :validate-trigger="['change', 'input']"
         >
           <a-input v-model="addType.name" placeholder="输入标签名..." />
         </a-form-item>
         <a-form-item
-          field="description"
+          field="code"
           tooltip="输入当前项的唯一标识(英文)"
           label="字典类型编码"
           label-col-flex="115px"
@@ -96,7 +94,6 @@ const switchChange = (status: number): void => {
           label="标签描述"
           label-col-flex="115px"
           :rules="[{ required: true, message: '标签描述不能为空' }]"
-          :validate-trigger="['change', 'input']"
         >
           <a-textarea
             v-model="addType.description"

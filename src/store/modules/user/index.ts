@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import {
   login as userLogin,
   logout as userLogout,
-  getUserInfo,
   type LoginData
 } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
@@ -11,15 +10,11 @@ import type { UserState } from './types';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    name: undefined,
-    avatar: undefined,
+    nickname: undefined,
     email: undefined,
-    personalWebsite: undefined,
-    locationName: undefined,
-    phone: undefined,
-    registrationDate: undefined,
-    certification: undefined,
-    role: ''
+    user_status: undefined,
+    roles_ids: undefined,
+    avatar_path: undefined
   }),
 
   getters: {
@@ -45,18 +40,17 @@ const useUserStore = defineStore('user', {
       this.$reset();
     },
 
-    // 获取用户信息
-    async info() {
-      const res = await getUserInfo();
-
-      this.setInfo(res.data);
-    },
+    // async info() {
+    //   const res = await getUserInfo();
+    // },
 
     // Login
+    // 获取用户信息
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
-        setToken(res.data.token);
+        setToken(res.data.Authorization);
+        this.setInfo(res.data.userInfo);
       } catch (err) {
         clearToken();
         throw err;

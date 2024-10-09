@@ -79,7 +79,7 @@ export interface GetDicItem {
 export interface AddDicItem {
   dict_type_code: string;
   label: string;
-  value: string;
+  value: number;
   sort: number;
   status: number;
   description: string;
@@ -130,7 +130,7 @@ export function getDicItem(data: DicItemForm) {
 
 // 新增字典项
 export function addDicItem(data: AddDicItem) {
-  return request.get<Data>('/dict/add_item', { params: data });
+  return request.post<Data>('/dict/add_item', data);
 }
 
 // 删除字典项

@@ -36,8 +36,8 @@
       >
         <template #label="{ label }">{{ label }} :</template>
         <template #value="{ value, data }">
-          <a-tag v-if="data.label === '实名认证'" color="green" size="small">
-            已认证
+          <a-tag v-if="data.label === '用户状态'" color="green" size="small">
+            正常
           </a-tag>
           <span v-else>{{ value }}</span>
         </template>
@@ -60,28 +60,20 @@ const userStore = useUserStore();
 const file = {
   uid: '-2',
   name: 'avatar.png',
-  url: userStore.avatar
+  url: userStore.avatar_path
 };
 const renderData = [
   {
     label: '用户名',
-    value: userStore.name
+    value: userStore.nickname
   },
   {
-    label: '实名认证',
-    value: userStore.certification
+    label: '用户邮箱',
+    value: userStore.email
   },
   {
-    label: '账号ID',
-    value: userStore.accountId
-  },
-  {
-    label: '手机号码',
-    value: userStore.phone
-  },
-  {
-    label: '注册时间',
-    value: userStore.registrationDate
+    label: '用户角色',
+    value: userStore.roles_ids
   }
 ] as DescData[];
 const fileList = ref<FileItem[]>([file]);

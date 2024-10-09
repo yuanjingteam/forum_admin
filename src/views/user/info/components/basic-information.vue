@@ -44,43 +44,7 @@
         <a-option value="China">中国</a-option>
       </a-select>
     </a-form-item>
-    <a-form-item
-      field="area"
-      label="所在区域"
-      :rules="[
-        {
-          required: true,
-          message: '请选择所在区域'
-        }
-      ]"
-    >
-      <a-cascader
-        v-model="formData.area"
-        placeholder="请选择"
-        :options="[
-          {
-            label: '北京',
-            value: 'beijing',
-            children: [
-              {
-                label: '北京',
-                value: 'beijing',
-                children: [
-                  {
-                    label: '朝阳',
-                    value: 'chaoyang'
-                  }
-                ]
-              }
-            ]
-          }
-        ]"
-        allow-clear
-      />
-    </a-form-item>
-    <a-form-item field="address" label="具体地址">
-      <a-input v-model="formData.address" placeholder="请输入您的具体地址" />
-    </a-form-item>
+
     <a-form-item
       field="profile"
       label="个人简介"
