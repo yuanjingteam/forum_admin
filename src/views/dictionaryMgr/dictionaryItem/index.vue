@@ -2,16 +2,19 @@
 import {
   Message,
   TableColumnData,
+  TableData,
   TableRowSelection
 } from '@arco-design/web-vue';
-import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { ref, Ref, reactive, onMounted, computed, watch } from 'vue';
+import useLoading from '@/hooks/useLoading';
 import {
   getDicItem,
   delDicItem,
   updateDicItem,
   EditDicItem
 } from '@/api/dictionary';
-import EditItem from '@/views/dictionaryMgr/dictionaryItem/EditItem/index.vue';
+import OptionsItem from '@/views/dictionaryMgr/dictionaryItem/optionsItem/index.vue';
+
 // 定义行
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -25,12 +28,12 @@ const columns = computed<TableColumnData[]>(() => [
     width: 90,
     align: 'center'
   },
-  {
-    title: '字典类型',
-    width: 90,
-    align: 'center',
-    dataIndex: 'dict_type_code'
-  },
+  // {
+  //   title: '字典类型',
+  //   width: 90,
+  //   align: 'center',
+  //   dataIndex: 'dict_type_code'
+  // },
   {
     title: '字典键值',
     width: 90,
@@ -53,7 +56,7 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '描述',
     dataIndex: 'description',
-    width: 180,
+    width: 380,
     slotName: 'description',
     align: 'center'
   },
@@ -125,28 +128,22 @@ const handlePageChange = (current: number) => {
 };
 
 // 接收数据
-const dictionary = ref([]);
+const dictionary: Ref<TableData[]> = ref([]);
 
-// 删除loading
-const formLoading = ref(false);
+// loading效果
+const { loading, setLoading } = useLoading(false);
 
 // 修改状态按钮
-const switchLoading = ref(false);
+const switchCheck = ref(false);
+
+// 批量删除模态框
+const delSelectVisible = ref(false);
+
+// 是否可以批量删除
+const isButtonEnabled = ref(false);
 
 // 编辑可见框
-const editVisible = ref(false);
-
-const editDataModel = () => {
-  return {
-    id: -1,
-    label: '',
-    value: 0,
-    sort: 0,
-    status: 0,
-    description: '',
-    extend_value: ''
-  };
-};
+const optionsVisible = ref(false);
 
 const props = defineProps({
   dict_type: {
@@ -154,6 +151,18 @@ const props = defineProps({
     require: true
   }
 });
+
+const editDataModel = () => {
+  return {
+    id: -1,
+    label: '',
+    value: 0,
+    sort: 0,
+    status: 1,
+    description: '',
+    extend_value: ''
+  };
+};
 
 const search = defineModel('search', {
   type: Object as () => {
@@ -172,10 +181,11 @@ const search = defineModel('search', {
 });
 
 const editData = ref(editDataModel());
+const selectType = ref('add');
 
 // 获取数据
 const getList = async () => {
-  formLoading.value = true;
+  setLoading(true);
   try {
     const { data } = await getDicItem({
       dict_type_code: props.dict_type,
@@ -191,7 +201,7 @@ const getList = async () => {
   } catch (error) {
     Message.info(error.msg);
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
@@ -220,49 +230,15 @@ const selectAllChange = item => {
   console.log(item);
 };
 
-// 批量删除
-const deleteSelect = async () => {
-  await delDicItem({
-    dict_type_code: props.dict_type,
-    id_list: selectedKeys.value
-  });
-  selectedKeys.value = [];
-  getList();
-};
-
-// 编辑
-const editSelect = record => {
-  editVisible.value = true;
-  const { id, label, value, status, sort, description, extend_value } = record;
-  editData.value = {
-    id,
-    label,
-    value,
-    sort,
-    status,
-    description,
-    extend_value
-  };
-};
-
-// 单个删除
-const deleteItem = async (dict_type: string, id: number) => {
-  await delDicItem({
-    dict_type_code: dict_type,
-    id_list: [id]
-  });
-  reFresh();
-};
-
 // 改变状态
 const switchData = ref<EditDicItem>();
 // 声明一个Promise等待用户做出选择后再进行后续操作
-let resolvePromise;
+let resolvePromise: (value?: unknown) => void;
 const switchChange = async (item: EditDicItem) => {
   // 保存原始状态
   switchData.value = item;
   // 显示模态框
-  switchLoading.value = true;
+  switchCheck.value = true;
   // 阻塞后续代码，直到用户做出选择
   await new Promise(resolve => {
     resolvePromise = resolve; // 保存 resolve 函数
@@ -285,22 +261,70 @@ const getSwitch = async (item: EditDicItem) => {
 // 确认更改
 const confirmChange = () => {
   // 用户确认后关闭模态框
-  switchLoading.value = false;
+  switchCheck.value = false;
   // 调用更改方法
   getSwitch(switchData.value);
 };
 
 // 取消更改
 const cancelChange = () => {
-  switchLoading.value = false;
+  switchCheck.value = false;
   switchData.value.status = switchData.value.status === 1 ? 2 : 1;
   resolvePromise(); // 继续执行后续代码
 };
 
-// 新增
-const addDicItem = () => {};
+// 确认批量删除
+const confirmDelSelect = () => {
+  delSelectVisible.value = true;
+};
+
+// 删除当前项
+const deleteItem = async (dict_type: string, id: number) => {
+  await delDicItem({
+    dict_type_code: dict_type,
+    id_list: [id]
+  });
+  reFresh();
+};
+
+// 编辑当前项
+const editSelect = record => {
+  optionsVisible.value = true;
+  const { id, label, value, status, sort, description, extend_value } = record;
+  editData.value = {
+    id,
+    label,
+    value,
+    sort,
+    status,
+    description,
+    extend_value
+  };
+  selectType.value = 'edit';
+};
+
+// 新增字典项
+const addDicItem = () => {
+  optionsVisible.value = true;
+  selectType.value = 'add';
+  editData.value = editDataModel();
+};
+
 // 批量删除
-const batchDeleteDic = () => {};
+const batchDeleteDic = async () => {
+  try {
+    setLoading(true);
+    await delDicItem({
+      dict_type_code: props.dict_type,
+      id_list: selectedKeys.value
+    });
+    selectedKeys.value = [];
+    getList();
+  } catch {
+  } finally {
+    setLoading(false);
+  }
+};
 
 // 刷新页面
 const reFresh = () => {
@@ -321,6 +345,15 @@ watch(
   }
 );
 
+// 监听是否可以批量删除
+watch(selectedKeys, newCount => {
+  if (newCount.length > 0) {
+    isButtonEnabled.value = true;
+  } else {
+    isButtonEnabled.value = false;
+  }
+});
+
 // 暴露方法给父组件
 defineExpose({ reFresh });
 </script>
@@ -328,7 +361,7 @@ defineExpose({ reFresh });
 <template>
   <div class="main">
     <a-modal
-      v-model:visible="switchLoading"
+      v-model:visible="switchCheck"
       @ok="confirmChange"
       @cancel="cancelChange"
     >
@@ -336,20 +369,32 @@ defineExpose({ reFresh });
       <div>确认要修改当前字典项的状态吗?</div>
     </a-modal>
 
-    <edit-item
-      v-model:visible="editVisible"
+    <a-modal v-model:visible="delSelectVisible" @ok="batchDeleteDic">
+      <template #title>Title</template>
+      <div>确认删除选中项吗?</div>
+    </a-modal>
+
+    <options-item
+      v-model:visible="optionsVisible"
       :editData="editData"
+      :dict_type_code="props.dict_type"
+      :type="selectType"
       @update="reFresh()"
-    ></edit-item>
-    <a-spin :loading="formLoading" tip="This may take a while..." class="main">
+    ></options-item>
+    <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-space class="batch-operation">
-        <a-button type="primary" @click="addDicItem">
+        <a-button type="primary" @click="addDicItem()">
           <template #icon>
             <icon-plus />
           </template>
           新建
         </a-button>
-        <a-button @click="batchDeleteDic()">
+        <a-button
+          type="dashed"
+          status="danger"
+          :disabled="!isButtonEnabled"
+          @click="confirmDelSelect"
+        >
           <template #icon>
             <icon-delete />
           </template>

@@ -100,9 +100,9 @@ watch(itemType, newCount => {
     <a-tabs v-model:active-key="itemType" type="line">
       <template #extra>
         <div class="deletSelect">
-          <a-button type="outline" @click="notifyRefresh">刷新</a-button>
+          <a-button type="primary" @click="notifyRefresh">刷新</a-button>
           <a-button
-            type="outline"
+            type="dashed"
             status="danger"
             :disabled="!isButtonEnabled"
             @click="notifyDeleteSelect"
@@ -168,6 +168,6 @@ watch(itemType, newCount => {
 }
 
 .deletSelect button {
-  margin: 0 7px;
+  margin: 0 5px;
 }
 </style>
