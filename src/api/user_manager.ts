@@ -124,8 +124,8 @@ export function deleteUserService(data: { ids: number[] }) {
 }
 
 //获取当前用户详情
-export function getUserDetailService(params: { id?: number }) {
-  return request.get<UserDetail>('/user/getInfo', { params });
+export function getUserDetailService(id: number) {
+  return request.get<UserDetail>(`/user/getInfo?id=${id}`);
 }
 
 //重置用户密码

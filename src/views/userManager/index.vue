@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref, reactive, watch, nextTick, h } from 'vue';
 import useLoading from '@/hooks/useLoading';
-import request from '@/api/interceptor';
 import AvatarUpload from '@/views/userManager/avatarUpload/index.vue';
 import {
   UserForm,
@@ -12,6 +11,8 @@ import {
   deleteUserService,
   editUserService,
   resetUserService
+  // downloadUserService,
+  // downloadTemService
 } from '@/api/user_manager';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
@@ -335,10 +336,14 @@ const handleCancelModal = () => {
 //------------------上传---------------
 //是否压缩文件
 const terserChecked = ref(false);
-//确定上传文件
-const handleOkImport = () => {};
-//取消上传文件
-const handleCancelImport = () => {};
+//导出
+const outputFile = async () => {
+  // await downloadUserService();
+};
+//下载模版
+const downloadTemExcel = async () => {
+  // await downloadTemService();
+};
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
 const formRef = ref(null);
@@ -378,7 +383,7 @@ const editUser = async (id: number) => {
   //回显当前用户的详情
   const {
     data: { data }
-  } = await getUserDetailService({ id: id });
+  } = await getUserDetailService(id);
   addUserForm.value.user_id = data.id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -433,7 +438,7 @@ const handleChangeIntercept = async (newValue, id) => {
   //获取当前用户信息
   const {
     data: { data }
-  } = await getUserDetailService({ id: id });
+  } = await getUserDetailService(id);
   addUserForm.value.user_id = id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -637,21 +642,25 @@ const importUser = () => {
               </template>
               导入
             </a-button>
-            <a-modal
-              v-model:visible="importVisible"
-              @ok="handleOkImport"
-              @cancel="handleCancelImport"
-            >
+            <a-modal v-model:visible="importVisible" :hide-cancel="true">
               <template #title>用户导入</template>
-              <a-upload draggable action="/" :auto-upload="false" />
+              <a-upload
+                draggable
+                action="http://127.0.0.1:4523/m1/4891553-0-default/user/import"
+              />
               <div class="user-import">
                 <span>
                   仅允许导入xls、xlsx格式文件。
-                  <span style="color: #4080ff; cursor: pointer">下载模版</span>
+                  <span
+                    style="color: #4080ff; cursor: pointer"
+                    @click="downloadTemExcel"
+                  >
+                    下载模版
+                  </span>
                 </span>
               </div>
             </a-modal>
-            <a-button type="outline" status="success">
+            <a-button type="outline" status="success" @click="outputFile">
               <template #icon>
                 <icon-to-bottom />
               </template>

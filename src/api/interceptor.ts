@@ -65,6 +65,7 @@ axios.interceptors.response.use(
       // 返回拒绝的 Promise，并附带错误信息
       return Promise.reject(new Error(res.msg || '网络错误'));
     }
+    debugger;
     return res; // 返回响应数据
   },
   error => {

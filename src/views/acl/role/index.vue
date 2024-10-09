@@ -14,6 +14,7 @@ import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
+import RoleAcl from '@/views/acl/role/roleAcl/index.vue';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
@@ -302,7 +303,7 @@ const editRole = async (id: number) => {
   //回显当前角色的详情
   const {
     data: { data }
-  } = await getRoleDetailService({ id: id });
+  } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;
@@ -356,7 +357,7 @@ const handleChangeIntercept = async (newValue, id) => {
   //获取当前角色信息
   const {
     data: { data }
-  } = await getRoleDetailService({ id: id });
+  } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;
@@ -374,6 +375,16 @@ const handleChangeIntercept = async (newValue, id) => {
     addRoleForm.value = originAddForm();
     return false;
   }
+};
+//----------设置权限----------
+//权限抽屉是否可见
+const visibleApiDrawer = ref(false);
+//当前角色id
+const roleIdTem = ref(0);
+//点击设置权限后调用
+const showRoleAcl = id => {
+  visibleApiDrawer.value = true;
+  roleIdTem.value = id;
 };
 </script>
 
@@ -541,12 +552,13 @@ const handleChangeIntercept = async (newValue, id) => {
 
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text">
+          <a-button type="text" @click="showRoleAcl(record.id)">
             <template #icon>
               <icon-settings />
             </template>
             <template #default>设置权限</template>
           </a-button>
+
           <a-button type="text" @click="editRole(record.id)">
             <template #icon>
               <icon-edit />
@@ -639,6 +651,7 @@ const handleChangeIntercept = async (newValue, id) => {
       <template #title>批量删除</template>
       <div>当前共有{{ selectedKeys.length }}条数据。您确定要删除吗？</div>
     </a-modal>
+    <role-acl v-model="visibleApiDrawer" :roleId="roleIdTem"></role-acl>
   </div>
 </template>
 
