@@ -36,14 +36,15 @@ const updateButtonState = (value: boolean) => {
 </script>
 
 <template>
-  <div>
+  <div class="main">
+    <Breadcrumb :items="['标签管理']" />
     <search @search="handleSearch" @clearAll="handleSearch"></search>
     <a-tabs type="line">
       <template #extra>
         <span class="selectAll">
-          <a-button type="outline" @click="notifyRefresh">刷新</a-button>
+          <a-button type="primary" @click="notifyRefresh">刷新</a-button>
           <a-button
-            type="outline"
+            type="dashed"
             status="danger"
             :disabled="!isButtonEnabled"
             @click="notifyDeleteSelect"
@@ -66,7 +67,7 @@ const updateButtonState = (value: boolean) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 :deep(.arco-tabs-content) {
   padding-top: 0;
 }
@@ -82,5 +83,9 @@ const updateButtonState = (value: boolean) => {
 
 .selectAll {
   float: right;
+
+  button {
+    margin: 0 5px;
+  }
 }
 </style>

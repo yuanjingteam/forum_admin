@@ -31,7 +31,7 @@ const form = reactive({
 });
 const rules = {
   username: [
-    { required: true, message: '请输入正确账号' },
+    { required: true, message: '请输入正确邮箱账号' },
     {
       match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       message: '请输入有效的邮箱地址'
@@ -45,7 +45,7 @@ const rules = {
       match:
         /^(?![\d]+$)(?![a-z]+$)(?![A-Z]+$)(?![~!@#$%^&*.]+$)[\da-zA-z~!@#$%^&*.]{6,32}$/,
       message:
-        '密码格式：6-32位，包含大小写字母、数字、特殊字符(除空格)两种以上'
+        '密码格式：6-32位，包含大小写字母、数字、特殊字符(除空格)任意两种以上'
     }
   ]
 };
@@ -64,7 +64,6 @@ const handleSubmit = () => {
       try {
         // 快速查询属性
         const userInfoForm = pick(form, ['username', 'password']);
-        console.log(userInfoForm);
 
         // userInfoForm 被断言为 LoginData 类型，以确保其符合登录所需的数据结构
         // 登录校验

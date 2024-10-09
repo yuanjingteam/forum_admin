@@ -20,38 +20,6 @@
     <a-list-item>
       <a-list-item-meta>
         <template #avatar>
-          <a-typography-paragraph>密保问题</a-typography-paragraph>
-        </template>
-        <template #description>
-          <div class="content">
-            <a-typography-paragraph class="tip">
-              您暂未设置密保问题，密保问题可以有效的保护账号的安全。
-            </a-typography-paragraph>
-          </div>
-          <div class="operation">
-            <a-link>设置</a-link>
-          </div>
-        </template>
-      </a-list-item-meta>
-    </a-list-item>
-    <a-list-item>
-      <a-list-item-meta>
-        <template #avatar>
-          <a-typography-paragraph>安全手机</a-typography-paragraph>
-        </template>
-        <template #description>
-          <div class="content">
-            <a-typography-paragraph>已绑定：150******50</a-typography-paragraph>
-          </div>
-          <div class="operation">
-            <a-link>修改</a-link>
-          </div>
-        </template>
-      </a-list-item-meta>
-    </a-list-item>
-    <a-list-item>
-      <a-list-item-meta>
-        <template #avatar>
           <a-typography-paragraph>安全邮箱</a-typography-paragraph>
         </template>
         <template #description>
@@ -66,6 +34,23 @@
         </template>
       </a-list-item-meta>
     </a-list-item>
+    <!-- <a-list-item>
+      <a-list-item-meta>
+        <template #avatar>
+          <a-typography-paragraph>用户权限</a-typography-paragraph>
+        </template>
+        <template #description>
+          <div class="content">
+            <a-typography-paragraph>
+              设置当前用户的访问权限
+            </a-typography-paragraph>
+          </div>
+          <div class="operation">
+            <a-link>修改</a-link>
+          </div>
+        </template>
+      </a-list-item-meta>
+    </a-list-item> -->
   </a-list>
 </template>
 

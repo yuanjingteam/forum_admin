@@ -1,5 +1,5 @@
 import request from '@/api/interceptor';
-import type { UserState } from '@/store/modules/user/types';
+// import type { UserState } from '@/store/modules/user/types';
 
 export interface LoginData {
   username: string;
@@ -7,7 +7,18 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  token: string;
+  code: string;
+  data: {
+    Authorization: string;
+    userInfo: {
+      nickname: string;
+      email: string;
+      user_status: number;
+      roles_ids: number[];
+      avatar_path: string;
+    };
+  };
+  msg: string;
 }
 
 export interface RightVerify {
@@ -34,16 +45,14 @@ export interface UserItem {
   msg: string;
 }
 
+// 登录
 export function login(data: LoginData) {
   return request.post<LoginRes>('/backstage/login', data);
 }
 
+// 退出登录
 export function logout() {
-  return request.post<LoginRes>('/api/user/logout');
-}
-
-export function getUserInfo() {
-  return request.post<UserState>('/api/user/info');
+  return request.post<LoginRes>('/backstage/logout');
 }
 
 // 获取所有用户列表

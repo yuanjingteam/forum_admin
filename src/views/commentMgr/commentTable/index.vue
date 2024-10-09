@@ -5,6 +5,7 @@ import {
   TableData,
   TableRowSelection
 } from '@arco-design/web-vue';
+import useLoading from '@/hooks/useLoading';
 import { getCommentList, deleteComment, auditComment } from '@/api/comment';
 import { ref, Ref, reactive, onMounted, watch, computed } from 'vue';
 
@@ -20,8 +21,6 @@ export interface ViewDetail {
   parent_email: string;
   parent_comment_path: string;
 }
-// 定义更新,是否可以进行批量操作
-const emit = defineEmits(['update:enabled']);
 
 // 选择的哪一栏
 const props = defineProps({
@@ -46,8 +45,11 @@ const props = defineProps({
   }
 });
 
+// 定义更新,是否可以进行批量操作
+const emit = defineEmits(['update:enabled']);
+
 // 批量删除
-const deleteSelectVisible = defineModel('delete', {
+const delSelectVisible = defineModel('delete', {
   type: Boolean,
   required: true
 });
@@ -61,7 +63,7 @@ const auditSelectVisible = defineModel('audit', {
 const columns = computed<TableColumnData[]>(() => [
   {
     title: 'ID',
-    width: 100,
+    width: 80,
     dataIndex: 'id'
   },
   {
@@ -102,8 +104,8 @@ const rowSelection: TableRowSelection = reactive({
 // 接收数据
 const comments: Ref<TableData[]> = ref([]);
 
-// 删除loading
-const formLoading = ref<boolean>(false);
+// loading效果
+const { loading, setLoading } = useLoading(false);
 
 // 查看详情框
 const editVisible = ref<boolean>(false);
@@ -111,7 +113,7 @@ const editVisible = ref<boolean>(false);
 // 获取列表项
 const fetchComments = async (): Promise<void> => {
   try {
-    formLoading.value = true;
+    setLoading(true);
     const { data } = await getCommentList({
       offset: curPage.value,
       limit: limit.value,
@@ -129,7 +131,7 @@ const fetchComments = async (): Promise<void> => {
   } catch (error) {
     Message.info(error.msg);
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
@@ -197,21 +199,21 @@ const selectAllChange = (item: number[]) => {
 // 删除一个
 const confirmDeleteOne = async (id: number) => {
   try {
-    formLoading.value = true;
+    setLoading(true);
     await deleteComment({ list: [id] });
     selectedKeys.value = selectedKeys.value.filter(key => key !== id);
     reFresh();
   } catch (error) {
     Message.info(error.msg);
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
 // 审核一个
 const confirmAuditOne = async (id: number) => {
   try {
-    formLoading.value = true;
+    setLoading(true);
     await auditComment({ list: [id] });
     // 筛选出去
     selectedKeys.value = selectedKeys.value.filter(key => key !== id);
@@ -220,7 +222,7 @@ const confirmAuditOne = async (id: number) => {
     console.log(error);
     // Message.info(error.msg);
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
@@ -228,7 +230,7 @@ const confirmAuditOne = async (id: number) => {
 const confirmDeleteSelect = async () => {
   try {
     console.log(props.itemType, 21331);
-    formLoading.value = true;
+    setLoading(true);
     await deleteComment({ list: selectedKeys });
     selectedKeys.value = [];
     // 重新获取到第一页
@@ -237,14 +239,14 @@ const confirmDeleteSelect = async () => {
   } catch (error) {
     Message.info(error.msg);
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
 // 批量审核
 const confirmAuditSelect = async () => {
   try {
-    formLoading.value = true;
+    setLoading(true);
     await auditComment({ list: selectedKeys });
     selectedKeys.value = [];
     // 重新获取到第一页
@@ -253,7 +255,7 @@ const confirmAuditSelect = async () => {
   } catch (error) {
     Message.info(error.msg);
   } finally {
-    formLoading.value = false;
+    setLoading(false);
   }
 };
 
@@ -301,11 +303,7 @@ defineExpose({ reFresh });
   <div>
     <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose>
       <template #title>查看评论详情:</template>
-      <a-spin
-        :loading="formLoading"
-        tip="This may take a while..."
-        class="main"
-      >
+      <a-spin :loading="loading" tip="This may take a while..." class="main">
         <div class="drawer">
           <a-form
             :model="viewDetail"
@@ -411,7 +409,7 @@ defineExpose({ reFresh });
       </a-upload>
     </a-modal> -->
 
-    <a-modal v-model:visible="deleteSelectVisible" @ok="confirmDeleteSelect">
+    <a-modal v-model:visible="delSelectVisible" @ok="confirmDeleteSelect">
       <template #title>批量删除</template>
       <div style="text-align: center">
         确认批量删除选中评论吗?删除之后将无法再恢复。
@@ -423,7 +421,7 @@ defineExpose({ reFresh });
       <div style="text-align: center">确认一键审核选中评论吗？</div>
     </a-modal>
 
-    <a-spin :loading="formLoading" tip="This may take a while..." class="main">
+    <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-table
         v-model:selectedKeys="selectedKeys"
         :columns="columns"
@@ -442,8 +440,8 @@ defineExpose({ reFresh });
             <a-image
               :src="record.path"
               alt="图片"
-              width="60"
-              height="60"
+              width="45"
+              height="45"
               fit="cover"
             />
           </div>

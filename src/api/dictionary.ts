@@ -1,11 +1,7 @@
 import request from '@/api/interceptor';
 import type { TableData } from '@arco-design/web-vue';
+import type { Data } from '@/api/base';
 
-export interface Data {
-  data: object;
-  code: number;
-  msg: string;
-}
 // 请求字典类型
 export interface DicListForm {
   name: string;
@@ -79,7 +75,7 @@ export interface GetDicItem {
 export interface AddDicItem {
   dict_type_code: string;
   label: string;
-  value: string;
+  value: number;
   sort: number;
   status: number;
   description: string;
@@ -120,7 +116,7 @@ export function delDicType(data: DelDicList) {
 
 // 修改字典类型
 export function updateDicType(data: EditDicList) {
-  return request.post<Data>('/dict/delete_type', data);
+  return request.post<Data>('/dict/update_type', data);
 }
 // -------------------------------------------------------------------------------------//
 // 获取字典项
@@ -130,7 +126,7 @@ export function getDicItem(data: DicItemForm) {
 
 // 新增字典项
 export function addDicItem(data: AddDicItem) {
-  return request.get<Data>('/dict/add_item', { params: data });
+  return request.post<Data>('/dict/add_item', data);
 }
 
 // 删除字典项
