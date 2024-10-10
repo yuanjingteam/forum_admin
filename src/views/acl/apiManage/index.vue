@@ -320,7 +320,7 @@ const editApi = async (id: number) => {
   //回显当前api的详情
   const {
     data: { data }
-  } = await getApiDetailService({ id: id });
+  } = await getApiDetailService(id);
   addApiForm.value.id = data.id;
   addApiForm.value.brief_introduction = data.brief_introduction;
   addApiForm.value.path = data.path;

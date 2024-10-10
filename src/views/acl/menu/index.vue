@@ -41,13 +41,16 @@ const getIconList = async () => {
 };
 getIconList();
 //下拉框菜单图标内容
-const filterMethodOptions = computed(() => {
+const filterIconlistOptions = computed(() => {
   return iconList.value.map(option => ({
     label: option.label,
     value: option.value
   }));
 });
-
+//下拉框选择父级菜单内容
+const menuOptions = computed(() => {
+  return [];
+});
 //下拉框权限点状态内容
 const aclStatusOptions = computed(() => {
   return [
@@ -56,7 +59,7 @@ const aclStatusOptions = computed(() => {
       value: 1
     },
     {
-      label: '封禁',
+      label: '隐藏',
       value: 2
     }
   ];
@@ -66,15 +69,15 @@ const aclTypesOptions = computed(() => {
   return [
     {
       label: '目录',
-      value: 1
+      value: '1'
     },
     {
       label: '菜单',
-      value: 2
+      value: '2'
     },
     {
       label: '按钮',
-      value: 3
+      value: '3'
     }
   ];
 });
@@ -298,7 +301,12 @@ watch(
   },
   { deep: true, immediate: true }
 );
-
+//新建菜单单选框
+const typeOptions = [
+  { label: '目录', value: '1' },
+  { label: '菜单', value: '2' },
+  { label: '按钮', value: '3' }
+];
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
 const formRef = ref(null);
@@ -308,47 +316,62 @@ const visibleDrawer = ref(false);
 const title = ref('添加');
 //表示抽屉是添加还是编辑
 const state = ref('');
-//添加api表格数据原始数据
+//添加菜单表格数据原始数据
 const originAddForm = () => {
   return {
+    id: undefined,
     pid: undefined,
-    type: '',
+    type: '1',
     icon: '',
     name: '',
     sort: 0,
-    isVisible: 0,
+    isVisible: undefined,
     route_name: '',
     route_param: '',
     route_path: '',
     component_path: '',
     desc: '',
-    code: ''
+    code: '',
+    api_id: []
   };
 };
-//添加api表格数据
-const addroleForm = ref(originAddForm());
-//添加api
-const addFaMenu = () => {
-  title.value = '添加API';
+//添加菜单表格数据
+const addMenuForm = ref(originAddForm());
+//添加菜单
+const addMenu = () => {
+  title.value = '新建菜单';
   state.value = 'add';
-  addroleForm.value = originAddForm();
+  addMenuForm.value = originAddForm();
   visibleDrawer.value = true;
 };
-//编辑当前api
+//编辑当前菜单
 const editMenu = async (id: number) => {
-  title.value = '编辑API';
+  title.value = '编辑菜单';
   state.value = 'edit';
+  addMenuForm.value = originAddForm();
 
-  // //回显当前api的详情
-  // const {
-  //   data: { data }
-  // } = await getMenuDetailService({ id: id });
-  // addroleForm.value.id = data.id;
-  // addroleForm.value.brief_introduction = data.brief_introduction;
-  // addroleForm.value.path = data.path;
-  // addroleForm.value.request_method = data.request_method;
-  // addroleForm.value.grouping = data.grouping;
-  // visibleDrawer.value = true;
+  //回显当前菜单的详情
+  const {
+    data: { data }
+  } = await getMenuDetailService(id);
+  console.log(data);
+
+  addMenuForm.value.id = data.id;
+  addMenuForm.value.pid = data.pid;
+  addMenuForm.value.type = data.type;
+  addMenuForm.value.icon = data.icon;
+  addMenuForm.value.name = data.name;
+  addMenuForm.value.sort = data.sort;
+  addMenuForm.value.isVisible = data.isVisible;
+  addMenuForm.value.route_name = data.route_name;
+  addMenuForm.value.route_param = data.route_param;
+  addMenuForm.value.route_path = data.route_path;
+  addMenuForm.value.component_path = data.component_path;
+  addMenuForm.value.desc = data.desc;
+  addMenuForm.value.code = data.code;
+  addMenuForm.value.api_id = data.api_id;
+
+  visibleDrawer.value = true;
 };
 //删除当前菜单
 const deleteMenu = async (id: number) => {
@@ -360,12 +383,12 @@ const deleteMenu = async (id: number) => {
 const handleOkDrawer = async () => {
   if (!(await formRef.value.validate())) {
     if (state.value == 'add') {
-      //调用添加api接口
-      await addMenuService(addroleForm.value);
+      //调用添加菜单接口
+      await addMenuService(addMenuForm.value);
       Message.success('添加成功');
     } else {
-      //调用编辑api接口
-      await editMenuService(addroleForm.value);
+      //调用编辑菜单接口
+      await editMenuService(addMenuForm.value);
       Message.success('编辑成功');
     }
     fetchData();
@@ -424,7 +447,7 @@ const changePageSize = (pageSize: number) => {
                   <a-form-item field="icon" label="图标名">
                     <a-select
                       v-model="menuForm.icon"
-                      :options="filterMethodOptions"
+                      :options="filterIconlistOptions"
                       placeholder="请选择图标名"
                     />
                   </a-form-item>
@@ -474,11 +497,11 @@ const changePageSize = (pageSize: number) => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addFaMenu()">
+            <a-button type="primary" @click="addMenu()">
               <template #icon>
                 <icon-plus />
               </template>
-              新建根菜单
+              新建菜单
             </a-button>
           </a-space>
         </a-col>
@@ -554,7 +577,7 @@ const changePageSize = (pageSize: number) => {
         <!-- 状态 -->
         <template #isVisible="{ record }">
           <a-tag v-if="record.isVisible == 1" color="#168cff">正常</a-tag>
-          <a-tag v-else color="#ff5722">停用</a-tag>
+          <a-tag v-else color="#ff5722">隐藏</a-tag>
         </template>
         <!-- 图标名 -->
         <template #icon="{ record }">
@@ -569,37 +592,20 @@ const changePageSize = (pageSize: number) => {
         </template>
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-row>
-            <a-col :span="8">
-              <a-button v-if="record.type != 3" type="text">
-                <template #icon>
-                  <icon-plus />
-                </template>
-                <template #default>添加子菜单</template>
-              </a-button>
-            </a-col>
-            <a-col :span="8">
-              <a-button type="text" @click="editMenu(record.id)">
-                <template #icon>
-                  <icon-edit />
-                </template>
-                <template #default>编辑</template>
-              </a-button>
-            </a-col>
-            <a-col :span="8">
-              <a-popconfirm
-                content="您确定要删除吗？"
-                @ok="deleteMenu(record.id)"
-              >
-                <a-button type="text">
-                  <template #icon>
-                    <icon-delete />
-                  </template>
-                  <template #default>删除</template>
-                </a-button>
-              </a-popconfirm>
-            </a-col>
-          </a-row>
+          <a-button type="text" @click="editMenu(record.id)">
+            <template #icon>
+              <icon-edit />
+            </template>
+            <template #default>编辑</template>
+          </a-button>
+          <a-popconfirm content="您确定要删除吗？" @ok="deleteMenu(record.id)">
+            <a-button type="text">
+              <template #icon>
+                <icon-delete />
+              </template>
+              <template #default>删除</template>
+            </a-button>
+          </a-popconfirm>
         </template>
       </a-table>
       <a-pagination
@@ -614,6 +620,275 @@ const changePageSize = (pageSize: number) => {
         @page-size-change="changePageSize"
       />
     </a-card>
+    <a-drawer
+      :width="700"
+      :visible="visibleDrawer"
+      unmountOnClose
+      :title="title"
+      @ok="handleOkDrawer"
+      @cancel="handleCancelDrawer"
+    >
+      <div v-if="addMenuForm.type == '1'">
+        <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
+          <a-form-item v-if="state == 'edit'" field="id" label="ID">
+            <a-input v-model="addMenuForm.id" disabled />
+          </a-form-item>
+          <a-form-item field="pid" label="父级菜单">
+            <a-select
+              v-model="addMenuForm.pid"
+              :options="menuOptions"
+              placeholder="请选择父级菜单"
+            />
+          </a-form-item>
+          <a-form-item
+            field="name"
+            label="菜单名称"
+            required
+            :rules="[{ required: true, message: '请输入菜单名称' }]"
+          >
+            <a-input v-model="addMenuForm.name" placeholder="请输入菜单名称" />
+          </a-form-item>
+          <a-form-item
+            field="type"
+            label="菜单类型"
+            :rules="[{ required: true, message: '请选择菜单类型' }]"
+          >
+            <a-radio-group v-model="addMenuForm.type" :options="typeOptions" />
+          </a-form-item>
+          <a-form-item
+            field="route_name"
+            label="路由名称"
+            required
+            :rules="[{ required: true, message: '请输入路由名称' }]"
+          >
+            <a-input
+              v-model="addMenuForm.route_name"
+              placeholder="请输入路由名称"
+            />
+          </a-form-item>
+          <a-form-item
+            field="route_path"
+            label="路由路径"
+            required
+            :rules="[{ required: true, message: '请输入路由路径' }]"
+          >
+            <a-input
+              v-model="addMenuForm.route_path"
+              placeholder="请输入路由路径"
+            />
+          </a-form-item>
+
+          <a-form-item
+            field="icon"
+            label="图标名"
+            required
+            :rules="[{ required: true, message: '请选择图标名' }]"
+          >
+            <a-select
+              v-model="addMenuForm.icon"
+              :options="filterIconlistOptions"
+              placeholder="请选择图标名"
+            />
+          </a-form-item>
+          <a-form-item
+            field="isVisible"
+            label="状态"
+            required
+            :rules="[{ required: true, message: '请选择状态' }]"
+          >
+            <a-select
+              v-model="addMenuForm.isVisible"
+              :options="aclStatusOptions"
+              placeholder="请选择状态"
+            />
+          </a-form-item>
+          <a-form-item field="sort" label="排序">
+            <a-input-number
+              v-model="addMenuForm.sort"
+              :style="{ width: '320px' }"
+              placeholder="请输入排序"
+              :default-value="0"
+              mode="button"
+              class="input-demo"
+            />
+          </a-form-item>
+          <a-form-item field="desc" label="简介">
+            <a-input v-model="addMenuForm.desc" placeholder="请输入简介" />
+          </a-form-item>
+        </a-form>
+      </div>
+      <div v-if="addMenuForm.type == '2'">
+        <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
+          <a-form-item v-if="state == 'edit'" field="id" label="ID">
+            <a-input v-model="addMenuForm.id" disabled />
+          </a-form-item>
+
+          <a-form-item field="pid" label="父级菜单">
+            <a-select
+              v-model="addMenuForm.pid"
+              :options="menuOptions"
+              placeholder="请选择父级菜单"
+            />
+          </a-form-item>
+          <a-form-item
+            field="name"
+            label="菜单名称"
+            required
+            :rules="[{ required: true, message: '请输入菜单名称' }]"
+          >
+            <a-input v-model="addMenuForm.name" placeholder="请输入菜单名称" />
+          </a-form-item>
+          <a-form-item
+            field="type"
+            label="菜单类型"
+            required
+            :rules="[{ required: true, message: '请选择菜单类型' }]"
+          >
+            <a-radio-group v-model="addMenuForm.type" :options="typeOptions" />
+          </a-form-item>
+          <a-form-item
+            field="route_name"
+            label="路由名称"
+            required
+            :rules="[{ required: true, message: '请输入路由名称' }]"
+          >
+            <a-input
+              v-model="addMenuForm.route_name"
+              placeholder="请输入路由名称"
+            />
+          </a-form-item>
+          <a-form-item
+            field="route_path"
+            label="路由路径"
+            required
+            :rules="[{ required: true, message: '请输入路由路径' }]"
+          >
+            <a-input
+              v-model="addMenuForm.route_path"
+              placeholder="请输入路由路径"
+            />
+          </a-form-item>
+          <a-form-item field="route_param" label="路由参数">
+            <a-input
+              v-model="addMenuForm.route_param"
+              placeholder="请输入路由参数"
+            />
+          </a-form-item>
+          <a-form-item
+            field="component_path"
+            label="组件路径"
+            :rules="[{ required: true, message: '请输入组件路径' }]"
+          >
+            <a-input
+              v-model="addMenuForm.component_path"
+              placeholder="请输入组件路径"
+            >
+              <template #prepend>src/views</template>
+              <template #append>.vue</template>
+            </a-input>
+          </a-form-item>
+          <a-form-item
+            field="isVisible"
+            label="状态"
+            required
+            :rules="[{ required: true, message: '请选择状态' }]"
+          >
+            <a-select
+              v-model="addMenuForm.isVisible"
+              :options="aclStatusOptions"
+              placeholder="请选择状态"
+            />
+          </a-form-item>
+          <a-form-item field="sort" label="排序">
+            <a-input-number
+              v-model="addMenuForm.sort"
+              :style="{ width: '320px' }"
+              placeholder="请输入排序"
+              :default-value="0"
+              mode="button"
+              class="input-demo"
+            />
+          </a-form-item>
+          <a-form-item field="desc" label="简介">
+            <a-input v-model="addMenuForm.desc" placeholder="请输入简介" />
+          </a-form-item>
+        </a-form>
+      </div>
+      <div v-if="addMenuForm.type == '3'">
+        <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
+          <a-form-item v-if="state == 'edit'" field="id" label="ID">
+            <a-input v-model="addMenuForm.id" disabled />
+          </a-form-item>
+          <a-form-item
+            field="pid"
+            label="父级菜单"
+            :rules="[{ required: true, message: '请选择父级菜单' }]"
+          >
+            <a-select
+              v-model="addMenuForm.pid"
+              :options="menuOptions"
+              placeholder="请选择父级菜单"
+            />
+          </a-form-item>
+          <a-form-item
+            field="name"
+            label="菜单名称"
+            required
+            :rules="[{ required: true, message: '请输入菜单名称' }]"
+          >
+            <a-input v-model="addMenuForm.name" placeholder="请输入菜单名称" />
+          </a-form-item>
+          <a-form-item
+            field="type"
+            label="菜单类型"
+            required
+            :rules="[{ required: true, message: '请选择菜单类型' }]"
+          >
+            <a-radio-group v-model="addMenuForm.type" :options="typeOptions" />
+          </a-form-item>
+          <a-form-item
+            field="code"
+            label="权限标识"
+            required
+            :rules="[{ required: true, message: '请输入权限标识' }]"
+          >
+            <a-input v-model="addMenuForm.code" placeholder="请输入权限标识" />
+          </a-form-item>
+          <a-form-item
+            field="isVisible"
+            label="状态"
+            required
+            :rules="[{ required: true, message: '请选择状态' }]"
+          >
+            <a-select
+              v-model="addMenuForm.isVisible"
+              :options="aclStatusOptions"
+              placeholder="请选择状态"
+            />
+          </a-form-item>
+          <a-form-item field="api_id" label="API路径">
+            <a-select
+              v-model="addMenuForm.api_id"
+              :options="aclStatusOptions"
+              placeholder="请选择API路径"
+            />
+          </a-form-item>
+          <a-form-item field="sort" label="排序">
+            <a-input-number
+              v-model="addMenuForm.sort"
+              :style="{ width: '320px' }"
+              placeholder="请输入排序"
+              :default-value="0"
+              mode="button"
+              class="input-demo"
+            />
+          </a-form-item>
+          <a-form-item field="desc" label="简介">
+            <a-input v-model="addMenuForm.desc" placeholder="请输入简介" />
+          </a-form-item>
+        </a-form>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
