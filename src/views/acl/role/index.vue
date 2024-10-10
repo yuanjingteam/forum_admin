@@ -15,10 +15,12 @@ import { TableRowSelection, Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
 import RoleAcl from '@/views/acl/role/roleAcl/index.vue';
+import { useUserManageStore } from '@/store';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
+const userManageStore = useUserManageStore();
 //表格上方搜素框的样式
 const customStyle = {
   marginBottom: '18px',
@@ -37,18 +39,7 @@ const rowSelection: TableRowSelection = reactive({
 });
 
 //下拉框角色状态内容
-const filterMethodOptions = computed(() => {
-  return [
-    {
-      label: '正常',
-      value: 1
-    },
-    {
-      label: '封禁',
-      value: 2
-    }
-  ];
-});
+const filterMethodOptions = userManageStore.filterMethodOptions;
 
 //表格初始化属性值
 const generateFormModel = () => {
@@ -86,24 +77,7 @@ const showColumns = ref<Column[]>([]);
 const size = ref<SizeProps>('medium');
 
 //密度数据
-const densityList = computed(() => [
-  {
-    name: '迷你',
-    value: 'mini'
-  },
-  {
-    name: '偏小',
-    value: 'small'
-  },
-  {
-    name: '中等',
-    value: 'medium'
-  },
-  {
-    name: '偏大',
-    value: 'large'
-  }
-]);
+const densityList = userManageStore.densityList;
 //列数据
 const columns = computed<TableColumnData[]>(() => [
   {

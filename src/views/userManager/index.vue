@@ -19,10 +19,12 @@ import { TableRowSelection, Message } from '@arco-design/web-vue';
 import { IconSearch } from '@arco-design/web-vue/es/icon';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
+import { useUserManageStore } from '@/store';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
+const userManageStore = useUserManageStore();
 //表格上方搜素框的样式
 const customStyle = {
   marginBottom: '18px',
@@ -45,18 +47,7 @@ const rowSelection: TableRowSelection = reactive({
 });
 
 //下拉框用户状态内容
-const filterMethodOptions = computed(() => {
-  return [
-    {
-      label: '正常',
-      value: 1
-    },
-    {
-      label: '封禁',
-      value: 2
-    }
-  ];
-});
+const filterMethodOptions = userManageStore.filterMethodOptions;
 
 //表格初始化属性值
 const generateFormModel = () => {
@@ -106,24 +97,7 @@ const showColumns = ref<Column[]>([]);
 const size = ref<SizeProps>('medium');
 
 //密度数据
-const densityList = computed(() => [
-  {
-    name: '迷你',
-    value: 'mini'
-  },
-  {
-    name: '偏小',
-    value: 'small'
-  },
-  {
-    name: '中等',
-    value: 'medium'
-  },
-  {
-    name: '偏大',
-    value: 'large'
-  }
-]);
+const densityList = userManageStore.densityList;
 //列数据
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -469,8 +443,20 @@ const onChangeCreate = dateString => {
   userForm.value.create_time_end = dateString[1];
 };
 //-------------多选下拉框---------------------
+const loadData = async () => {
+  await userManageStore.getRoleNameList();
+};
+loadData();
+
+// const roleNameList = userManageStore.roleNameList;
+// const userRoleOptions = computed(() => {
+//   return roleNameList.map(option => ({
+//     label: option.name,
+//     value: option.id
+//   }));
+// });
 const fieldNames = { value: 'id', label: 'name' };
-const options = reactive([
+const userRoleOptions = [
   {
     id: 125,
     name: '用户'
@@ -483,35 +469,27 @@ const options = reactive([
     id: 127,
     name: '超级管理员'
   }
-]);
-//临时身份
-const temRoleIds = ref([]);
+];
+
 //改变下拉框中的值调用
-const changeRole = async (value, record) => {
-  console.log(value, record);
-
-  //当多选框中的值只剩下一个的时候，或者当前多选框原本就是一个值记录当前值
-  // if (value.length == 1 || record.role_ids.length == 1) {
-  //   temRoleIds.value = record.role_ids;
-  // }
-
-  // if (record.role_ids.length == 0) {
-  //   Message.error('用户必须有一个身份');
-  //   record.role_ids = temRoleIds.value;
-  //   return;
-  // }
-  // const {
-  //   data: { data }
-  // } = await getUserDetailService({ id: id });
-  // addUserForm.value.user_id = data.id;
-  // addUserForm.value.nickname = data.nickname;
-  // addUserForm.value.email = data.email;
-  // addUserForm.value.user_status = data.user_status;
-  // addUserForm.value.role_ids = value;
-  // await editUserService(addUserForm.value);
-  // Message.success('设定用户角色成功');
-  //清空数据
-  addUserForm.value = originAddForm();
+const changeRole = async (value, id) => {
+  const {
+    data: { data }
+  } = await getUserDetailService(id);
+  addUserForm.value.user_id = data.id;
+  addUserForm.value.nickname = data.nickname;
+  addUserForm.value.email = data.email;
+  addUserForm.value.user_status = data.user_status;
+  addUserForm.value.role_ids = value;
+  try {
+    await editUserService(addUserForm.value);
+    Message.success('设定用户角色成功');
+  } catch {
+    Message.error('设定用户角色失败，用户身份不能为空');
+  } finally {
+    //清空数据
+    addUserForm.value = originAddForm();
+  }
 };
 
 //--------------重置密码-----------
@@ -574,7 +552,7 @@ const importUser = () => {
                       multiple
                       :max-tag-count="2"
                       allow-clear
-                      :options="options"
+                      :options="userRoleOptions"
                       :field-names="fieldNames"
                     ></a-select>
                   </a-form-item>
@@ -774,9 +752,9 @@ const importUser = () => {
             multiple
             :max-tag-count="2"
             :scrollbar="true"
-            :options="options"
+            :options="userRoleOptions"
             :field-names="fieldNames"
-            @change="value => changeRole(value, record)"
+            @change="value => changeRole(value, record.id)"
           ></a-select>
         </template>
 
@@ -889,7 +867,7 @@ const importUser = () => {
               :max-tag-count="2"
               allow-clear
               :scrollbar="true"
-              :options="options"
+              :options="userRoleOptions"
               :field-names="fieldNames"
             ></a-select>
           </a-form-item>

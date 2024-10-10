@@ -5,8 +5,6 @@ import {
   getApiListService,
   Api,
   ApiForm,
-  getApiMethodsService,
-  getApiGroupsService,
   addApiService,
   getApiDetailService,
   deleteApiService,
@@ -16,10 +14,12 @@ import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
+import { useApiStore } from '@/store';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
+const apiStore = useApiStore();
 //表格上方搜素框的样式
 const customStyle = {
   marginBottom: '18px',
@@ -36,45 +36,22 @@ const rowSelection: TableRowSelection = reactive({
   showCheckedAll: true,
   onlyCurrent: false
 });
-//-------------api请求方法相关----------------------------
-//存储api方法列表
-const apiMethods = ref([]);
-//获取所有api方法
-const getApiMethods = async () => {
-  const {
-    data: {
-      data: { methods }
-    }
-  } = await getApiMethodsService();
-  apiMethods.value = methods;
+
+const loadData = async () => {
+  //调用获取请求方法列表
+  await apiStore.getApiMethods();
+  //调用获取api分组列表
+  await apiStore.getApiGroups();
 };
-getApiMethods();
+loadData();
 //下拉框请求方法内容
 const filterMethodOptions = computed(() => {
-  return apiMethods.value.map(option => ({
-    label: option.label,
-    value: option.value
-  }));
+  return apiStore.apiMethods;
 });
-//-------------------api分组列表-----------------------------
-//存储api方法列表
-const apiGroups = ref([]);
-//获取所有api方法
-const getApiGroups = async () => {
-  const {
-    data: {
-      data: { groups }
-    }
-  } = await getApiGroupsService();
-  apiGroups.value = groups;
-};
-getApiGroups();
+
 //下拉框请求方法内容
 const contentTypeOptions = computed(() => {
-  return apiGroups.value.map(option => ({
-    label: option.label,
-    value: option.value
-  }));
+  return apiStore.apiGroups;
 });
 
 //表格初始化属性值
@@ -113,24 +90,7 @@ const showColumns = ref<Column[]>([]);
 const size = ref<SizeProps>('medium');
 
 //密度数据
-const densityList = computed(() => [
-  {
-    name: '迷你',
-    value: 'mini'
-  },
-  {
-    name: '偏小',
-    value: 'small'
-  },
-  {
-    name: '中等',
-    value: 'medium'
-  },
-  {
-    name: '偏大',
-    value: 'large'
-  }
-]);
+const densityList = apiStore.densityList;
 //列数据
 const columns = computed<TableColumnData[]>(() => [
   {

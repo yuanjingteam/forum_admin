@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, nextTick } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 import useLoading from '@/hooks/useLoading';
 import {
   getAllMenuListService,
-  getIconListService,
   addMenuService,
   getMenuDetailService,
   deleteMenuService,
@@ -14,10 +13,11 @@ import { Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
 import { dataForm } from '@/views/acl/menu/testData';
-
+import { useMenuStore } from '@/store';
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
+const menuStore = useMenuStore();
 //表格上方搜素框的样式
 const customStyle = {
   marginBottom: '18px',
@@ -27,60 +27,29 @@ const customStyle = {
 //加载效果
 const { loading, setLoading } = useLoading(true);
 
-//-------------获取菜单图标列表相关----------------------------
-//存储菜单图标列表
-const iconList = ref([]);
-//获取菜单图标列表
-const getIconList = async () => {
-  const {
-    data: {
-      data: { icon_list }
-    }
-  } = await getIconListService();
-  iconList.value = icon_list;
-};
-getIconList();
-//下拉框菜单图标内容
+//-------------下拉框内容相关----------------------------
+//下拉框选择图标内容
 const filterIconlistOptions = computed(() => {
-  return iconList.value.map(option => ({
-    label: option.label,
-    value: option.value
-  }));
+  return menuStore.iconList;
 });
+//新建菜单单选框
+const typeOptions = menuStore.typeOptions;
+//下拉框权限点状态内容
+const aclStatusOptions = menuStore.aclStatusOptions;
+//下拉框权限点类型内容
+const aclTypesOptions = menuStore.aclTypesOptions;
+//初始化一些下拉框中的数据
+const loadData = async () => {
+  //调用获取图标方法
+  await menuStore.getIconList();
+};
+loadData();
+
 //下拉框选择父级菜单内容
 const menuOptions = computed(() => {
   return [];
 });
-//下拉框权限点状态内容
-const aclStatusOptions = computed(() => {
-  return [
-    {
-      label: '正常',
-      value: 1
-    },
-    {
-      label: '隐藏',
-      value: 2
-    }
-  ];
-});
-//下拉框权限点类型内容
-const aclTypesOptions = computed(() => {
-  return [
-    {
-      label: '目录',
-      value: '1'
-    },
-    {
-      label: '菜单',
-      value: '2'
-    },
-    {
-      label: '按钮',
-      value: '3'
-    }
-  ];
-});
+//----------------------表格相关----------------------
 //表格初始化属性值
 const generateFormModel = () => {
   return {
@@ -128,24 +97,7 @@ const showColumns = ref<Column[]>([]);
 const size = ref<SizeProps>('medium');
 
 //密度数据
-const densityList = computed(() => [
-  {
-    name: '迷你',
-    value: 'mini'
-  },
-  {
-    name: '偏小',
-    value: 'small'
-  },
-  {
-    name: '中等',
-    value: 'medium'
-  },
-  {
-    name: '偏大',
-    value: 'large'
-  }
-]);
+const densityList = menuStore.densityList;
 //列数据
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -301,12 +253,7 @@ watch(
   },
   { deep: true, immediate: true }
 );
-//新建菜单单选框
-const typeOptions = [
-  { label: '目录', value: '1' },
-  { label: '菜单', value: '2' },
-  { label: '按钮', value: '3' }
-];
+
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
 const formRef = ref(null);
