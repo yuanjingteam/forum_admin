@@ -1,6 +1,13 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { getRoleMenuService, dispatchMenuForRoleService } from '@/api/menu';
+import {
+  dispatchMenuForRoleService,
+  getApiListService,
+  getMenuTypeService,
+  getAllApiListService,
+  getRoleMenuService,
+  dispatchApiForRoleService
+} from '@/api/menu';
 import { Message } from '@arco-design/web-vue';
 const props = defineProps({
   roleId: Number
@@ -8,42 +15,12 @@ const props = defineProps({
 
 //控制抽屉是否显示
 const visible = defineModel();
-//取消修改权限
-const handleCancelApiDrawer = () => {
-  visible.value = false;
-};
-//所有可以勾选的key
-const menuAllCheckedKeys = [0, 1, 2, 10, 11, 12, 20, 21, 22];
-//所有可以展开的key
-const menuAllExpandedKeys = [10, 20];
-//当前选中的key
-const menuCheckedKeys = ref([]);
-//从本地取出当前角色所有菜单权限赋值给当前选中的key
-const menuTemp = [21, 22, 12];
-//监听是否抽屉是否打开
-watch(visible, (newvalue, oldvalue) => {
-  if (newvalue) {
-    menuCheckedKeys.value = menuTemp;
-  }
-});
+//记录当前显示的是哪个tab
+const activeKey = ref('1');
 
-//当前展开的key
-const menuExpandedKeys = ref([]);
-//全选
-const toggleChecked = () => {
-  menuCheckedKeys.value = menuCheckedKeys?.value.length
-    ? []
-    : menuAllCheckedKeys;
-};
-//全部展开
-const toggleExpanded = () => {
-  menuExpandedKeys.value = menuExpandedKeys?.value.length
-    ? []
-    : menuAllExpandedKeys;
-};
-
+// --------------------------设置菜单权限-------------------------------
 //数据
-const menuTreeData = [
+let TreeData = [
   {
     title: '工作台',
     key: 0
@@ -89,13 +66,106 @@ const menuTreeData = [
     ]
   }
 ];
+
+//当前选中的key
+const CheckedKeys = ref([]);
+
+// --------------------共有--------------------------------
+const Temp = [21, 22, 12];
+
+//监听是否抽屉是否打开
+watch(visible, (newvalue, oldvalue) => {
+  if (newvalue) {
+    //一开始就获取菜单的数据赋值
+    // getMenuType()
+    // getRoleMenu()
+    CheckedKeys.value = Temp;
+  }
+});
+
+//获取所有菜单权限列表
+const getMenuType = async () => {
+  const {
+    data: {
+      data: { menu_type_list }
+    }
+  } = await getMenuTypeService();
+  console.log(menu_type_list);
+  //将处理过后的数据放到treedata里面
+  TreeData = menu_type_list;
+};
+
+//获取所有api列表
+const getApiList = async () => {
+  const {
+    data: {
+      data: { api_list }
+    }
+  } = await getApiListService();
+  console.log(api_list);
+  //将处理过后的数据放到treedata里面
+  TreeData = api_list;
+};
+//获取当前角色拥有的菜单权限
+const getRoleMenu = async () => {
+  const {
+    data: {
+      data: { perm }
+    }
+  } = await getRoleMenuService(props.roleId);
+  console.log(perm);
+  //将处理过后的数据放到CheckedKeys里面
+  CheckedKeys.value = perm;
+};
+//获取当前角色拥有的api权限
+const getAllApiList = async () => {
+  const {
+    data: {
+      data: { group }
+    }
+  } = await getAllApiListService(props.roleId);
+  console.log(group);
+  //将处理过后的数据放到CheckedKeys里面
+  CheckedKeys.value = group;
+};
+
 //确认修改菜单权限
-const handleOkApiDrawer = async () => {
-  await dispatchMenuForRoleService({
-    id: props.roleId,
-    permIds: menuCheckedKeys.value
-  });
+const handleOkAclDrawer = async () => {
+  if (activeKey.value == '1') {
+    //发送修改菜单权限的请求
+    await dispatchMenuForRoleService({
+      id: props.roleId,
+      permIds: CheckedKeys.value
+    });
+  } else {
+    //发送修改api权限的请求
+    await dispatchApiForRoleService({
+      id: props.roleId,
+      apis: CheckedKeys.value
+    });
+  }
+
   Message.success('设置菜单权限成功');
+};
+//取消修改权限
+const handleCancelAclDrawer = () => {
+  visible.value = false;
+};
+//改变当前选中的tab
+const changeTab = () => {
+  if (activeKey.value == '1') {
+    //当前显示的是菜单
+    console.log(111);
+    //获取菜单相应的数据并渲染
+    // getMenuType()
+    // getRoleMenu()
+  } else {
+    //当前显示的是api
+    console.log(222);
+    //获取api相应的数据并渲染
+    // getApiList()
+    // getAllApiList()
+  }
 };
 </script>
 
@@ -105,31 +175,24 @@ const handleOkApiDrawer = async () => {
     :width="700"
     :header="false"
     unmountOnClose
-    @ok="handleOkApiDrawer"
-    @cancel="handleCancelApiDrawer"
+    @ok="handleOkAclDrawer"
+    @cancel="handleCancelAclDrawer"
   >
-    <a-tabs default-active-key="1">
+    <a-tabs v-model:active-key="activeKey" @change="changeTab">
       <a-tab-pane key="1" title="角色菜单">
-        <a-button-group style="margin-bottom: 20px">
-          <a-button
-            type="primary"
-            style="margin-right: 10px"
-            @click="toggleChecked"
-          >
-            {{ menuCheckedKeys?.length ? '清空' : '全选' }}
-          </a-button>
-          <a-button type="primary" @click="toggleExpanded">
-            {{ menuExpandedKeys?.length ? '折叠' : '展开' }}
-          </a-button>
-        </a-button-group>
         <a-tree
-          v-model:checked-keys="menuCheckedKeys"
-          v-model:expanded-keys="menuExpandedKeys"
+          v-model:checked-keys="CheckedKeys"
           :checkable="true"
-          :data="menuTreeData"
+          :data="TreeData"
         />
       </a-tab-pane>
-      <a-tab-pane key="2" title="角色api">角色api</a-tab-pane>
+      <a-tab-pane key="2" title="角色api">
+        <a-tree
+          v-model:checked-keys="CheckedKeys"
+          :checkable="true"
+          :data="TreeData"
+        />
+      </a-tab-pane>
     </a-tabs>
   </a-drawer>
 </template>

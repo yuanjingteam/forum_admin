@@ -48,3 +48,7 @@ export function getMenuDetailService(id) {
 export function getRoleAllCodeService(id) {
   return request.get(`/acl/get_role_code?id=${id}`);
 }
+//获取所有type为1和2的菜单
+export function getMenuTypeService() {
+  return request.get('/acl/get_menu_type_list');
+}
