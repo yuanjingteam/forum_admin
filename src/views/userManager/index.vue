@@ -178,7 +178,6 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'role_ids',
     slotName: 'role_ids'
   },
-
   {
     title: '创建时间',
     dataIndex: 'create_time',
