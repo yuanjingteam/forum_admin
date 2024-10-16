@@ -22,12 +22,10 @@ const artTable3 = ref();
 const total_1 = ref(0);
 const total_2 = ref(0);
 const total_3 = ref(0);
-
 // -------------------搜索配置----------------------------
 // 原始数据
 const searchFromModel = (): ArticleForm => {
   return {
-    article_condition: 0,
     startTime: '',
     endTime: '',
     keyword: '',
@@ -102,6 +100,10 @@ const hotOptions = computed<SelectOptionData[]>(() => [
   }
 ]);
 
+// 多选框:
+const selected = ref([]);
+const treeData = ref([]);
+
 // 搜索时间
 const onChangeTime = dateString => {
   searchModel.value.startTime = dateString[0];
@@ -112,12 +114,13 @@ const onChangeTime = dateString => {
 const search = () => {
   console.log(searchModel.value, 11);
   // 子组键在当前条件下刷新
+  // 调用子组件的 refresh 方法
   if (itemType.value === '1') {
-    artTable1.value.reFresh(); // 调用子组件的 refresh 方法
+    artTable1.value.reFresh();
   } else if (itemType.value == '2') {
-    artTable2.value.reFresh(); // 调用子组件的 refresh 方法
+    artTable2.value.reFresh();
   } else if (itemType.value == '3') {
-    artTable3.value.reFresh(); // 调用子组件的 refresh 方法
+    artTable3.value.reFresh();
   }
 };
 
@@ -176,7 +179,7 @@ export default {
                     />
                   </a-form-item>
                 </a-col>
-                <a-col :span="8">
+                <!-- <a-col :span="8">
                   <a-form-item field="article_condition" label="文章状态:">
                     <a-select
                       v-model="searchModel.article_condition"
@@ -185,7 +188,7 @@ export default {
                       placeholder="是否封禁"
                     />
                   </a-form-item>
-                </a-col>
+                </a-col> -->
                 <a-col :span="8">
                   <a-form-item field="heat" label="排序方式:">
                     <a-select
@@ -205,10 +208,24 @@ export default {
                     />
                   </a-form-item>
                 </a-col>
+                <a-col :span="8">
+                  <a-form-item field="published_at" label="多条件筛选:">
+                    <a-space>
+                      <a-tree-select
+                        v-model="selected"
+                        :multiple="true"
+                        :allow-clear="true"
+                        :allow-search="true"
+                        :data="treeData"
+                        placeholder="Please select ..."
+                        style="width: 300px"
+                      ></a-tree-select>
+                    </a-space>
+                  </a-form-item>
+                </a-col>
               </a-row>
             </a-form>
           </a-col>
-
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
               <a-button type="primary" @click="search">
@@ -231,7 +248,7 @@ export default {
     <a-card>
       <a-row>
         <a-tabs v-model:active-key="itemType" type="line" style="width: 100%">
-          <a-tab-pane key="1" :title="`全部${total_1} `">
+          <a-tab-pane key="1" :title="`全部文章${total_1} `">
             <article-table
               ref="artTable1"
               v-model:total="total_1"
@@ -239,7 +256,7 @@ export default {
               :searchModel="searchModel"
             ></article-table>
           </a-tab-pane>
-          <a-tab-pane key="2" :title="`待审${total_2}`">
+          <a-tab-pane key="2" :title="`已批准${total_2}`">
             <article-table
               ref="artTable2"
               v-model:total="total_2"
@@ -247,7 +264,7 @@ export default {
               :searchModel="searchModel"
             ></article-table>
           </a-tab-pane>
-          <a-tab-pane key="3" :title="`已批准${total_3}`">
+          <a-tab-pane key="3" :title="`已封禁${total_3}`">
             <article-table
               ref="artTable3"
               v-model:total="total_3"
@@ -274,24 +291,8 @@ export default {
   }
 }
 
-.action-icon {
-  margin-left: 12px;
-  cursor: pointer;
-}
-
 .active {
   color: #0960bd;
   background-color: #e3f4fc;
-}
-
-.setting {
-  display: flex;
-  align-items: center;
-  width: 200px;
-
-  .title {
-    margin-left: 12px;
-    cursor: pointer;
-  }
 }
 </style>

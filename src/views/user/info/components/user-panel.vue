@@ -16,8 +16,8 @@ const file = {
 };
 const renderData = [
   {
-    label: '用户名',
-    value: userStore.nickname
+    label: '用户ID',
+    value: userStore.id
   },
   {
     label: '用户状态',

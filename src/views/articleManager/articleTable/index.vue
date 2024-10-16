@@ -8,7 +8,8 @@ import Sortable from 'sortablejs';
 import {
   queryArticleList,
   delArticleList,
-  auditArticleList
+  banArticleList,
+  unsealArticleList
 } from '@/api/article';
 import { watch, ref, Ref, onMounted, reactive, computed, nextTick } from 'vue';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
@@ -22,7 +23,8 @@ const props = defineProps({
     type: Object
   },
   itemType: {
-    type: String
+    type: String,
+    default: '1'
   }
 });
 
@@ -99,17 +101,11 @@ const columns = computed<TableColumnData[]>(() => [
   },
   {
     title: '发布时间',
-    dataIndex: 'published_at',
-    sortable: {
-      sortDirections: ['ascend', 'descend']
-    }
+    dataIndex: 'published_at'
   },
   {
     title: '更新时间',
-    dataIndex: 'updated_at',
-    sortable: {
-      sortDirections: ['ascend', 'descend']
-    }
+    dataIndex: 'updated_at'
   },
   {
     title: '文章热度',
@@ -290,7 +286,7 @@ watch(
 // 批量删除
 const deleteDialog = ref(false);
 // 批量审核
-const auditDialog = ref(false);
+// const auditDialog = ref(false);
 
 // 控制按钮的启用状态
 const isButtonEnabled = ref<boolean>(false);
@@ -301,9 +297,9 @@ const notifyDeleteSelect = () => {
 };
 
 // 打开一键审核对话框
-const notifyAudit = () => {
-  auditDialog.value = true;
-};
+// const notifyAudit = () => {
+//   auditDialog.value = true;
+// };
 
 // 页面切换
 const onPageChange = (current: number) => {
@@ -338,8 +334,24 @@ const confirmDeleteOne = async id => {
   reFresh();
 };
 // 审核当前项
-const confirmAuditOne = async id => {
-  await auditArticleList({
+// const confirmAuditOne = async id => {
+//   await auditArticleList({
+//     id_list: [id]
+//   });
+//   reFresh();
+// };
+
+// 封禁当前项
+const confirmBanOne = async id => {
+  await banArticleList({
+    id_list: [id]
+  });
+  reFresh();
+};
+
+// 解封当前项
+const confirmUnsealOne = async id => {
+  await unsealArticleList({
     id_list: [id]
   });
   reFresh();
@@ -367,20 +379,21 @@ const batchDelArticle = async () => {
 };
 
 // 批量审核
-const batchAuditAricle = async () => {
-  try {
-    setLoading(true);
-    await auditArticleList({
-      ids: selectedKeys.value
-    });
-    selectedKeys.value = [];
-    reFresh();
-  } catch {
-  } finally {
-    setLoading(false);
-  }
-};
+// const batchAuditAricle = async () => {
+//   try {
+//     setLoading(true);
+//     await auditArticleList({
+//       ids: selectedKeys.value
+//     });
+//     selectedKeys.value = [];
+//     reFresh();
+//   } catch {
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
+// 初始化
 onMounted(() => {
   // 初始化表格
   fetchData(props.searchModel.value);
@@ -395,10 +408,12 @@ watch(selectedKeys, newCount => {
   }
 });
 
+// 通用刷新方法
 const reFresh = () => {
   fetchData({
-    ...pagination,
-    ...props.searchModel.value
+    ...props.searchModel,
+    itemType: props.itemType,
+    ...pagination
   } as unknown);
 };
 // 暴露方法给父组件
@@ -408,7 +423,36 @@ defineExpose({ reFresh });
 <template>
   <div>
     <a-drawer v-model:visible="detailVisible" :width="420" unmountOnClose>
-      <div>111</div>
+      <template #title>
+        <h3>文章详情</h3>
+      </template>
+      <a-layout style="min-height: 450px">
+        <a-layout-header>
+          <h3>《{{ detailData.title }}》</h3>
+          <div>作者:{{ detailData.nickname }}</div>
+          <br />
+        </a-layout-header>
+        <a-layout-content>
+          <div>{{ detailData.article_content.text }}</div>
+          <div class="detial_img">
+            <a-image-preview-group infinite>
+              <a-space>
+                <a-image
+                  v-for="(item, index) in detailData.article_content.pic"
+                  :key="index"
+                  width="60"
+                  height="60"
+                  :src="item"
+                ></a-image>
+              </a-space>
+            </a-image-preview-group>
+          </div>
+          <div>点赞数:{{ detailData.likes_count }}</div>
+          <div>评论数:{{ detailData.comments_count }}</div>
+          <div>收藏数:{{ detailData.collections_count }}</div>
+        </a-layout-content>
+        <a-layout-footer></a-layout-footer>
+      </a-layout>
     </a-drawer>
 
     <a-modal v-model:visible="deleteDialog" @ok="batchDelArticle">
@@ -417,11 +461,11 @@ defineExpose({ reFresh });
         确认批量删除选中文章吗?删除之后将无法再恢复。
       </div>
     </a-modal>
-
+    <!--
     <a-modal v-model:visible="auditDialog" @ok="batchAuditAricle">
       <template #title>批量审核</template>
       <div style="text-align: center">确认一键审核选中文章吗？</div>
-    </a-modal>
+    </a-modal> -->
     <a-row style="margin-bottom: 16px">
       <a-col :span="12">
         <a-space>
@@ -434,16 +478,6 @@ defineExpose({ reFresh });
           >
             批量删除
           </a-button>
-          <span v-if="itemType == '2'">
-            <a-button
-              type="outline"
-              status="success"
-              :disabled="!isButtonEnabled"
-              @click="notifyAudit"
-            >
-              一键审核
-            </a-button>
-          </span>
         </a-space>
       </a-col>
       <a-col
@@ -514,12 +548,12 @@ defineExpose({ reFresh });
     <a-table
       v-model:selectedKeys="selectedKeys"
       row-key="id"
+      :data="formModel"
       :loading="loading"
       stripe
       :row-selection="rowSelection"
       :pagination="pagination"
-      :columns="cloneColumns as TableColumnData[]"
-      :data="formModel"
+      :columns="cloneColumns"
       :bordered="false"
       :size="size"
       @page-change="onPageChange"
@@ -559,16 +593,29 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="props.itemType === '2' || record.examine === 1">
+          <span v-if="record.article_condition == '1'">
             <a-popconfirm
-              content="您确定要审核吗？"
-              @ok="confirmAuditOne(record.id)"
+              content="您确定封禁当前文章吗？"
+              @ok="confirmBanOne(record.id)"
             >
               <a-button type="text">
                 <template #icon>
                   <icon-edit />
                 </template>
-                <template #default>审核</template>
+                <template #default>封禁</template>
+              </a-button>
+            </a-popconfirm>
+          </span>
+          <span v-if="record.article_condition == '2'">
+            <a-popconfirm
+              content="您确定要解封当前文章吗？"
+              @ok="confirmUnsealOne(record.id)"
+            >
+              <a-button type="text">
+                <template #icon>
+                  <icon-edit />
+                </template>
+                <template #default>解封</template>
               </a-button>
             </a-popconfirm>
           </span>
@@ -577,3 +624,25 @@ defineExpose({ reFresh });
     </a-table>
   </div>
 </template>
+
+<style scoped lang="less">
+.action-icon {
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  width: 200px;
+
+  .title {
+    margin-left: 12px;
+    cursor: pointer;
+  }
+}
+
+.detial_img {
+  margin-top: 20px;
+}
+</style>

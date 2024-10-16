@@ -465,7 +465,7 @@ defineExpose({ reFresh });
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .main {
   width: 100%;
 }

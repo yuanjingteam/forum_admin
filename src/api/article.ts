@@ -2,7 +2,6 @@ import request from '@/api/interceptor';
 import type { TableData } from '@arco-design/web-vue';
 
 export interface ArticleForm {
-  article_condition: number;
   startTime: string;
   endTime: string;
   keyword: string;
@@ -53,7 +52,18 @@ export function queryArticleList(data: ArticleForm) {
 export function delArticleList(data) {
   return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
 }
-// 审核文章
-export function auditArticleList(data) {
-  return request.post<ArticleData>('/article/audit', data); // 这里会自动拼接 baseURL
+
+// 封禁文章
+export function banArticleList(data) {
+  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
 }
+
+// 解封文章
+export function unsealArticleList(data) {
+  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+}
+
+// 审核文章
+// export function auditArticleList(data) {
+//   return request.post<ArticleData>('/article/audit', data); // 这里会自动拼接 baseURL
+// }

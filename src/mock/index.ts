@@ -8,8 +8,6 @@ import '@/views/workplace/mock';
 
 // import '@/views/role-maragement/card/mock';
 
-import '@/views/user/info/mock';
-
 Mock.setup({
   timeout: '200-900'
 });
