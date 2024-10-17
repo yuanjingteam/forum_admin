@@ -407,13 +407,17 @@ const showRoleAcl = id => {
           <a-divider style="height: 84px" direction="vertical" />
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:role:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:role:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -428,13 +432,20 @@ const showRoleAcl = id => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addRole()">
+            <a-button
+              v-permission="['acl:role:add']"
+              type="primary"
+              @click="addRole()"
+            >
               <template #icon>
                 <icon-plus />
               </template>
               新建
             </a-button>
-            <a-button @click="batchDeleteRole()">
+            <a-button
+              v-permission="['acl:role:delete']"
+              @click="batchDeleteRole()"
+            >
               <template #icon>
                 <icon-delete />
               </template>
@@ -515,6 +526,7 @@ const showRoleAcl = id => {
         <template #status="{ record }">
           <a-switch
             v-model="record.status"
+            v-permission="['acl:role:edit']"
             :checked-value="1"
             :unchecked-value="2"
             :beforeChange="checked => handleChangeIntercept(checked, record.id)"
@@ -526,14 +538,22 @@ const showRoleAcl = id => {
 
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text" @click="showRoleAcl(record.id)">
+          <a-button
+            v-permission="['acl:role:permission']"
+            type="text"
+            @click="showRoleAcl(record.id)"
+          >
             <template #icon>
               <icon-settings />
             </template>
             <template #default>设置权限</template>
           </a-button>
 
-          <a-button type="text" @click="editRole(record.id)">
+          <a-button
+            v-permission="['acl:role:edit']"
+            type="text"
+            @click="editRole(record.id)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -541,7 +561,7 @@ const showRoleAcl = id => {
           </a-button>
 
           <a-popconfirm content="您确定要删除吗？" @ok="deleteRole(record.id)">
-            <a-button type="text">
+            <a-button v-permission="['acl:role:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>
@@ -551,6 +571,7 @@ const showRoleAcl = id => {
         </template>
       </a-table>
       <a-pagination
+        v-permission="['acl:role:search']"
         :total="total"
         :size="size"
         show-total

@@ -423,13 +423,17 @@ const changePageSize = (pageSize: number) => {
           <a-divider style="height: 84px" direction="vertical" />
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:menu:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:menu:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -444,7 +448,11 @@ const changePageSize = (pageSize: number) => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addMenu()">
+            <a-button
+              v-permission="['acl:menu:add']"
+              type="primary"
+              @click="addMenu()"
+            >
               <template #icon>
                 <icon-plus />
               </template>
@@ -539,14 +547,18 @@ const changePageSize = (pageSize: number) => {
         </template>
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text" @click="editMenu(record.id)">
+          <a-button
+            v-permission="['acl:menu:edit']"
+            type="text"
+            @click="editMenu(record.id)"
+          >
             <template #icon>
               <icon-edit />
             </template>
             <template #default>编辑</template>
           </a-button>
           <a-popconfirm content="您确定要删除吗？" @ok="deleteMenu(record.id)">
-            <a-button type="text">
+            <a-button v-permission="['acl:menu:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>
@@ -556,6 +568,7 @@ const changePageSize = (pageSize: number) => {
         </template>
       </a-table>
       <a-pagination
+        v-permission="['acl:menu:search']"
         :total="total"
         :size="size"
         show-total

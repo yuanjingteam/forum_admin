@@ -25,6 +25,19 @@ type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
 const userManageStore = useUserManageStore();
+const btnAclArr = ref(
+  JSON.parse(localStorage.getItem('permissionButtton')) || []
+);
+
+const ifHasEdit = computed(() => {
+  return btnAclArr.value.includes('acl:user:edit');
+});
+
+// 如果你有可能更新 localStorage，可以考虑一个方法来更新 btnAclArr
+const updatePermissions = () => {
+  btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
+};
+
 //表格上方搜素框的样式
 const customStyle = {
   marginBottom: '18px',
@@ -580,13 +593,17 @@ const importUser = () => {
           <a-divider style="height: 84px" direction="vertical" />
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:user:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:user:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -601,20 +618,34 @@ const importUser = () => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addUser()">
+            <a-button
+              v-permission="['acl:user:add']"
+              type="primary"
+              @click="addUser()"
+            >
               <template #icon>
                 <icon-plus />
               </template>
               新建
             </a-button>
-            <a-button type="dashed" status="danger" @click="batchDeleteRole()">
+            <a-button
+              v-permission="['acl:user:delete']"
+              type="dashed"
+              status="danger"
+              @click="batchDeleteRole()"
+            >
               <template #icon>
                 <icon-delete />
               </template>
               批量删除
             </a-button>
 
-            <a-button type="outline" status="success" @click="importUser">
+            <a-button
+              v-permission="['acl:user:import']"
+              type="outline"
+              status="success"
+              @click="importUser"
+            >
               <template #icon>
                 <icon-to-top />
               </template>
@@ -638,7 +669,12 @@ const importUser = () => {
                 </span>
               </div>
             </a-modal>
-            <a-button type="outline" status="success" @click="outputFile">
+            <a-button
+              v-permission="['acl:user:export']"
+              type="outline"
+              status="success"
+              @click="outputFile"
+            >
               <template #icon>
                 <icon-to-bottom />
               </template>
@@ -748,6 +784,7 @@ const importUser = () => {
         <template #role_ids="{ record }">
           <a-select
             v-model="record.role_ids"
+            :disabled="!ifHasEdit"
             placeholder="请选择用户身份"
             multiple
             :max-tag-count="2"
@@ -762,6 +799,7 @@ const importUser = () => {
         <template #user_status="{ record }">
           <a-switch
             v-model="record.user_status"
+            v-permission="['acl:user:edit']"
             :checked-value="1"
             :unchecked-value="2"
             :beforeChange="checked => handleChangeIntercept(checked, record.id)"
@@ -773,7 +811,11 @@ const importUser = () => {
 
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text" @click="editUser(record.id)">
+          <a-button
+            v-permission="['acl:user:edit']"
+            type="text"
+            @click="editUser(record.id)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -781,7 +823,7 @@ const importUser = () => {
           </a-button>
 
           <a-popconfirm content="您确定要删除吗？" @ok="deleteRole(record.id)">
-            <a-button type="text">
+            <a-button v-permission="['acl:user:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>
@@ -792,7 +834,7 @@ const importUser = () => {
             content="您确定要重置密码吗？"
             @ok="resetUser(record.id)"
           >
-            <a-button type="text">
+            <a-button v-permission="['acl:user:reset']" type="text">
               <template #icon>
                 <icon-sync />
               </template>
@@ -802,6 +844,7 @@ const importUser = () => {
         </template>
       </a-table>
       <a-pagination
+        v-permission="['acl:user:search']"
         :total="total"
         :size="size"
         show-total

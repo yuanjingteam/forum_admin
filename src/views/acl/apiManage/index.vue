@@ -382,13 +382,17 @@ const changePageSize = (pageSize: number) => {
           <a-divider style="height: 84px" direction="vertical" />
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:api:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:api:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -403,13 +407,20 @@ const changePageSize = (pageSize: number) => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addApi()">
+            <a-button
+              v-permission="['acl:api:add']"
+              type="primary"
+              @click="addApi()"
+            >
               <template #icon>
                 <icon-plus />
               </template>
               新建
             </a-button>
-            <a-button @click="batchDeleteApi()">
+            <a-button
+              v-permission="['acl:api:delete']"
+              @click="batchDeleteApi()"
+            >
               <template #icon>
                 <icon-delete />
               </template>
@@ -489,7 +500,11 @@ const changePageSize = (pageSize: number) => {
       >
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text" @click="editApi(record.id)">
+          <a-button
+            v-permission="['acl:api:edit']"
+            type="text"
+            @click="editApi(record.id)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -497,7 +512,7 @@ const changePageSize = (pageSize: number) => {
           </a-button>
 
           <a-popconfirm content="您确定要删除吗？" @ok="deleteApi(record.id)">
-            <a-button type="text">
+            <a-button v-permission="['acl:api:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>
@@ -507,6 +522,7 @@ const changePageSize = (pageSize: number) => {
         </template>
       </a-table>
       <a-pagination
+        v-permission="['acl:api:search']"
         :total="total"
         :size="size"
         show-total
