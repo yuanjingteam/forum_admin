@@ -14,10 +14,13 @@ import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
+import RoleAcl from '@/views/acl/role/roleAcl/index.vue';
+import { useUserManageStore } from '@/store';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
+const userManageStore = useUserManageStore();
 //表格上方搜素框的样式
 const customStyle = {
   marginBottom: '18px',
@@ -36,18 +39,7 @@ const rowSelection: TableRowSelection = reactive({
 });
 
 //下拉框角色状态内容
-const filterMethodOptions = computed(() => {
-  return [
-    {
-      label: '正常',
-      value: 1
-    },
-    {
-      label: '封禁',
-      value: 2
-    }
-  ];
-});
+const filterMethodOptions = userManageStore.filterMethodOptions;
 
 //表格初始化属性值
 const generateFormModel = () => {
@@ -85,24 +77,7 @@ const showColumns = ref<Column[]>([]);
 const size = ref<SizeProps>('medium');
 
 //密度数据
-const densityList = computed(() => [
-  {
-    name: '迷你',
-    value: 'mini'
-  },
-  {
-    name: '偏小',
-    value: 'small'
-  },
-  {
-    name: '中等',
-    value: 'medium'
-  },
-  {
-    name: '偏大',
-    value: 'large'
-  }
-]);
+const densityList = userManageStore.densityList;
 //列数据
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -302,7 +277,7 @@ const editRole = async (id: number) => {
   //回显当前角色的详情
   const {
     data: { data }
-  } = await getRoleDetailService({ id: id });
+  } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;
@@ -356,7 +331,7 @@ const handleChangeIntercept = async (newValue, id) => {
   //获取当前角色信息
   const {
     data: { data }
-  } = await getRoleDetailService({ id: id });
+  } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;
@@ -374,6 +349,16 @@ const handleChangeIntercept = async (newValue, id) => {
     addRoleForm.value = originAddForm();
     return false;
   }
+};
+//----------设置权限----------
+//权限抽屉是否可见
+const visibleApiDrawer = ref(false);
+//当前角色id
+const roleIdTem = ref(0);
+//点击设置权限后调用
+const showRoleAcl = id => {
+  visibleApiDrawer.value = true;
+  roleIdTem.value = id;
 };
 </script>
 
@@ -422,13 +407,17 @@ const handleChangeIntercept = async (newValue, id) => {
           <a-divider style="height: 84px" direction="vertical" />
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:role:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:role:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -443,13 +432,20 @@ const handleChangeIntercept = async (newValue, id) => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addRole()">
+            <a-button
+              v-permission="['acl:role:add']"
+              type="primary"
+              @click="addRole()"
+            >
               <template #icon>
                 <icon-plus />
               </template>
               新建
             </a-button>
-            <a-button @click="batchDeleteRole()">
+            <a-button
+              v-permission="['acl:role:delete']"
+              @click="batchDeleteRole()"
+            >
               <template #icon>
                 <icon-delete />
               </template>
@@ -530,6 +526,7 @@ const handleChangeIntercept = async (newValue, id) => {
         <template #status="{ record }">
           <a-switch
             v-model="record.status"
+            v-permission="['acl:role:edit']"
             :checked-value="1"
             :unchecked-value="2"
             :beforeChange="checked => handleChangeIntercept(checked, record.id)"
@@ -541,13 +538,22 @@ const handleChangeIntercept = async (newValue, id) => {
 
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text">
+          <a-button
+            v-permission="['acl:role:permission']"
+            type="text"
+            @click="showRoleAcl(record.id)"
+          >
             <template #icon>
               <icon-settings />
             </template>
             <template #default>设置权限</template>
           </a-button>
-          <a-button type="text" @click="editRole(record.id)">
+
+          <a-button
+            v-permission="['acl:role:edit']"
+            type="text"
+            @click="editRole(record.id)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -555,7 +561,7 @@ const handleChangeIntercept = async (newValue, id) => {
           </a-button>
 
           <a-popconfirm content="您确定要删除吗？" @ok="deleteRole(record.id)">
-            <a-button type="text">
+            <a-button v-permission="['acl:role:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>
@@ -565,6 +571,7 @@ const handleChangeIntercept = async (newValue, id) => {
         </template>
       </a-table>
       <a-pagination
+        v-permission="['acl:role:search']"
         :total="total"
         :size="size"
         show-total
@@ -639,6 +646,7 @@ const handleChangeIntercept = async (newValue, id) => {
       <template #title>批量删除</template>
       <div>当前共有{{ selectedKeys.length }}条数据。您确定要删除吗？</div>
     </a-modal>
+    <role-acl v-model="visibleApiDrawer" :roleId="roleIdTem"></role-acl>
   </div>
 </template>
 

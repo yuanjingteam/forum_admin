@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, reactive, watch, nextTick, h } from 'vue';
 import useLoading from '@/hooks/useLoading';
+import AvatarUpload from '@/views/userManager/avatarUpload/index.vue';
 import {
   UserForm,
   User,
@@ -10,15 +11,32 @@ import {
   deleteUserService,
   editUserService,
   resetUserService
+  // downloadUserService,
+  // downloadTemService
 } from '@/api/user_manager';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import { IconSearch } from '@arco-design/web-vue/es/icon';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
+import { useUserManageStore } from '@/store';
 
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
+
+const userManageStore = useUserManageStore();
+const btnAclArr = ref(
+  JSON.parse(localStorage.getItem('permissionButtton')) || []
+);
+
+const ifHasEdit = computed(() => {
+  return btnAclArr.value.includes('acl:user:edit');
+});
+
+// 如果你有可能更新 localStorage，可以考虑一个方法来更新 btnAclArr
+const updatePermissions = () => {
+  btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
+};
 
 //表格上方搜素框的样式
 const customStyle = {
@@ -42,18 +60,7 @@ const rowSelection: TableRowSelection = reactive({
 });
 
 //下拉框用户状态内容
-const filterMethodOptions = computed(() => {
-  return [
-    {
-      label: '正常',
-      value: 1
-    },
-    {
-      label: '封禁',
-      value: 2
-    }
-  ];
-});
+const filterMethodOptions = userManageStore.filterMethodOptions;
 
 //表格初始化属性值
 const generateFormModel = () => {
@@ -103,24 +110,7 @@ const showColumns = ref<Column[]>([]);
 const size = ref<SizeProps>('medium');
 
 //密度数据
-const densityList = computed(() => [
-  {
-    name: '迷你',
-    value: 'mini'
-  },
-  {
-    name: '偏小',
-    value: 'small'
-  },
-  {
-    name: '中等',
-    value: 'medium'
-  },
-  {
-    name: '偏大',
-    value: 'large'
-  }
-]);
+const densityList = userManageStore.densityList;
 //列数据
 const columns = computed<TableColumnData[]>(() => [
   {
@@ -329,6 +319,17 @@ const handleOkModal = async () => {
 const handleCancelModal = () => {
   visibleModal.value = false;
 };
+//------------------上传---------------
+//是否压缩文件
+const terserChecked = ref(false);
+//导出
+const outputFile = async () => {
+  // await downloadUserService();
+};
+//下载模版
+const downloadTemExcel = async () => {
+  // await downloadTemService();
+};
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
 const formRef = ref(null);
@@ -345,13 +346,15 @@ const originAddForm = () => {
     nickname: '',
     email: '',
     user_status: undefined,
-    role_ids: []
+    role_ids: [],
+    avatar_path: ''
   };
 };
 //添加用户表格数据
 const addUserForm = ref(originAddForm());
 //添加用户
 const addUser = () => {
+  terserChecked.value = false;
   title.value = '添加用户';
   state.value = 'add';
   addUserForm.value = originAddForm();
@@ -359,20 +362,20 @@ const addUser = () => {
 };
 //编辑当前用户
 const editUser = async (id: number) => {
+  terserChecked.value = false;
   title.value = '编辑用户';
   state.value = 'edit';
 
   //回显当前用户的详情
   const {
     data: { data }
-  } = await getUserDetailService({ id: id });
+  } = await getUserDetailService(id);
   addUserForm.value.user_id = data.id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
   addUserForm.value.user_status = data.user_status;
   addUserForm.value.role_ids = data.role_ids;
-  //回显用户头像
-  // addUserForm.value.avatar_path = data.avatar_path;
+  addUserForm.value.avatar_path = data.avatar_path;
   visibleDrawer.value = true;
 };
 //删除当前用户
@@ -421,7 +424,7 @@ const handleChangeIntercept = async (newValue, id) => {
   //获取当前用户信息
   const {
     data: { data }
-  } = await getUserDetailService({ id: id });
+  } = await getUserDetailService(id);
   addUserForm.value.user_id = id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -452,8 +455,20 @@ const onChangeCreate = dateString => {
   userForm.value.create_time_end = dateString[1];
 };
 //-------------多选下拉框---------------------
+const loadData = async () => {
+  await userManageStore.getRoleNameList();
+};
+loadData();
+
+// const roleNameList = userManageStore.roleNameList;
+// const userRoleOptions = computed(() => {
+//   return roleNameList.map(option => ({
+//     label: option.name,
+//     value: option.id
+//   }));
+// });
 const fieldNames = { value: 'id', label: 'name' };
-const options = reactive([
+const userRoleOptions = [
   {
     id: 125,
     name: '用户'
@@ -466,54 +481,29 @@ const options = reactive([
     id: 127,
     name: '超级管理员'
   }
-]);
-//临时身份
-const temRoleIds = ref([]);
+];
+
 //改变下拉框中的值调用
-const changeRole = async (value, record) => {
-  console.log(value, record);
+const changeRole = async (value, id) => {
+  const {
+    data: { data }
+  } = await getUserDetailService(id);
+  addUserForm.value.user_id = data.id;
+  addUserForm.value.nickname = data.nickname;
+  addUserForm.value.email = data.email;
+  addUserForm.value.user_status = data.user_status;
+  addUserForm.value.role_ids = value;
+  try {
+    await editUserService(addUserForm.value);
+    Message.success('设定用户角色成功');
+  } catch {
+    Message.error('设定用户角色失败，用户身份不能为空');
+  } finally {
+    //清空数据
+    addUserForm.value = originAddForm();
+  }
+};
 
-  //当多选框中的值只剩下一个的时候，或者当前多选框原本就是一个值记录当前值
-  // if (value.length == 1 || record.role_ids.length == 1) {
-  //   temRoleIds.value = record.role_ids;
-  // }
-
-  // if (record.role_ids.length == 0) {
-  //   Message.error('用户必须有一个身份');
-  //   record.role_ids = temRoleIds.value;
-  //   return;
-  // }
-  // const {
-  //   data: { data }
-  // } = await getUserDetailService({ id: id });
-  // addUserForm.value.user_id = data.id;
-  // addUserForm.value.nickname = data.nickname;
-  // addUserForm.value.email = data.email;
-  // addUserForm.value.user_status = data.user_status;
-  // addUserForm.value.role_ids = value;
-  // await editUserService(addUserForm.value);
-  // Message.success('设定用户角色成功');
-  //清空数据
-  addUserForm.value = originAddForm();
-};
-//------------------上传---------------
-//上传的file文件
-const file = ref();
-//上传状态变化时
-const onChange = (_, currentFile) => {
-  file.value = {
-    ...currentFile
-    // url: URL.createObjectURL(currentFile.file)
-  };
-};
-//上传进度变化时调用
-const onProgress = currentFile => {
-  file.value = currentFile;
-};
-//确定上传
-const handleOkImport = () => {};
-//取消上传
-const handleCancelImport = () => {};
 //--------------重置密码-----------
 const resetUser = async (id: number) => {
   await resetUserService(id);
@@ -574,7 +564,7 @@ const importUser = () => {
                       multiple
                       :max-tag-count="2"
                       allow-clear
-                      :options="options"
+                      :options="userRoleOptions"
                       :field-names="fieldNames"
                     ></a-select>
                   </a-form-item>
@@ -602,13 +592,17 @@ const importUser = () => {
           <a-divider style="height: 84px" direction="vertical" />
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:user:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:user:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -623,40 +617,63 @@ const importUser = () => {
       <a-row style="margin-bottom: 16px">
         <a-col :span="12">
           <a-space>
-            <a-button type="primary" @click="addUser()">
+            <a-button
+              v-permission="['acl:user:add']"
+              type="primary"
+              @click="addUser()"
+            >
               <template #icon>
                 <icon-plus />
               </template>
               新建
             </a-button>
-            <a-button type="dashed" status="danger" @click="batchDeleteRole()">
+            <a-button
+              v-permission="['acl:user:delete']"
+              type="dashed"
+              status="danger"
+              @click="batchDeleteRole()"
+            >
               <template #icon>
                 <icon-delete />
               </template>
               批量删除
             </a-button>
 
-            <a-button type="outline" status="success" @click="importUser">
+            <a-button
+              v-permission="['acl:user:import']"
+              type="outline"
+              status="success"
+              @click="importUser"
+            >
               <template #icon>
                 <icon-to-top />
               </template>
               导入
             </a-button>
-            <a-modal
-              v-model:visible="importVisible"
-              @ok="handleOkImport"
-              @cancel="handleCancelImport"
-            >
+            <a-modal v-model:visible="importVisible" :hide-cancel="true">
               <template #title>用户导入</template>
-              <a-upload draggable action="/" :auto-upload="false" />
+              <a-upload
+                draggable
+                action="http://127.0.0.1:4523/m1/4891553-0-default/user/import"
+              />
               <div class="user-import">
                 <span>
                   仅允许导入xls、xlsx格式文件。
-                  <span style="color: #4080ff; cursor: pointer">下载模版</span>
+                  <span
+                    style="color: #4080ff; cursor: pointer"
+                    @click="downloadTemExcel"
+                  >
+                    下载模版
+                  </span>
                 </span>
               </div>
             </a-modal>
-            <a-button type="outline" status="success">
+            <a-button
+              v-permission="['acl:user:export']"
+              type="outline"
+              status="success"
+              @click="outputFile"
+            >
               <template #icon>
                 <icon-to-bottom />
               </template>
@@ -766,13 +783,14 @@ const importUser = () => {
         <template #role_ids="{ record }">
           <a-select
             v-model="record.role_ids"
+            :disabled="!ifHasEdit"
             placeholder="请选择用户身份"
             multiple
             :max-tag-count="2"
             :scrollbar="true"
-            :options="options"
+            :options="userRoleOptions"
             :field-names="fieldNames"
-            @change="value => changeRole(value, record)"
+            @change="value => changeRole(value, record.id)"
           ></a-select>
         </template>
 
@@ -780,6 +798,7 @@ const importUser = () => {
         <template #user_status="{ record }">
           <a-switch
             v-model="record.user_status"
+            v-permission="['acl:user:edit']"
             :checked-value="1"
             :unchecked-value="2"
             :beforeChange="checked => handleChangeIntercept(checked, record.id)"
@@ -791,7 +810,11 @@ const importUser = () => {
 
         <!-- 操作项 -->
         <template #operations="{ record }">
-          <a-button type="text" @click="editUser(record.id)">
+          <a-button
+            v-permission="['acl:user:edit']"
+            type="text"
+            @click="editUser(record.id)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -799,7 +822,7 @@ const importUser = () => {
           </a-button>
 
           <a-popconfirm content="您确定要删除吗？" @ok="deleteRole(record.id)">
-            <a-button type="text">
+            <a-button v-permission="['acl:user:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>
@@ -810,7 +833,7 @@ const importUser = () => {
             content="您确定要重置密码吗？"
             @ok="resetUser(record.id)"
           >
-            <a-button type="text">
+            <a-button v-permission="['acl:user:reset']" type="text">
               <template #icon>
                 <icon-sync />
               </template>
@@ -820,6 +843,7 @@ const importUser = () => {
         </template>
       </a-table>
       <a-pagination
+        v-permission="['acl:user:search']"
         :total="total"
         :size="size"
         show-total
@@ -851,50 +875,11 @@ const importUser = () => {
             />
           </a-form-item>
           <a-form-item field="avatar_path" label="头像" required>
-            <a-upload
-              action="http://127.0.0.1:4523/m1/4891553-0-default/user/upload/headshot?id=351335"
-              :fileList="file ? [file] : []"
-              :show-file-list="false"
-              @change="onChange"
-              @progress="onProgress"
-            >
-              <template #upload-button>
-                <div
-                  :class="`arco-upload-list-item${
-                    file && file.status === 'error'
-                      ? ' arco-upload-list-item-error'
-                      : ''
-                  }`"
-                >
-                  <div
-                    v-if="file && file.url"
-                    class="arco-upload-list-picture custom-upload-avatar"
-                  >
-                    <img :src="file.url" />
-                    <div class="arco-upload-list-picture-mask">
-                      <IconEdit />
-                    </div>
-                    <a-progress
-                      v-if="file.status === 'uploading' && file.percent < 100"
-                      :percent="file.percent"
-                      type="circle"
-                      size="mini"
-                      :style="{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translateX(-50%) translateY(-50%)'
-                      }"
-                    />
-                  </div>
-                  <div v-else class="arco-upload-picture-card">
-                    <div class="arco-upload-picture-card-text">
-                      <IconPlus />
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </a-upload>
+            <a-checkbox v-model="terserChecked">压缩</a-checkbox>
+            <avatar-upload
+              v-model="addUserForm.avatar_path"
+              :ifTerser="terserChecked"
+            />
           </a-form-item>
           <a-form-item
             field="email"
@@ -924,7 +909,7 @@ const importUser = () => {
               :max-tag-count="2"
               allow-clear
               :scrollbar="true"
-              :options="options"
+              :options="userRoleOptions"
               :field-names="fieldNames"
             ></a-select>
           </a-form-item>
