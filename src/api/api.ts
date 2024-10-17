@@ -114,6 +114,6 @@ export function getApiGroupsService() {
 }
 
 //获取当前api详情
-export function getApiDetailService(params: { id?: number }) {
-  return request.get<DetailResult>('/acl/api/detail', { params });
+export function getApiDetailService(id: number) {
+  return request.get<DetailResult>(`/acl/api/detail?id=${id}`);
 }

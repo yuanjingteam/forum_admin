@@ -1,23 +1,46 @@
 import type { DirectiveBinding } from 'vue';
-import { useUserStore } from '@/store';
 
 // 定义一个函数 checkPermission，用于检查元素的权限
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   // 从绑定对象中获取权限值
   const { value } = binding;
-  // 获取用户状态管理存储
-  const userStore = useUserStore();
-  // 获取当前用户的角色
-  const { role } = userStore;
+
+  // 获取当前角色的按钮权限数组
+  localStorage.setItem(
+    'permissionButtton',
+    JSON.stringify([
+      'acl:api:search',
+      'acl:api:add',
+      'acl:api:delete',
+      'acl:api:edit',
+      'acl:role:search',
+      'acl:role:add',
+      'acl:role:delete',
+      'acl:role:edit',
+      'acl:role:permission',
+      'acl:user:search',
+      'acl:user:add',
+      'acl:user:delete',
+      'acl:user:edit',
+      'acl:user:import',
+      'acl:user:export',
+      'acl:user:reset',
+      'acl:menu:search',
+      'acl:menu:add',
+      'acl:menu:edit',
+      'acl:menu:delete'
+    ])
+  );
+  const btnAclArr = JSON.parse(localStorage.getItem('permissionButtton'));
 
   // 检查 value 是否为数组
   if (Array.isArray(value)) {
     // 确保数组不为空
     if (value.length > 0) {
-      const permissionValues = value;
+      const permissionValues = value[0];
 
       // 检查当前用户的角色是否在权限数组中
-      const hasPermission = permissionValues.includes(role);
+      const hasPermission = btnAclArr.includes(permissionValues);
       // 如果没有权限且元素有父节点，移除该元素
       if (!hasPermission && el.parentNode) {
         el.parentNode.removeChild(el);

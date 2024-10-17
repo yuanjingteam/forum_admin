@@ -80,6 +80,10 @@ export function deleteRoleService(data: { ids: number[] }) {
 }
 
 //获取当前角色详情
-export function getRoleDetailService(params: { id?: number }) {
-  return request.get<RoleDetail>('/role/get_detail', { params });
+export function getRoleDetailService(id: number) {
+  return request.get<RoleDetail>(`/role/get_detail?id=${id}`);
+}
+//获取所有已启用的角色名称列表
+export function getRoleNameService() {
+  return request.get<Role>('/role/get_role_name');
 }
