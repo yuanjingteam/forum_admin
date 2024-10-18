@@ -104,7 +104,7 @@ setupMock({
   setup() {
     Mock.mock(new RegExp('/api/content-data'), () => {
       const presetData = [
-        22, 43, 33, 28, 35, 46, 21, 33, 45, 42, 30, 32, 12, 46
+        22, 43, 33, 28, 35, 46, 21, 33, 45, 42, 30, 32, 12, 70
       ];
       const getLineData = () => {
         const count = 14;

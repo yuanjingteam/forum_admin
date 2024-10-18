@@ -2,15 +2,15 @@
   <a-spin :loading="loading" style="width: 100%">
     <a-card
       class="general-card"
-      title="内容数据"
+      title="文章数据"
       :header-style="{ paddingBottom: 0 }"
       :body-style="{
-        paddingTop: '20px'
+        paddingTop: '10px'
       }"
     >
-      <template #extra>
+      <!-- <template #extra>
         <a-link>查看更多</a-link>
-      </template>
+      </template> -->
       <VChart v-if="!loading" height="280px" :options="spec" />
     </a-card>
   </a-spin>
