@@ -4,6 +4,6 @@ export interface UserState {
   nickname?: string;
   email?: string;
   user_status?: number;
-  role_ids?: number[];
+  role_names?: string[];
   avatar_path?: string;
 }

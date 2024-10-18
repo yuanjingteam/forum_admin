@@ -29,7 +29,7 @@ const renderData = [
   },
   {
     label: '用户角色',
-    value: userStore.role_ids
+    value: userStore.role_names
   }
 ] as DescData[];
 const fileList = ref<FileItem[]>([file]);
@@ -130,7 +130,6 @@ const customRequest = (options: RequestOption) => {
               {{ item }}
             </a-tag>
           </span>
-
           <span v-else>{{ value }}</span>
         </template>
       </a-descriptions>

@@ -593,7 +593,7 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition == '1'">
+          <span v-if="record.article_condition != '1'">
             <a-popconfirm
               content="您确定封禁当前文章吗？"
               @ok="confirmBanOne(record.id)"
@@ -606,7 +606,7 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition == '2'">
+          <span v-if="record.article_condition != '2'">
             <a-popconfirm
               content="您确定要解封当前文章吗？"
               @ok="confirmUnsealOne(record.id)"
