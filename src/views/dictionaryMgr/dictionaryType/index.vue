@@ -171,8 +171,8 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  background-color: #f2f3f5;
   border-radius: 5px;
+  // background-color: #f2f3f5;
 }
 
 .layout:hover {

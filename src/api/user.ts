@@ -57,16 +57,16 @@ export function logout() {
 
 // 获取所有用户列表
 export function getUserList() {
-  return request.post<UserList>('/user/list'); // 这里会自动拼接 baseURL
+  return request.post<UserList>('/user/list');
 }
 
 // 获取当前列
 export function editUserInfo(data: Object) {
-  data;
-  return request.post<UserItem>('/user/edit', data); // 这里会自动拼接 baseURL
+  return request.post<UserItem>('/user/edit', data);
 }
 
+// 删除用户
 export function deleteUserInfo(data: Object) {
   data;
-  return request.post<UserItem>('/user/delete', data); // 这里会自动拼接 baseURL
+  return request.post<UserItem>('/user/delete', data);
 }
