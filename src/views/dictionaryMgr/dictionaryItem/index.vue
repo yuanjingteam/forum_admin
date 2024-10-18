@@ -56,7 +56,7 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '描述',
     dataIndex: 'description',
-    width: 380,
+    width: 280,
     slotName: 'description',
     align: 'center'
   },
@@ -465,7 +465,7 @@ defineExpose({ reFresh });
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .main {
   width: 100%;
 }

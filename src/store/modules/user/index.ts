@@ -11,6 +11,7 @@ import type { UserState } from './types';
 const useUserStore = defineStore('user', {
   // 定义初始化状态
   state: (): UserState => ({
+    id: undefined,
     nickname: undefined,
     email: undefined,
     user_status: undefined,

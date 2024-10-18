@@ -90,6 +90,7 @@ const handleClear = () => {
 .item {
   padding: 10px;
   margin: 10px 10px 0 0;
-  background-color: #fff;
+
+  /* background-color: #fff; */
 }
 </style>

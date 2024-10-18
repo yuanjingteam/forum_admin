@@ -1,3 +1,12 @@
+<script setup>
+import useUser from '@/hooks/useUser';
+
+const { logout } = useUser();
+const handleLogout = () => {
+  logout();
+};
+</script>
+
 <template>
   <a-list :bordered="false">
     <a-list-item>
@@ -25,7 +34,7 @@
         <template #description>
           <div class="content">
             <a-typography-paragraph class="tip">
-              您暂未设置邮箱，绑定邮箱可以用来找回密码、接收通知等。
+              已设置邮箱，绑定邮箱可以用来找回密码、接收通知等。
             </a-typography-paragraph>
           </div>
           <div class="operation">
@@ -51,6 +60,13 @@
         </template>
       </a-list-item-meta>
     </a-list-item> -->
+    <a-list-item>
+      <a-form-item>
+        <a-space>
+          <a-button type="primary" @click="handleLogout">退出登录</a-button>
+        </a-space>
+      </a-form-item>
+    </a-list-item>
   </a-list>
 </template>
 

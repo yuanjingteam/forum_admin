@@ -1,21 +1,37 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { FormInstance } from '@arco-design/web-vue/es/form';
 import { BasicInfoModel } from '@/api/user-center';
-
+import { getPersonalInfo, updatePersonalInfo } from '@/api/user-center';
 const formRef = ref<FormInstance>();
 const formData = ref<BasicInfoModel>({
-  email: '',
+  id: 0,
   nickname: '',
-  profile: ''
+  career_direction: '',
+  user_home_page: '',
+  user_signature: '',
+  path: '',
+  user_tags: [],
+  all_tag_names: []
 });
 const validate = async () => {
   const res = await formRef.value?.validate();
   if (!res) {
-    // do some thing
-    // you also can use html-type to submit
+    // 保存用户信息
+    await updatePersonalInfo(formData.value);
   }
 };
+
+const PersonalInfo = async () => {
+  // 获取用户个人信息
+  const { data } = await getPersonalInfo(formData.value.id);
+  formData.value = data.data as BasicInfoModel;
+  console.log(formData.value, 222222222222);
+};
+onMounted(() => {
+  //
+  PersonalInfo();
+});
 const reset = async () => {
   await formRef.value?.resetFields();
 };
@@ -30,18 +46,6 @@ const reset = async () => {
     :wrapper-col-props="{ span: 16 }"
   >
     <a-form-item
-      field="email"
-      label="邮箱"
-      :rules="[
-        {
-          required: true,
-          message: '请输入邮箱'
-        }
-      ]"
-    >
-      <a-input v-model="formData.email" placeholder="请输入邮箱地址" />
-    </a-form-item>
-    <a-form-item
       field="nickname"
       label="昵称"
       :rules="[
@@ -52,6 +56,37 @@ const reset = async () => {
       ]"
     >
       <a-input v-model="formData.nickname" placeholder="请输入您的昵称" />
+    </a-form-item>
+    <a-form-item
+      field="career_direction"
+      label="职业方向"
+      :rules="[
+        {
+          required: true,
+          message: '请输入职业方向'
+        }
+      ]"
+    >
+      <a-input
+        v-model="formData.career_direction"
+        placeholder="请输入您的职业方向"
+      />
+    </a-form-item>
+
+    <a-form-item
+      field="user_signature"
+      label="个性签名"
+      :rules="[
+        {
+          required: true,
+          message: '请输入个性签名'
+        }
+      ]"
+    >
+      <a-input
+        v-model="formData.user_signature"
+        placeholder="请输入您的个性签名"
+      />
     </a-form-item>
 
     <a-form-item
@@ -66,14 +101,14 @@ const reset = async () => {
       row-class="keep-margin"
     >
       <a-textarea
-        v-model="formData.profile"
+        v-model="formData.user_home_page"
         placeholder="请您输入您的个人简介，最多不超过200字"
       />
     </a-form-item>
     <a-form-item>
       <a-space>
         <a-button type="primary" @click="validate">保存</a-button>
-        <a-button type="secondary" @click="reset">重置</a-button>
+        <!-- <a-button type="secondary" @click="reset">重置</a-button> -->
       </a-space>
     </a-form-item>
   </a-form>
