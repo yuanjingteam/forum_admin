@@ -78,7 +78,7 @@
   },
   "devDependencies": {
     "@arco-plugins/vite-vue": "^1.4.5",
-    "@commitlint/cli": "^19.3.0",
+    "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@commitlint/types": "^19.0.3",
     "@eslint/js": "^9.5.0",
