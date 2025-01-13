@@ -19,7 +19,7 @@
       <a-layout-content>
         <PageLayout />
       </a-layout-content>
-      <Footer v-if="footer" />
+      <!-- <Footer v-if="footer" /> -->
     </a-layout>
   </a-layout>
 </template>

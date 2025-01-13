@@ -2,7 +2,7 @@
   <a-spin :loading="loading" style="width: 100%">
     <a-card
       class="general-card"
-      title="内容类型占比"
+      title="文章标签占比"
       :header-style="{ paddingBottom: '0' }"
       :body-style="{
         padding: '20px'
@@ -103,7 +103,7 @@ const spec: ISpec = {
               const value = data['value'];
               return value ? `${value}%` : null;
             }
-            return 1234;
+            return null;
           }
         }
       }
