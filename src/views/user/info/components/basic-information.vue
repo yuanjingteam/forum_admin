@@ -26,7 +26,7 @@ const PersonalInfo = async () => {
   // 获取用户个人信息
   const { data } = await getPersonalInfo(formData.value.id);
   formData.value = data.data as BasicInfoModel;
-  console.log(formData.value, 222222222222);
+  // console.log(formData.value, 222222222222);
 };
 onMounted(() => {
   // 获取个人信息

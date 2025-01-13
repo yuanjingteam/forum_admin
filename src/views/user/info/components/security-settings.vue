@@ -1,9 +1,28 @@
 <script setup>
 import useUser from '@/hooks/useUser';
+import { getAccountInfo } from '@/api/user-center';
+import { reactive } from 'vue';
 
 const { logout } = useUser();
 const handleLogout = () => {
   logout();
+};
+
+import { ref } from 'vue';
+
+// 创建响应式账户数据
+const accountData = ref({
+  id: 0,
+  email: '',
+  blog_link: '',
+  weibo_link: '',
+  github_link: '',
+  password: ''
+});
+
+// 获取账号设置
+const AccountSettings = async () => {
+  const { data } = await getAccountInfo(formData.value.id);
 };
 </script>
 
@@ -12,12 +31,12 @@ const handleLogout = () => {
     <a-list-item>
       <a-list-item-meta>
         <template #avatar>
-          <a-typography-paragraph>登录密码</a-typography-paragraph>
+          <a-typography-paragraph>个人博客链接</a-typography-paragraph>
         </template>
         <template #description>
           <div class="content">
             <a-typography-paragraph>
-              已设置。密码至少6位字符，支持数字、字母和除空格外的特殊字符，且必须同时包含数字和大小写字母。
+              {{ accountData.blog_link }}
             </a-typography-paragraph>
           </div>
           <div class="operation">
@@ -29,12 +48,12 @@ const handleLogout = () => {
     <a-list-item>
       <a-list-item-meta>
         <template #avatar>
-          <a-typography-paragraph>安全邮箱</a-typography-paragraph>
+          <a-typography-paragraph>新浪微博链接</a-typography-paragraph>
         </template>
         <template #description>
           <div class="content">
             <a-typography-paragraph class="tip">
-              已设置邮箱，绑定邮箱可以用来找回密码、接收通知等。
+              {{ accountData.github_link }}
             </a-typography-paragraph>
           </div>
           <div class="operation">
@@ -43,15 +62,15 @@ const handleLogout = () => {
         </template>
       </a-list-item-meta>
     </a-list-item>
-    <!-- <a-list-item>
+    <a-list-item>
       <a-list-item-meta>
         <template #avatar>
-          <a-typography-paragraph>用户权限</a-typography-paragraph>
+          <a-typography-paragraph>Github链接</a-typography-paragraph>
         </template>
         <template #description>
           <div class="content">
             <a-typography-paragraph>
-              设置当前用户的访问权限
+              {{ accountData.github_link }}
             </a-typography-paragraph>
           </div>
           <div class="operation">
@@ -59,7 +78,7 @@ const handleLogout = () => {
           </div>
         </template>
       </a-list-item-meta>
-    </a-list-item> -->
+    </a-list-item>
     <a-list-item>
       <a-form-item>
         <a-space>
