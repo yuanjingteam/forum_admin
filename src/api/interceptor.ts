@@ -10,7 +10,7 @@ import { getToken } from '@/utils/auth';
 
 // 创建 axios 实例，设置基础配置
 const request = axios.create({
-  baseURL: 'http://127.0.0.1:4523/m1/4891553-0-default',
+  baseURL: '/api' || import.meta.env.VITE_API_BASE_URL,
   timeout: 10000, // 请求超时的毫秒数
   withCredentials: false // 跨域请求时不使用凭证
 });

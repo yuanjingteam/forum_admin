@@ -34,6 +34,36 @@ export interface ArticleTableData extends TableData {
   ];
 }
 
+export interface ArticleDetailData extends TableData {
+  code: number;
+  msg: string;
+  data: {
+    article: {
+      id: number;
+      title: string;
+      user_id: number;
+      likes_count: number;
+      like_status: boolean;
+      collections_count: number;
+      collection_status: boolean;
+      views_count: number;
+      heat: string;
+      category_id: number;
+      summary: string;
+      published_at: string;
+      content: string;
+      image_url: string;
+      tags: [ID: number];
+      about: {
+        id: number;
+        title: string;
+        views_count: number;
+        likes_count: number;
+      };
+    };
+  };
+}
+
 export interface ArticleData {
   code: number; // 状态码
   data: {
@@ -67,3 +97,8 @@ export function unsealArticleList(data) {
 // export function auditArticleList(data) {
 //   return request.post<ArticleData>('/article/audit', data); // 这里会自动拼接 baseURL
 // }
+
+// 获取文章详情
+export function getArticleDetail(id) {
+  return request.get<ArticleDetailData>(`/article/detail?id=${id}`);
+}

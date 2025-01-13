@@ -87,8 +87,19 @@ const onChange = (dateString, date) => {
             </a-col>
             <a-col :span="3">
               <a-form-item>
-                <a-button type="primary" @click="handleSearch">查询</a-button>
-                <a-button @click="handleReset">重置</a-button>
+                <a-button
+                  v-permission="['acl:dic_item:search']"
+                  type="primary"
+                  @click="handleSearch"
+                >
+                  查询
+                </a-button>
+                <a-button
+                  v-permission="['acl:dic_item:search']"
+                  @click="handleReset"
+                >
+                  重置
+                </a-button>
               </a-form-item>
             </a-col>
           </a-row>

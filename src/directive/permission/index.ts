@@ -28,7 +28,27 @@ function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
       'acl:menu:search',
       'acl:menu:add',
       'acl:menu:edit',
-      'acl:menu:delete'
+      'acl:menu:delete',
+      'acl:article:search',
+      'acl:article:view',
+      'acl:articel:del',
+      'acl:article:ban',
+      'acl:article:unblock',
+      'acl:dic:add',
+      'acl:dic:delete',
+      'acl:dic:edit',
+      'acl:dic_item:search',
+      'acl:dic_item:add',
+      'acl:dic_item:delete',
+      'acl:dic_item:edit',
+      'acl:comment:search',
+      'acl:comment:view',
+      'acl:comment:delete',
+      'acl:comment:audit',
+      'acl:tag:search',
+      'acl:tag:add',
+      'acl:tag:delete',
+      'acl:tag:edit'
     ])
   );
   const btnAclArr = JSON.parse(localStorage.getItem('permissionButtton'));

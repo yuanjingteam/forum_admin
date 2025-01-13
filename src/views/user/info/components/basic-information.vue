@@ -29,7 +29,7 @@ const PersonalInfo = async () => {
   console.log(formData.value, 222222222222);
 };
 onMounted(() => {
-  //
+  // 获取个人信息
   PersonalInfo();
 });
 const reset = async () => {

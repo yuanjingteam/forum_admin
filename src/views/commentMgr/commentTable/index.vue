@@ -497,7 +497,11 @@ defineExpose({ reFresh });
         <template #optional="{ record }">
           <div class="option">
             <span>
-              <a-button type="text" @click="editItem(record)">
+              <a-button
+                v-permission="['acl:comment:view']"
+                type="text"
+                @click="editItem(record)"
+              >
                 查看详情
               </a-button>
             </span>
@@ -506,7 +510,7 @@ defineExpose({ reFresh });
                 content="您确定要删除吗？"
                 @ok="confirmDeleteOne(record.id)"
               >
-                <a-button type="text">
+                <a-button v-permission="['acl:comment:delete']" type="text">
                   <template #icon>
                     <icon-edit />
                   </template>
@@ -519,7 +523,7 @@ defineExpose({ reFresh });
                 content="您确定要审核吗？"
                 @ok="confirmAuditOne(record.id)"
               >
-                <a-button type="text">
+                <a-button v-permission="['acl:comment:audit']" type="text">
                   <template #icon>
                     <icon-edit />
                   </template>
