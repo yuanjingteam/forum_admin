@@ -27,11 +27,11 @@ export default function setupPermissionGuard(router: Router) {
       // 如果有权限，继续路由导航
       next();
     } else {
-      // 如果没有权限，查找用户角色可以访问的第一个路由
-      const destination =
-        Permission.findFirstPermissionRoute(appRoutes, userStore.role_ids[0]) ||
-        NOT_FOUND; // 如果找不到，使用 NOT_FOUND 常量
-      next(destination); // 导航到找到的路由
+      // // 如果没有权限，查找用户角色可以访问的第一个路由
+      // const destination =
+      //   Permission.findFirstPermissionRoute(appRoutes, userStore.role_ids[0]) ||
+      //   NOT_FOUND; // 如果找不到，使用 NOT_FOUND 常量
+      // next(destination); // 导航到找到的路由
     }
 
     // 完成进度条

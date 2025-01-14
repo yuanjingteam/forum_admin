@@ -10,18 +10,16 @@ import { getToken } from '@/utils/auth';
 
 // 创建 axios 实例，设置基础配置
 const request = axios.create({
-  // '/api' ||
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL, // API 基础 URL
   timeout: 10000, // 请求超时的毫秒数
   withCredentials: false // 跨域请求时不使用凭证
 });
 
 // 添加请求拦截器
-axios.interceptors.request.use(
+request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 获取用户的 token
     const token = getToken();
-    // 如果存在 token，则设置请求头中的 Authorization 字段
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,21 +32,18 @@ axios.interceptors.request.use(
 );
 
 // 添加响应拦截器
-axios.interceptors.response.use(
+request.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data; // 获取响应数据
     // 检查响应中的状态码
-    if (res.code !== 20000) {
-      // 如果状态码不是 20000，则显示错误信息
+    if (res.code !== 2000) {
       Message.error({
         content: res.msg || '网络错误', // 显示响应中的错误信息，或默认提示
         duration: 5 * 1000 // 提示持续时间
       });
+
       // 检查特定的错误代码，并且请求的 URL 不是 '/api/user/info'
-      if (
-        [50008, 50012, 50014].includes(res.code) &&
-        response.config.url !== '/api/user/info'
-      ) {
+      if ([50008, 50012, 50014].includes(res.code) && response.config.url !== '/api/user/info') {
         // 显示登录信息已过期的模态框
         Modal.error({
           title: '登录信息已过期',
@@ -56,10 +51,8 @@ axios.interceptors.response.use(
           okText: '去登录', // 确认按钮文本
           async onOk() {
             const userStore = useUserStore(); // 获取用户状态管理
-
-            // 调用 logout 方法并刷新页面
-            await userStore.logout();
-            window.location.reload();
+            await userStore.logout(); // 调用 logout 方法
+            window.location.reload(); // 刷新页面
           }
         });
       }
@@ -71,7 +64,7 @@ axios.interceptors.response.use(
   error => {
     // 如果响应失败，显示错误信息
     Message.error({
-      content: error.msg || '网络错误请稍后重试', // 显示错误信息，或默认提示
+      content: error.message || '网络错误，请稍后重试', // 显示错误信息，或默认提示
       duration: 5 * 1000 // 提示持续时间
     });
     return Promise.reject(error); // 返回拒绝的 Promise

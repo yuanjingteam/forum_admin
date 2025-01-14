@@ -7,7 +7,9 @@ import useLoading from '@/hooks/useLoading';
 import type { LoginData } from '@/api/user';
 import { pick } from 'lodash';
 import { Message } from '@arco-design/web-vue';
-import CryptoJS from 'crypto-js';
+
+// CryptoJS 是一个广泛使用的 JavaScript 加密库，这里用不到
+// import CryptoJS from 'crypto-js';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -15,22 +17,18 @@ const formRef = ref();
 const tabActiveKey = ref('1');
 const { loading, setLoading } = useLoading();
 
-const encryptData = (data, password) => {
-  return CryptoJS.AES.encrypt(data, password).toString();
-};
-
 const loginConfig = useStorage('login-config', {
   rememberPassword: false,
-  username: '3240288774@qq.com', // 演示默认值
+  email: '', // 演示默认值
   password: '' // 演示密码
 });
 const form = reactive({
-  username: loginConfig.value.username,
+  email: loginConfig.value.email,
   password: loginConfig.value.password,
   agreement: false
 });
 const rules = {
-  username: [
+  email: [
     { required: true, message: '请输入正确邮箱账号' },
     {
       match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -63,15 +61,11 @@ const handleSubmit = () => {
       setLoading(true);
       try {
         // 快速查询属性
-        const userInfoForm = pick(form, ['username', 'password']);
+        const userInfoForm = pick(form, ['email', 'password']);
 
         // userInfoForm 被断言为 LoginData 类型，以确保其符合登录所需的数据结构
         // 登录校验
-        console.log(123423);
-
         await userStore.login(userInfoForm as LoginData);
-        console.log(123423);
-        debugger;
 
         // 从当前路由的查询参数中解构出 `redirect` 属性
         // `redirect` 用于存储重定向的目标地址
@@ -87,22 +81,6 @@ const handleSubmit = () => {
           }
         });
         Message.success('登录成功');
-        // 从 loginConfig.value 对象中提取 rememberPassword 属性
-        // 该属性指示用户是否选择记住密码的选项
-        const { rememberPassword } = loginConfig.value;
-
-        // 从 userInfoForm 对象中提取 username 和 password 属性
-        // 这些属性包含用户输入的登录信息
-        const { username, password } = userInfoForm;
-        // 实际生产环境需要进行加密存储。
-        const secretKey = process.env.VUE_APP_SECRET_KEY;
-
-        loginConfig.value.username = rememberPassword
-          ? encryptData(username, secretKey)
-          : '';
-        loginConfig.value.password = rememberPassword
-          ? encryptData(password, secretKey)
-          : '';
       } catch (error) {
       } finally {
         // 表示加载状态已经结束，通常用于更新用户界面的加载指示器。
@@ -112,40 +90,22 @@ const handleSubmit = () => {
   }
 };
 
-// const setRememberPassword = (value: boolean) => {
-//   loginConfig.value.rememberPassword = value;
-// };
 </script>
 
 <template>
-  <a-form
-    ref="formRef"
-    class="login-form-wrapper"
-    layout="vertical"
-    :model="form"
-    :rules="rules"
-  >
+  <a-form ref="formRef" class="login-form-wrapper" layout="vertical" :model="form" :rules="rules">
     <div class="login-form-title">欢迎登录</div>
     <a-tabs v-model:active-key="tabActiveKey" size="mini" animation>
       <a-tab-pane key="1" title="邮箱登录" destroy-on-hide>
         <a-form-item field="username" validate-trigger="blur" hide-label>
-          <a-input
-            v-model="form.username"
-            autocomplete="username"
-            placeholder="邮箱"
-          >
+          <a-input v-model="form.email" autocomplete="current-email" placeholder="邮箱">
             <template #prefix>
               <icon-user />
             </template>
           </a-input>
         </a-form-item>
         <a-form-item field="password" validate-trigger="blur" hide-label>
-          <a-input-password
-            v-model="form.password"
-            autocomplete="current-password"
-            placeholder="请输入密码"
-            allow-clear
-          >
+          <a-input-password v-model="form.password" autocomplete="current-password" placeholder="请输入密码" allow-clear>
             <template #prefix>
               <icon-lock />
             </template>
@@ -160,13 +120,7 @@ const handleSubmit = () => {
         </a-checkbox> -->
       </a-tab-pane>
     </a-tabs>
-    <a-button
-      type="primary"
-      style="margin: 32px 0 6px"
-      long
-      :loading="loading"
-      @click="handleSubmit"
-    >
+    <a-button type="primary" style="margin: 32px 0 6px" long :loading="loading" @click="handleSubmit">
       登录
     </a-button>
     <div class="login-form-actions">

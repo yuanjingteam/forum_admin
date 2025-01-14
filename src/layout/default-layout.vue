@@ -59,13 +59,13 @@ const setCollapsed = (val: boolean) => {
   if (!isInit.value) return;
   appStore.updateSettings({ menuCollapse: val });
 };
-watch(
-  () => userStore.role,
-  roleValue => {
-    if (roleValue && !permission.accessRouter(route))
-      router.push({ name: 'notFound' });
-  }
-);
+// watch(
+//   () => userStore.role,
+//   roleValue => {
+//     if (roleValue && !permission.accessRouter(route))
+//       router.push({ name: 'notFound' });
+//   }
+// );
 const drawerVisible = ref(false);
 provide('toggleDrawerMenu', () => {
   drawerVisible.value = !drawerVisible.value;

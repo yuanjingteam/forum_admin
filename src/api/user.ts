@@ -2,20 +2,17 @@ import request from '@/api/interceptor';
 // import type { UserState } from '@/store/modules/user/types';
 
 export interface LoginData {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface LoginRes {
   code: string;
   data: {
-    Authorization: string;
-    userInfo: {
-      nickname: string;
-      email: string;
-      user_status: number;
-      roles_ids: number[];
-      avatar_path: string;
+    token: string;
+    userinfo: {
+      id:number
+      nickname:string
     };
   };
   msg: string;
@@ -47,7 +44,7 @@ export interface UserItem {
 
 // 登录
 export function login(data: LoginData) {
-  return request.post<LoginRes>('/backstage/login', data);
+  return request.post<LoginRes>('/user/login', data);
 }
 
 // 退出登录

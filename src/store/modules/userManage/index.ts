@@ -39,10 +39,12 @@ export const useUserManageStore = defineStore('userManage', () => {
   const getRoleNameList = async () => {
     const {
       data: {
-        data: { role_list }
+        role_list
       }
     } = await getRoleNameService();
-    roleNameList.value = role_list;
+    if (role_list){
+      roleNameList.value = role_list;
+    }
   };
   return { densityList, filterMethodOptions, roleNameList, getRoleNameList };
 });

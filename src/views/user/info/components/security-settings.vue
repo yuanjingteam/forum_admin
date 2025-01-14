@@ -1,7 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import useUser from '@/hooks/useUser';
 import { getAccountInfo } from '@/api/user-center';
-import { reactive } from 'vue';
+import type { AccountInfoModel } from '@/api/user-center';
+
+import { useUserStore } from '@/store';
+
+import { onMounted, reactive } from 'vue';
 
 const { logout } = useUser();
 const handleLogout = () => {
@@ -9,6 +13,8 @@ const handleLogout = () => {
 };
 
 import { ref } from 'vue';
+
+const userStore = useUserStore();
 
 // 创建响应式账户数据
 const accountData = ref({
@@ -22,8 +28,14 @@ const accountData = ref({
 
 // 获取账号设置
 const AccountSettings = async () => {
-  const { data } = await getAccountInfo(formData.value.id);
+  const { data } = await getAccountInfo(userStore.id);
+  accountData.value = data.data as AccountInfoModel;
 };
+onMounted(() => {
+  // 获取个人信息
+  AccountSettings();
+  console.log(1111111);
+});
 </script>
 
 <template>
