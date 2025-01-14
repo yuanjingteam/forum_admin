@@ -11,6 +11,7 @@ import {
   banArticleList,
   unsealArticleList
 } from '@/api/article';
+import ArticleVditor from '@/components/Vditor/index.vue';
 import { watch, ref, Ref, onMounted, reactive, computed, nextTick } from 'vue';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 
@@ -433,7 +434,9 @@ defineExpose({ reFresh });
           <br />
         </a-layout-header>
         <a-layout-content>
-          <div>{{ detailData.article_content.text }}</div>
+          <div ref="editorRef"></div>
+          <article-vditor :id="detailData.id"></article-vditor>
+          <!-- <div>{{ detailData.article_content.text }}</div>
           <div class="detial_img">
             <a-image-preview-group infinite>
               <a-space>
@@ -446,7 +449,7 @@ defineExpose({ reFresh });
                 ></a-image>
               </a-space>
             </a-image-preview-group>
-          </div>
+          </div> -->
           <div>点赞数:{{ detailData.likes_count }}</div>
           <div>评论数:{{ detailData.comments_count }}</div>
           <div>收藏数:{{ detailData.collections_count }}</div>
@@ -576,7 +579,11 @@ defineExpose({ reFresh });
       <template #operations="{ record }">
         <div class="option">
           <span>
-            <a-button type="text" @click="detailSelect(record)">
+            <a-button
+              v-permission="['acl:article:view']"
+              type="text"
+              @click="detailSelect(record)"
+            >
               查看详情
             </a-button>
           </span>
@@ -585,7 +592,7 @@ defineExpose({ reFresh });
               content="您确定要删除吗？"
               @ok="confirmDeleteOne(record.id)"
             >
-              <a-button type="text">
+              <a-button v-permission="['acl:articel:del']" type="text">
                 <template #icon>
                   <icon-edit />
                 </template>
@@ -593,12 +600,12 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition == '1'">
+          <span v-if="record.article_condition != '1'">
             <a-popconfirm
               content="您确定封禁当前文章吗？"
               @ok="confirmBanOne(record.id)"
             >
-              <a-button type="text">
+              <a-button v-permission="['acl:article:ban']" type="text">
                 <template #icon>
                   <icon-edit />
                 </template>
@@ -606,12 +613,12 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition == '2'">
+          <span v-if="record.article_condition != '2'">
             <a-popconfirm
               content="您确定要解封当前文章吗？"
               @ok="confirmUnsealOne(record.id)"
             >
-              <a-button type="text">
+              <a-button v-permission="['acl:article:unblock']" type="text">
                 <template #icon>
                   <icon-edit />
                 </template>

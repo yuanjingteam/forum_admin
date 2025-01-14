@@ -67,7 +67,12 @@ const handleSubmit = () => {
 
         // userInfoForm 被断言为 LoginData 类型，以确保其符合登录所需的数据结构
         // 登录校验
+        console.log(123423);
+
         await userStore.login(userInfoForm as LoginData);
+        console.log(123423);
+        debugger;
+
         // 从当前路由的查询参数中解构出 `redirect` 属性
         // `redirect` 用于存储重定向的目标地址
         // `...othersQuery` 收集其余的查询参数，存储在 `othersQuery` 对象中

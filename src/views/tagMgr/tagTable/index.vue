@@ -9,6 +9,7 @@ import useLoading from '@/hooks/useLoading';
 import { deleteTag } from '@/api/tag';
 import { getTagList } from '@/api/tag';
 import EditItem from '@/views/tagMgr/tagTable/EditItem/index.vue';
+import AddItem from '@/views/tagMgr/tagTable/AddItem/index.vue';
 
 const props = defineProps({
   search: {
@@ -24,12 +25,6 @@ const props = defineProps({
 
 // 定义更新,是否可以进行批量操作
 const emit = defineEmits(['update:enabled']);
-
-// 批量删除
-const deleteSelectVisible = defineModel('delete', {
-  type: Boolean,
-  required: true
-});
 
 const columns: TableColumnData[] = [
   {
@@ -88,6 +83,12 @@ const total = defineModel('total', {
   required: true
 });
 
+// 控制按钮的启用状态
+const isButtonEnabled = ref(false);
+
+// 删除弹框
+const deleteDialog = ref(false);
+
 // 配置表格分页
 const pageSizes = ref([5, 10, 20]); // 可选择的每页条目数
 
@@ -132,10 +133,12 @@ const { loading, setLoading } = useLoading(false);
 
 // 修改框
 const editVisible = ref(false);
+const addVisible = ref(false);
 
-// // 当前项ID
+// 当前项ID
 const editId = ref(-1);
 
+// 编辑项
 const editData = ref({
   id: -1,
   name: '',
@@ -229,6 +232,16 @@ const toEditItem = async item => {
   }
 };
 
+// 添加评论
+const toAddItem = () => {
+  addVisible.value = true;
+};
+
+// 打开删除对话框
+const notifyDeleteSelect = () => {
+  deleteDialog.value = true;
+};
+
 // 父组件刷新方法
 const reFresh = () => {
   // 清空
@@ -238,7 +251,7 @@ const reFresh = () => {
 
 // 监听 selectedCount 的变化并发射事件
 watch(selectedKeys, newCount => {
-  emit('update:enabled', newCount.length > 0);
+  isButtonEnabled.value = newCount.length > 0;
 });
 
 defineExpose({ reFresh });
@@ -251,8 +264,9 @@ defineExpose({ reFresh });
       :editData="editData"
       @refresh="reFresh"
     ></edit-item>
+    <add-item v-model:visible="addVisible" @refresh="reFresh"></add-item>
     <a-modal
-      v-model:visible="deleteSelectVisible"
+      v-model:visible="deleteDialog"
       @ok="confirmDeleteSelect(selectList)"
     >
       <template #title>批量删除</template>
@@ -261,58 +275,94 @@ defineExpose({ reFresh });
       </div>
     </a-modal>
 
-    <a-spin :loading="loading" tip="This may take a while..." class="main">
-      <a-table
-        v-model:selectedKeys="selectedKeys"
-        :columns="columns"
-        :data="tag_list"
-        row-key="id"
-        stripe
-        :row-selection="rowSelection"
-        :pagination="pagination"
-        @select="selectItem"
-        @selection-change="selectAllChange"
-        @page-change="changePage"
-        @page-size-change="handlePageSizeChange"
-      >
-        <template #path="{ record }">
-          <div class="user-path">
-            <a-image
-              :src="record.path"
-              alt="图片"
-              width="45"
-              height="45"
-              fit="cover"
-            />
-          </div>
-        </template>
-        <template #optional="{ record }">
-          <div class="option">
-            <span>
-              <a-button type="text" @click="toEditItem(record)">
-                <template #icon>
-                  <icon-edit />
-                </template>
-                <template #default>修改</template>
-              </a-button>
-            </span>
-            <span>
-              <a-popconfirm
-                content="您确定要删除吗？"
-                @ok="confirmDeleteSelect([record.id])"
-              >
-                <a-button type="text">
+    <a-card :title="`全部(${total}) `" :bordered="false">
+      <template #extra>
+        <span class="selectAll">
+          <a-button
+            v-permission="['acl:tag:search']"
+            type="primary"
+            @click="reFresh"
+          >
+            刷新
+          </a-button>
+          <a-button
+            v-permission="['acl:tag:add']"
+            type="primary"
+            @click="toAddItem()"
+          >
+            <template #icon>
+              <icon-plus />
+            </template>
+            新建
+          </a-button>
+          <a-button
+            v-permission="['acl:tag:delete']"
+            type="dashed"
+            status="danger"
+            :disabled="!isButtonEnabled"
+            @click="notifyDeleteSelect"
+          >
+            批量删除
+          </a-button>
+        </span>
+      </template>
+      <a-spin :loading="loading" tip="This may take a while..." class="main">
+        <a-table
+          v-model:selectedKeys="selectedKeys"
+          :columns="columns"
+          :data="tag_list"
+          row-key="id"
+          stripe
+          :row-selection="rowSelection"
+          :pagination="pagination"
+          @select="selectItem"
+          @selection-change="selectAllChange"
+          @page-change="changePage"
+          @page-size-change="handlePageSizeChange"
+        >
+          <template #path="{ record }">
+            <div class="user-path">
+              <a-image
+                :src="record.path"
+                alt="图片"
+                width="45"
+                height="45"
+                fit="cover"
+              />
+            </div>
+          </template>
+          <template #optional="{ record }">
+            <div class="option">
+              <span>
+                <a-button
+                  v-permission="['acl:tag:edit']"
+                  type="text"
+                  @click="toEditItem(record)"
+                >
                   <template #icon>
-                    <icon-delete />
+                    <icon-edit />
                   </template>
-                  <template #default>删除</template>
+                  <template #default>修改</template>
                 </a-button>
-              </a-popconfirm>
-            </span>
-          </div>
-        </template>
-      </a-table>
-    </a-spin>
+              </span>
+              <span>
+                <a-popconfirm
+                  content="您确定要删除吗？"
+                  @ok="confirmDeleteSelect([record.id])"
+                >
+                  <a-button v-permission="['acl:tag:delete']" type="text">
+                    <template #icon>
+                      <icon-delete />
+                    </template>
+                    <template #default>删除</template>
+                  </a-button>
+                </a-popconfirm>
+              </span>
+            </div>
+          </template>
+        </a-table>
+      </a-spin>
+    </a-card>
   </div>
 </template>
 

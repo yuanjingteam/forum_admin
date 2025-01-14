@@ -228,13 +228,17 @@ export default {
           </a-col>
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:article:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:article:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>

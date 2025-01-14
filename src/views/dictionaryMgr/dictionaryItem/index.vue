@@ -332,8 +332,8 @@ const reFresh = () => {
 };
 
 // 在组件挂载时获取数据
-onMounted(() => {
-  getList(); // 初始化时调用获取数据
+onMounted(async () => {
+  await getList(); // 初始化时调用获取数据
 });
 
 // 监听切换
@@ -383,13 +383,18 @@ defineExpose({ reFresh });
     ></options-item>
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-space class="batch-operation">
-        <a-button type="primary" @click="addDicItem()">
+        <a-button
+          v-permission="['acl:dic_item:add']"
+          type="primary"
+          @click="addDicItem()"
+        >
           <template #icon>
             <icon-plus />
           </template>
           新建
         </a-button>
         <a-button
+          v-permission="['acl:dic_item:delete']"
           type="dashed"
           status="danger"
           :disabled="!isButtonEnabled"
@@ -430,6 +435,7 @@ defineExpose({ reFresh });
           <div>
             <a-switch
               v-model="record.status"
+              v-permission="['acl:dic_item:edit']"
               :checked-value="1"
               :unchecked-value="2"
               @change="switchChange(record)"
@@ -441,7 +447,11 @@ defineExpose({ reFresh });
         </template>
 
         <template #optional="{ record }">
-          <a-button type="text" @click="editSelect(record)">
+          <a-button
+            v-permission="['acl:dic_item:edit']"
+            type="text"
+            @click="editSelect(record)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -452,7 +462,7 @@ defineExpose({ reFresh });
             content="您确定要删除吗？"
             @ok="deleteItem(record.dict_type_code, record.id)"
           >
-            <a-button type="text">
+            <a-button v-permission="['acl:dic_item:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>

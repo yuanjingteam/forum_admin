@@ -24,7 +24,7 @@ export default {
           <a-tab-pane key="1" title="基础信息">
             <BasicInformation />
           </a-tab-pane>
-          <a-tab-pane key="2" title="安全设置">
+          <a-tab-pane key="2" title="账号设置">
             <SecuritySettings />
           </a-tab-pane>
         </a-tabs>

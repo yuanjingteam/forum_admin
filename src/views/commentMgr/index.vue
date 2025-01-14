@@ -100,8 +100,15 @@ watch(itemType, newCount => {
     <a-tabs v-model:active-key="itemType" type="line">
       <template #extra>
         <div class="deletSelect">
-          <a-button type="primary" @click="notifyRefresh">刷新</a-button>
           <a-button
+            v-permission="['acl:comment:search']"
+            type="primary"
+            @click="notifyRefresh"
+          >
+            刷新
+          </a-button>
+          <a-button
+            v-permission="['acl:comment:delete']"
             type="dashed"
             status="danger"
             :disabled="!isButtonEnabled"
@@ -111,6 +118,7 @@ watch(itemType, newCount => {
           </a-button>
           <span v-if="itemType == '2'">
             <a-button
+              v-permission="['acl:comment:audit']"
               type="outline"
               status="success"
               :disabled="!isButtonEnabled"

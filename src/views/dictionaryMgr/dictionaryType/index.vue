@@ -130,7 +130,9 @@ onMounted(async () => {
     <a-space direction="vertical" size="large" class="main">
       <div class="header">
         <strong>字典列表</strong>
-        <a-button @click="addSelect">新增</a-button>
+        <a-button v-permission="['acl:dic:add']" @click="addSelect">
+          新增
+        </a-button>
       </div>
       <a-menu
         v-model:selected-keys="selectedKeys"
@@ -141,8 +143,16 @@ onMounted(async () => {
             {{ item.name }}
           </span>
           <span>
-            <icon-edit :size="16" @click.stop="editSelect(item)" />
-            <icon-delete :size="16" @click.stop="deleteSelect(item.id)" />
+            <icon-edit
+              v-permission="['acl:dic:edit']"
+              :size="16"
+              @click.stop="editSelect(item)"
+            />
+            <icon-delete
+              v-permission="['acl:dic:delete']"
+              :size="16"
+              @click.stop="deleteSelect(item.id)"
+            />
           </span>
         </a-menu-item>
       </a-menu>
