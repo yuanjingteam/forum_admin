@@ -7,15 +7,11 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  code: string;
-  data: {
-    token: string;
-    userinfo: {
-      id:number
-      nickname:string
-    };
+  token: string;
+  userinfo: {
+    id: number;
+    nickname: string;
   };
-  msg: string;
 }
 
 export interface RightVerify {

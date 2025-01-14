@@ -42,7 +42,7 @@ const useUserStore = defineStore('user', {
     // const userStore = useUserStore();
     // userStore.setInfo({ nickname: '新昵称', email: 'new@example.com' });
     setInfo(partial: Partial<UserState>) {
-      console.log(partial, "存储了新的用户信息");
+      console.log(partial, '存储了新的用户信息');
       this.$patch(partial);
     },
 
@@ -69,18 +69,11 @@ const useUserStore = defineStore('user', {
     // 获取用户信息
     async login(loginForm: LoginData) {
       try {
-        const res = await userLogin(loginForm);
-        console.log("成功");
-        console.log(res.data.data.token,"ddddddddddddddwa");
-        console.log(res.data.data,"ddddddddddddddwa");
-
-        setToken(res.data.data.token);
-        this.setInfo(res.data.data.userinfo);
+        const { data } = await userLogin(loginForm);
+        setToken(data.token);
+        this.setInfo(data.userinfo);
         // 将用户信息存储到 localStorage
-        localStorage.setItem(
-          'userInfo',
-          JSON.stringify(res.data.data.userinfo)
-        );
+        localStorage.setItem('userInfo', JSON.stringify(data.userinfo));
       } catch (err) {
         clearToken();
         throw err;
