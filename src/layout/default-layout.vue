@@ -26,22 +26,22 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch, provide, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+// import { useRouter, useRoute } from 'vue-router';
 import { useAppStore, useUserStore } from '@/store';
-import usePermission from '@/hooks/usePermission';
+// import usePermission from '@/hooks/usePermission';
 import useResponsive from '@/hooks/useResponsive';
 import PageLayout from './page-layout.vue';
 
 const isInit = ref(false);
 const appStore = useAppStore();
-const userStore = useUserStore();
-const router = useRouter();
-const route = useRoute();
-const permission = usePermission();
+// const userStore = useUserStore();
+// const router = useRouter();
+// const route = useRoute();
+// const permission = usePermission();
 useResponsive(true);
 const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
 const hideMenu = computed(() => appStore.hideMenu);
-const footer = computed(() => appStore.footer);
+// const footer = computed(() => appStore.footer);
 const menuWidth = computed(() => {
   return appStore.menuCollapse ? 48 : appStore.menuWidth;
 });
