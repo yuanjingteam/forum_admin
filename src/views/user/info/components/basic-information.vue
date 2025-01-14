@@ -1,9 +1,15 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { FormInstance } from '@arco-design/web-vue/es/form';
-import { BasicInfoModel } from '@/api/user-center';
+import type { BasicInfoModel } from '@/api/user-center';
 import { getPersonalInfo, updatePersonalInfo } from '@/api/user-center';
+
+import { useUserStore } from '@/store';
+
+const userStore = useUserStore();
+
 const formRef = ref<FormInstance>();
+
 const formData = ref<BasicInfoModel>({
   id: 0,
   nickname: '',
@@ -24,14 +30,15 @@ const validate = async () => {
 
 const PersonalInfo = async () => {
   // 获取用户个人信息
-  const { data } = await getPersonalInfo(formData.value.id);
+  const { data } = await getPersonalInfo(userStore.id);
   formData.value = data.data as BasicInfoModel;
-  // console.log(formData.value, 222222222222);
 };
 onMounted(() => {
   // 获取个人信息
   PersonalInfo();
 });
+
+// 重置表单
 const reset = async () => {
   await formRef.value?.resetFields();
 };

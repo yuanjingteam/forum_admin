@@ -26,7 +26,7 @@ export interface UpdateBasic {
 }
 
 // 获取/更新用户账号设置
-export interface aaa {
+export interface AccountInfoModel {
   id: number;
   email: string;
   blog_link: string;
@@ -64,5 +64,5 @@ export function updatePersonalInfo(data: BasicInfoModel) {
 
 // 更新账号设置
 export function updateAccountInfo(data: BasicInfoModel) {
-  return request.post<aaa>('/user/form_personal_data', data);
+  return request.post<AccountInfoModel>('/user/form_personal_data', data);
 }

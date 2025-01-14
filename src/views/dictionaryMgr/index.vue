@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import DictionaryItem from '@/views/dictionaryMgr/dictionaryItem/index.vue';
 import DictionaryType from '@/views/dictionaryMgr/dictionaryType/index.vue';
 import { SearchItemModel } from '@/views/dictionaryMgr/search/index.vue';
@@ -30,7 +30,15 @@ const searchItem = ref(searchItemModel());
 // 当前列
 const dict_type = ref('');
 
-// 监听当前列
+// 监听 dict_type 的变化
+watch(dict_type, (newValue, oldValue) => {});
+
+// 初始化
+const notifyInit = itemCode => {
+  dict_type.value = itemCode;
+};
+
+// 监听切换
 const changeType = (itemCode: string) => {
   dict_type.value = itemCode;
 };
@@ -68,6 +76,7 @@ const handleClear = () => {
         v-model:search="searchList"
         @check="changeType"
         @update="notifyRefresh"
+        @init="notifyInit"
       ></dictionary-type>
     </a-layout-sider>
     <a-layout-content class="item">

@@ -196,8 +196,9 @@ const getList = async () => {
       page: curPage.value,
       limit: limit.value
     });
-    dictionary.value = data.data.dict_item_list;
-    total.value = data.data.total;
+
+    dictionary.value = data.dict_item_list;
+    total.value = data.total;
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -331,11 +332,13 @@ const reFresh = () => {
   getList();
 };
 
-// 在组件挂载时获取数据
-onMounted(async () => {
-  await getList(); // 初始化时调用获取数据
-});
-
+// watch(
+//   () => props.dict_type,
+//   (newValue, oldValue) => {
+//     getList(); // 在 dict_type 变化时调用 getList
+//     console.log(1111111111111); // 打印信息
+//   }
+// );
 // 监听切换
 watch(
   () => props.dict_type,

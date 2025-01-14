@@ -5,8 +5,8 @@ import { getDicType, delDicType } from '@/api/dictionary';
 import { GetDicList, EditDicList } from '@/api/dictionary';
 import EditItem from '@/views/dictionaryMgr/dictionaryType/EditItem/index.vue';
 import AddItem from '@/views/dictionaryMgr/dictionaryType/AddItem/index.vue';
-type DictTypeItem = GetDicList['data']['dict_type_list'][number];
-type DictType = GetDicList['data']['dict_type_list'];
+type DictTypeItem = GetDicList['dict_type_list'][number];
+type DictType = GetDicList['dict_type_list'];
 
 const dic_list = ref<DictType>([]);
 
@@ -14,6 +14,7 @@ const dic_list = ref<DictType>([]);
 const emit = defineEmits<{
   (e: 'check', payload: string);
   (e: 'update'): void; // 可以根据需要指定 payload 的类型
+  (e: 'init', payload: string); // 初始化
 }>();
 
 // 绑定选中行
@@ -63,7 +64,10 @@ const featchDicList = async () => {
     page: 1,
     limit: 100
   });
-  dic_list.value = data.data.dict_type_list;
+  console.log(data, 11111111);
+
+  dic_list.value = data.dict_type_list;
+
   selectedKeys.value[0] = dic_list.value[0].id;
 };
 
@@ -111,7 +115,9 @@ const updateDicType = () => {
 };
 
 onMounted(async () => {
+  // 初始化
   await featchDicList();
+  emit('check', dic_list.value[0].code);
 });
 </script>
 

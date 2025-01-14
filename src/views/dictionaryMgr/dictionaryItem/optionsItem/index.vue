@@ -183,12 +183,12 @@ watch(
             />
           </a-form-item>
           <a-form-item
-            field="label"
+            field="extend_value"
             tooltip="扩展值"
             label="扩展值"
             label-col-flex="90px"
           >
-            <a-input v-model="edit.label" placeholder="输入扩展值..." />
+            <a-input v-model="edit.extend_value" placeholder="输入扩展值..." />
           </a-form-item>
         </a-form>
       </div>
