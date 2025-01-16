@@ -37,6 +37,10 @@ request.interceptors.response.use(
     const res = response.data; // 获取响应数据
     // 检查响应中的状态码
     if (res.code !== 2000) {
+      //上传图片的接口格式不一致特殊判断
+      if (!res?.errno) {
+        return res;
+      }
       Message.error({
         content: res.msg || '网络错误', // 显示响应中的错误信息，或默认提示
         duration: 5 * 1000 // 提示持续时间

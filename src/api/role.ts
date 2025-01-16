@@ -53,7 +53,7 @@ export interface Role {
   [property: string]: any;
 }
 export interface RoleDetail {
-  code: number;
+  code: string;
   data: Role;
   msg: string;
   [property: string]: any;

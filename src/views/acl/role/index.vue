@@ -123,9 +123,7 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getRoleListService(roleForm.value);
+    const { data } = await getRoleListService(roleForm.value);
     renderData.value = data.role_list;
     total.value = data.total;
   } catch (err) {
@@ -275,12 +273,10 @@ const editRole = async (id: number) => {
   state.value = 'edit';
 
   //回显当前角色的详情
-  const {
-    data: { data }
-  } = await getRoleDetailService(id);
+  const { data } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
-  addRoleForm.value.code = data.code;
+  addRoleForm.value.code = String(data.code);
   addRoleForm.value.status = data.status;
   addRoleForm.value.sort = data.sort;
   visibleDrawer.value = true;
@@ -329,9 +325,7 @@ const changePageSize = (pageSize: number) => {
 const handleChangeIntercept = async (newValue, id) => {
   //newValue为改变后的值
   //获取当前角色信息
-  const {
-    data: { data }
-  } = await getRoleDetailService(id);
+  const { data } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;

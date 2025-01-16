@@ -39,7 +39,7 @@
               </template>
             </a-table-column>
             <a-table-column
-              title="点击量"
+              title="点赞量"
               data-index="clickNumber"
             ></a-table-column>
             <a-table-column
