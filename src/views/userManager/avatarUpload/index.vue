@@ -42,7 +42,7 @@ const props = defineProps({
   },
   serverUrl: {
     type: String,
-    default: 'http://127.0.0.1:4523/m1/4891553-0-default'
+    default: 'http://192.168.10.7:8081'
   },
   ifTerser: {
     type: Boolean
@@ -89,8 +89,9 @@ function changeFile() {
 
   request.post('/produce_image_url', formData, config).then(res => {
     console.log(res, '上传成功');
-    imgUrl.value = res.data.data[0].url;
+    imgUrl.value = res.data[0].url;
     let img = new Image();
+
     img.src = imgUrl.value;
     img.onload = () => {
       emits('update:modelValue', imgUrl.value);

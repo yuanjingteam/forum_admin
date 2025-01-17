@@ -14,7 +14,7 @@ const dic_list = ref<DictType>([]);
 const emit = defineEmits<{
   (e: 'check', payload: string);
   (e: 'update'): void; // 可以根据需要指定 payload 的类型
-  (e: 'init', payload:string) // 初始化
+  (e: 'init', payload: string); // 初始化
 }>();
 
 // 绑定选中行
@@ -55,7 +55,7 @@ const deleteList = ref<[number]>([0]); // 初始值为一个包含一个数字�
 
 // 获取字典类型
 const featchDicList = async () => {
-  const {data} = await getDicType({
+  const { data } = await getDicType({
     name: search.value.name,
     code: search.value.code,
     create_at_begin: '',
@@ -64,12 +64,11 @@ const featchDicList = async () => {
     page: 1,
     limit: 100
   });
-  console.log(data,11111111);
+  console.log(data, 11111111);
 
   dic_list.value = data.dict_type_list;
 
   selectedKeys.value[0] = dic_list.value[0].id;
-
 };
 
 // 编辑
@@ -108,7 +107,6 @@ const submitDelete = async () => {
 const switchCheck = (itemCode: string) => {
   emit('check', itemCode);
 };
-
 
 // 更新表格数据
 const updateDicType = () => {

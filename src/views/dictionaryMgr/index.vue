@@ -31,31 +31,25 @@ const searchItem = ref(searchItemModel());
 const dict_type = ref('');
 
 // 监听 dict_type 的变化
-watch(dict_type, (newValue, oldValue) => {
-
-});
+watch(dict_type, (newValue, oldValue) => {});
 
 // 初始化
-const notifyInit = (itemCode) => {
-  dict_type.value = itemCode
-}
-
+const notifyInit = itemCode => {
+  dict_type.value = itemCode;
+};
 
 // 监听切换
 const changeType = (itemCode: string) => {
   dict_type.value = itemCode;
 };
 
-
 // 绑定表格
 const dicTable = ref();
-
 
 // 通知子组件刷新
 const notifyRefresh = () => {
   dicTable.value.reFresh(); // 调用子组件的 refresh 方法
 };
-
 
 // 在当前条件下搜索
 const handleSearch = (term: SearchItemModel) => {
@@ -82,7 +76,7 @@ const handleClear = () => {
         v-model:search="searchList"
         @check="changeType"
         @update="notifyRefresh"
-        @init = "notifyInit"
+        @init="notifyInit"
       ></dictionary-type>
     </a-layout-sider>
     <a-layout-content class="item">

@@ -102,35 +102,92 @@ watch(
 </script>
 
 <template>
-  <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose @before-ok="submitEdit" @ok="editOk"
-    @cancel="editCancel">
+  <a-drawer
+    v-model:visible="editVisible"
+    :width="420"
+    unmountOnClose
+    @before-ok="submitEdit"
+    @ok="editOk"
+    @cancel="editCancel"
+  >
     <template #title>修改标签信息:</template>
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <div class="drawer">
         <a-form :model="edit" :style="{ width: '380px' }">
-          <a-form-item field="label" tooltip="请输入标签名" label="标签名" label-col-flex="90px">
+          <a-form-item
+            field="label"
+            tooltip="请输入标签名"
+            label="标签名"
+            label-col-flex="90px"
+          >
             <a-input v-model="edit.label" placeholder="输入标签名..." />
           </a-form-item>
-          <a-form-item field="value" tooltip="请输入字典键值" label="字典键值" label-col-flex="90px">
-            <a-input-number v-model="edit.value" placeholder="Please Enter" class="input-demo" :min="0" :max="10000" />
+          <a-form-item
+            field="value"
+            tooltip="请输入字典键值"
+            label="字典键值"
+            label-col-flex="90px"
+          >
+            <a-input-number
+              v-model="edit.value"
+              placeholder="Please Enter"
+              class="input-demo"
+              :min="0"
+              :max="10000"
+            />
           </a-form-item>
-          <a-form-item field="value" tooltip="当前项在表中的顺序" label="排序" label-col-flex="90px">
-            <a-input-number v-model="edit.sort" placeholder="Please Enter" class="input-demo" :min="0" :max="10000" />
+          <a-form-item
+            field="value"
+            tooltip="当前项在表中的顺序"
+            label="排序"
+            label-col-flex="90px"
+          >
+            <a-input-number
+              v-model="edit.sort"
+              placeholder="Please Enter"
+              class="input-demo"
+              :min="0"
+              :max="10000"
+            />
           </a-form-item>
 
-          <a-form-item field="description" tooltip="标签状态" label="标签状态" label-col-flex="90px">
+          <a-form-item
+            field="description"
+            tooltip="标签状态"
+            label="标签状态"
+            label-col-flex="90px"
+          >
             <div>
-              <a-switch v-model="edit.status" :default-checked="edit.status == 1 ? true : false" :checked-value="1"
-                :unchecked-value="2" @change="switchChange(edit.status)" />
+              <a-switch
+                v-model="edit.status"
+                :default-checked="edit.status == 1 ? true : false"
+                :checked-value="1"
+                :unchecked-value="2"
+                @change="switchChange(edit.status)"
+              />
               <span class="dic-state">
                 {{ edit.status == 1 ? '开启' : '关闭' }}
               </span>
             </div>
           </a-form-item>
-          <a-form-item field="description" tooltip="输入标签描述" label="标签描述" label-col-flex="90px">
-            <a-textarea v-model="edit.description" placeholder="输入标签描述..." auto-size />
+          <a-form-item
+            field="description"
+            tooltip="输入标签描述"
+            label="标签描述"
+            label-col-flex="90px"
+          >
+            <a-textarea
+              v-model="edit.description"
+              placeholder="输入标签描述..."
+              auto-size
+            />
           </a-form-item>
-          <a-form-item field="extend_value" tooltip="扩展值" label="扩展值" label-col-flex="90px">
+          <a-form-item
+            field="extend_value"
+            tooltip="扩展值"
+            label="扩展值"
+            label-col-flex="90px"
+          >
             <a-input v-model="edit.extend_value" placeholder="输入扩展值..." />
           </a-form-item>
         </a-form>

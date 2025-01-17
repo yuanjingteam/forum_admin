@@ -38,11 +38,9 @@ export const useUserManageStore = defineStore('userManage', () => {
   //获取所有角色列表名称的方法
   const getRoleNameList = async () => {
     const {
-      data: {
-        role_list
-      }
+      data: { role_list }
     } = await getRoleNameService();
-    if (role_list){
+    if (role_list) {
       roleNameList.value = role_list;
     }
   };
