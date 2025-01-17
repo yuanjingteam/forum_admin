@@ -10,9 +10,9 @@ import {
   getUserDetailService,
   deleteUserService,
   editUserService,
-  resetUserService
-  // downloadUserService,
-  // downloadTemService
+  resetUserService,
+  downloadUserService,
+  downloadTemService
 } from '@/api/user_manager';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
@@ -24,6 +24,10 @@ import { useUserManageStore } from '@/store';
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
+const uploadHeaders = ref({
+  Authorization: 'Bearer ' + localStorage.getItem('Authorization')
+});
+
 const userManageStore = useUserManageStore();
 const btnAclArr = ref(
   JSON.parse(localStorage.getItem('permissionButtton')) || []
@@ -34,9 +38,9 @@ const ifHasEdit = computed(() => {
 });
 
 // 如果你有可能更新 localStorage，可以考虑一个方法来更新 btnAclArr
-const updatePermissions = () => {
-  btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
-};
+// const updatePermissions = () => {
+//   btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
+// };
 
 //表格上方搜素框的样式
 const customStyle = {
@@ -199,9 +203,7 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getUserListService(userForm.value);
+    const { data } = await getUserListService(userForm.value);
     renderData.value = data.user_list;
     total.value = data.total;
   } catch (err) {
@@ -324,11 +326,23 @@ const handleCancelModal = () => {
 const terserChecked = ref(false);
 //导出
 const outputFile = async () => {
-  // await downloadUserService();
+  const res: any = await downloadUserService();
+  console.log(res.data);
+  // 假设res.data是二进制数据
+  const blob = new Blob([res.data], { type: 'application/octet-stream' });
+  const downloadElement = document.createElement('a');
+  const href = window.URL.createObjectURL(blob);
+  downloadElement.href = href;
+  // 根据实际文件类型修改文件后缀
+  downloadElement.download = 'users.xls'; // 如果是Excel文件
+  document.body.appendChild(downloadElement);
+  downloadElement.click();
+  document.body.removeChild(downloadElement);
+  window.URL.revokeObjectURL(href); // 释放URL对象
 };
 //下载模版
 const downloadTemExcel = async () => {
-  // await downloadTemService();
+  await downloadTemService();
 };
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
@@ -367,9 +381,7 @@ const editUser = async (id: number) => {
   state.value = 'edit';
 
   //回显当前用户的详情
-  const {
-    data: { data }
-  } = await getUserDetailService(id);
+  const { data } = await getUserDetailService(id);
   addUserForm.value.user_id = data.id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -422,9 +434,7 @@ const changePageSize = (pageSize: number) => {
 const handleChangeIntercept = async (newValue, id) => {
   //newValue为改变后的值
   //获取当前用户信息
-  const {
-    data: { data }
-  } = await getUserDetailService(id);
+  const { data } = await getUserDetailService(id);
   addUserForm.value.user_id = id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -460,7 +470,9 @@ const loadData = async () => {
 };
 loadData();
 
-// const roleNameList = userManageStore.roleNameList;
+const roleNameList = userManageStore.roleNameList;
+console.log(roleNameList, 123);
+
 // const userRoleOptions = computed(() => {
 //   return roleNameList.map(option => ({
 //     label: option.name,
@@ -470,11 +482,11 @@ loadData();
 const fieldNames = { value: 'id', label: 'name' };
 const userRoleOptions = [
   {
-    id: 125,
+    id: 1,
     name: '用户'
   },
   {
-    id: 126,
+    id: 2,
     name: '管理员'
   },
   {
@@ -485,9 +497,7 @@ const userRoleOptions = [
 
 //改变下拉框中的值调用
 const changeRole = async (value, id) => {
-  const {
-    data: { data }
-  } = await getUserDetailService(id);
+  const { data } = await getUserDetailService(id);
   addUserForm.value.user_id = data.id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -559,6 +569,7 @@ const importUser = () => {
                   <a-form-item field="role_ids" label="用户身份">
                     <a-select
                       v-model="userForm.role_ids"
+                      :allow-search="false"
                       :default-value="[]"
                       placeholder="请选择用户身份"
                       multiple
@@ -654,7 +665,8 @@ const importUser = () => {
               <template #title>用户导入</template>
               <a-upload
                 draggable
-                action="http://127.0.0.1:4523/m1/4891553-0-default/user/import"
+                action="/api/user/import"
+                :headers="uploadHeaders"
               />
               <div class="user-import">
                 <span>
@@ -904,10 +916,10 @@ const importUser = () => {
           <a-form-item field="role_ids" label="用户身份" required>
             <a-select
               v-model="addUserForm.role_ids"
+              :allow-search="false"
               placeholder="请选择用户身份"
               multiple
               :max-tag-count="2"
-              allow-clear
               :scrollbar="true"
               :options="userRoleOptions"
               :field-names="fieldNames"

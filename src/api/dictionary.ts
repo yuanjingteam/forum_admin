@@ -9,7 +9,6 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-
 // 请求字典类型
 export interface DicListForm {
   name: string;
@@ -22,16 +21,16 @@ export interface DicListForm {
 }
 // 获取字典类型
 export interface GetDicList {
-    dict_type_list: Array<{
-      id: number;
-      name: string;
-      code: string;
-      status: number;
-      description: string;
-      create_at: string;
-    }>;
-    total: number;
-  };
+  dict_type_list: Array<{
+    id: number;
+    name: string;
+    code: string;
+    status: number;
+    description: string;
+    create_at: string;
+  }>;
+  total: number;
+}
 
 // 新增字典类型
 export interface AddDicList {
@@ -68,10 +67,9 @@ export interface DicItemForm {
 
 // 获取字典项
 export interface GetDicItem {
-
-    dict_item_list: TableData[];
-    total: number;
-  };
+  dict_item_list: TableData[];
+  total: number;
+}
 
 // 新增字典项
 export interface AddDicItem {

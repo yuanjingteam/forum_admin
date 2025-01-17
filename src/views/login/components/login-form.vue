@@ -89,23 +89,37 @@ const handleSubmit = () => {
     });
   }
 };
-
 </script>
 
 <template>
-  <a-form ref="formRef" class="login-form-wrapper" layout="vertical" :model="form" :rules="rules">
+  <a-form
+    ref="formRef"
+    class="login-form-wrapper"
+    layout="vertical"
+    :model="form"
+    :rules="rules"
+  >
     <div class="login-form-title">欢迎登录</div>
     <a-tabs v-model:active-key="tabActiveKey" size="mini" animation>
       <a-tab-pane key="1" title="邮箱登录" destroy-on-hide>
         <a-form-item field="username" validate-trigger="blur" hide-label>
-          <a-input v-model="form.email" autocomplete="current-email" placeholder="邮箱">
+          <a-input
+            v-model="form.email"
+            autocomplete="current-email"
+            placeholder="邮箱"
+          >
             <template #prefix>
               <icon-user />
             </template>
           </a-input>
         </a-form-item>
         <a-form-item field="password" validate-trigger="blur" hide-label>
-          <a-input-password v-model="form.password" autocomplete="current-password" placeholder="请输入密码" allow-clear>
+          <a-input-password
+            v-model="form.password"
+            autocomplete="current-password"
+            placeholder="请输入密码"
+            allow-clear
+          >
             <template #prefix>
               <icon-lock />
             </template>
@@ -120,7 +134,13 @@ const handleSubmit = () => {
         </a-checkbox> -->
       </a-tab-pane>
     </a-tabs>
-    <a-button type="primary" style="margin: 32px 0 6px" long :loading="loading" @click="handleSubmit">
+    <a-button
+      type="primary"
+      style="margin: 32px 0 6px"
+      long
+      :loading="loading"
+      @click="handleSubmit"
+    >
       登录
     </a-button>
     <div class="login-form-actions">

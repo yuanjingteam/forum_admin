@@ -43,6 +43,7 @@ const useUserStore = defineStore('user', {
     // userStore.setInfo({ nickname: '新昵称', email: 'new@example.com' });
     setInfo(partial: Partial<UserState>) {
       console.log(partial, '存储了新的用户信息');
+      console.log(partial, '存储了新的用户信息');
       this.$patch(partial);
     },
 
@@ -70,6 +71,7 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const { data } = await userLogin(loginForm);
+
         setToken(data.token);
         this.setInfo(data.userinfo);
         // 将用户信息存储到 localStorage

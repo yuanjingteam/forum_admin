@@ -21,7 +21,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
 
     // 检查用户是否已登录
     if (isLogin()) {
-      console.log("已经登录");
+      console.log('已经登录');
 
       // 如果用户已登录且角色存在，继续路由导航
       if (userStore.id) {

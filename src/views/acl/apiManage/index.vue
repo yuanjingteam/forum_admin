@@ -128,9 +128,7 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getApiListService(apiForm.value);
+    const { data } = await getApiListService(apiForm.value);
     renderData.value = data.api;
     total.value = data.total;
   } catch (err) {
@@ -278,9 +276,7 @@ const editApi = async (id: number) => {
   state.value = 'edit';
 
   //回显当前api的详情
-  const {
-    data: { data }
-  } = await getApiDetailService(id);
+  const { data } = await getApiDetailService(id);
   addApiForm.value.id = data.id;
   addApiForm.value.brief_introduction = data.brief_introduction;
   addApiForm.value.path = data.path;
