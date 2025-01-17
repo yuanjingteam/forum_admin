@@ -18,9 +18,10 @@
 
 <script lang="ts" setup>
 import useLoading from '@/hooks/useLoading';
-import { queryContentData } from '@/api/dashboard';
+// import { queryContentData } from '@/api/dashboard';
 import { IBarChartSpec } from '@visactor/vchart';
 import { onMounted } from 'vue';
+import { getWorkplaceArticleSumService } from '@/api/workplace';
 
 const spec: IBarChartSpec = {
   type: 'bar',
@@ -64,19 +65,20 @@ const spec: IBarChartSpec = {
 };
 
 const { loading, setLoading } = useLoading(true);
-const fetchData = () => {
+const fetchData = async () => {
   setLoading(true);
-  queryContentData().then(res => {
-    const { data } = res;
-    spec.data = [
-      {
-        id: 'id0',
-        values: data
-      }
-    ];
-    setLoading(false);
-  });
+  const {
+    data: { article_sum }
+  } = await getWorkplaceArticleSumService();
+  spec.data = [
+    {
+      id: 'id0',
+      values: article_sum
+    }
+  ];
+  setLoading(false);
 };
+
 onMounted(() => fetchData());
 </script>
 

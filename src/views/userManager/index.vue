@@ -38,9 +38,9 @@ const ifHasEdit = computed(() => {
 });
 
 // 如果你有可能更新 localStorage，可以考虑一个方法来更新 btnAclArr
-const updatePermissions = () => {
-  btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
-};
+// const updatePermissions = () => {
+//   btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
+// };
 
 //表格上方搜素框的样式
 const customStyle = {

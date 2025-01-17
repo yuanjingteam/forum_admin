@@ -1,3 +1,24 @@
+<script lang="ts" setup>
+import { getWorkplaceDataService } from '@/api/workplace';
+import { ref } from 'vue';
+
+const articleTotal = ref('');
+const newAdd = ref('');
+const todayComments = ref(0);
+const todayViews = ref(0);
+
+const loadData = async () => {
+  const {
+    data: { total_data }
+  } = await getWorkplaceDataService();
+  articleTotal.value = total_data.article_total;
+  newAdd.value = total_data.new_add;
+  todayComments.value = total_data.today_comments;
+  todayViews.value = total_data.today_views;
+};
+loadData();
+</script>
+
 <template>
   <a-grid :cols="24" :row-gap="8" class="panel">
     <a-grid-item
@@ -13,7 +34,7 @@
         </a-avatar>
         <a-statistic
           title="线上总文章"
-          :value="373.5"
+          :value="Number(articleTotal)"
           :precision="1"
           :value-from="0"
           animation
@@ -40,7 +61,7 @@
         </a-avatar>
         <a-statistic
           title="较昨日新增"
-          :value="2.8"
+          :value="Number(newAdd)"
           :precision="1"
           :value-from="0"
           animation
@@ -65,7 +86,7 @@
         </a-avatar>
         <a-statistic
           title="今日访问量"
-          :value="368"
+          :value="todayViews"
           :value-from="0"
           animation
           show-group-separator
@@ -89,7 +110,7 @@
         </a-avatar>
         <a-statistic
           title="日新增评论"
-          :value="8874"
+          :value="todayComments"
           :value-from="0"
           animation
           show-group-separator
@@ -106,8 +127,6 @@
     </a-grid-item>
   </a-grid>
 </template>
-
-<script lang="ts" setup></script>
 
 <style lang="less" scoped>
 .arco-grid.panel {
