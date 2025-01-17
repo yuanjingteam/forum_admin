@@ -13,6 +13,8 @@
     "serve": "vite --mode production",
     "build": "rimraf dist && vite build",
     "build:staging": "rimraf dist && vite build --mode staging",
+    "build-pro": "rimraf dist && vite build --mode production",
+    "build-dev": "rimraf dist && vite build --mode development",
     "preview": "vite preview",
     "preview:build": "pnpm build && vite preview",
     "type:check": "tsc --noEmit && vue-tsc --noEmit --skipLibCheck",

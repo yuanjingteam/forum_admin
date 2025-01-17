@@ -4,6 +4,7 @@ import { type UserConfigExport, type ConfigEnv, loadEnv } from 'vite';
 
 export default ({ mode }: ConfigEnv): UserConfigExport => {
   const { VITE_PORT, VITE_BASE } = loadEnv(mode, process.cwd());
+  console.log(mode, 666666666666666); // 打印模式
 
   return {
     base: VITE_BASE,

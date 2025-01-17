@@ -154,8 +154,8 @@ const getList = async () => {
   setLoading(true);
   try {
     const { data } = await getTagList({
-      offset: curPage,
-      limit: PAGE_LIMIT,
+      offset: curPage.value,
+      limit: PAGE_LIMIT.value,
       name: props.search.name
     });
     tag_list.value = data.data.tag_list;

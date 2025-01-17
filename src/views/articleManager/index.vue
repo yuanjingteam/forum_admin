@@ -26,8 +26,8 @@ const total_3 = ref(0);
 // 原始数据
 const searchFromModel = (): ArticleForm => {
   return {
-    startTime: '',
-    endTime: '',
+    startTime: '2025-01-09T00:00:00.000Z',
+    endTime: '2025-02-09T00:00:00.000Z',
     keyword: '',
     article_tags: [],
     nickname: '',
@@ -106,8 +106,14 @@ const treeData = ref([]);
 
 // 搜索时间
 const onChangeTime = dateString => {
-  searchModel.value.startTime = dateString[0];
-  searchModel.value.endTime = dateString[1];
+  // searchModel.value.startTime = dateString[0];
+  // searchModel.value.endTime = dateString[1];
+  const startDate = new Date(dateString[0]); // 从输入的字符串创建日期对象
+  const endDate = new Date(dateString[1]); // 从输入的字符串创建日期对象
+
+  // 将日期转换为 ISO 格式并添加时区偏移
+  searchModel.value.startTime = startDate.toISOString(); // 例如 "2024-11-05T07:21:28.000Z"
+  searchModel.value.endTime = endDate.toISOString(); // 例如 "2024-11-05T07:21:28.000Z"
 };
 
 // 搜索
