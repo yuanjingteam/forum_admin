@@ -44,24 +44,24 @@ const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数�
 // 文章数据模型
 const generateFormModel = (): ArticleTableData => {
   return {
-    id: null,
-    title: '',
-    nickname: '',
-    article_condition: null,
-    views_count: null,
-    likes_count: null,
-    collections_count: null,
-    comments_count: null,
-    heat: null,
-    published_at: '',
-    updated_at: '',
-    tags: [
-      {
-        ID: null,
-        name: ''
-      }
-    ]
-  };
+    // id: null,
+    // title: '',
+    // nickname: '',
+    // article_condition: null,
+    // views_count: null,
+    // likes_count: null,
+    // collections_count: null,
+    // comments_count: null,
+    // heat: null,
+    // published_at: '',
+    // updated_at: '',
+    // tags: [
+    //   {
+    //     ID: null,
+    //     name: ''
+    //   }
+    // ]
+  } as ArticleTableData;
 };
 // -------------表格配置--------------------
 // 列配置
@@ -170,7 +170,7 @@ const pagination = reactive({
 
 // -----------------------表格渲染--------------------------------
 // 表格数据
-const formModel: Ref<ArticleTableData[]> = ref([generateFormModel()]);
+const formModel: Ref<ArticleTableData[]> = ref();
 
 // 表格项数据
 const detailData = ref(generateFormModel());

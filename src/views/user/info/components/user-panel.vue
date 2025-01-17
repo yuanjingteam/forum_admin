@@ -1,38 +1,58 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type {
   FileItem,
   RequestOption
 } from '@arco-design/web-vue/es/upload/interfaces';
-import { useUserStore } from '@/store';
 import { userUploadApi } from '@/api/user-center';
+import { useUserStore } from '@/store';
 import type { DescData } from '@arco-design/web-vue/es/descriptions/interface';
+import type { BasicInfoModel } from '@/api/user-center';
+import { updatePersonalInfo } from '@/api/user-center';
 
 const userStore = useUserStore();
-const file = {
+const userInfo = defineModel('userInfo', {
+  type: Object as () => BasicInfoModel,
+  required: true
+});
+
+// 更新用户个人资料
+// const userBasic = ref(userInfo)
+
+// 单独提取出需要的用户个人资料
+const { all_tag_names, ...reset } = userInfo.value;
+
+console.log(userStore.email, 3424);
+
+const file = computed(() => ({
   uid: '-2',
   name: 'avatar.png',
-  url: userStore.avatar_path
-};
-const renderData = [
-  {
-    label: '用户ID',
-    value: userStore.id
-  },
-  {
-    label: '用户状态',
-    value: userStore.user_status
-  },
-  {
-    label: '用户邮箱',
-    value: userStore.email
-  },
-  {
-    label: '用户角色',
-    value: userStore.role_names
-  }
-] as DescData[];
-const fileList = ref<FileItem[]>([file]);
+  url: userInfo.value.path
+}));
+
+// 创建 renderData 的计算属性
+const renderData = computed(
+  () =>
+    [
+      {
+        label: '用户ID',
+        value: userInfo.value.id
+      },
+      {
+        label: '用户状态',
+        value: '封禁' // 使用默认值
+      },
+      {
+        label: '用户邮箱',
+        value: userStore.email
+      },
+      {
+        label: '用户角色',
+        value: userInfo.value.all_tag_names
+      }
+    ] as DescData[]
+);
+const fileList = ref<FileItem[]>([file.value]);
 const uploadChange = (_fileItemList: FileItem[], fileItem: FileItem) => {
   fileList.value = [fileItem];
 };
@@ -44,25 +64,25 @@ const customRequest = (options: RequestOption) => {
 
   (async function requestWrap() {
     // 自执行异步函数
-    const { onProgress, onError, onSuccess, fileItem, name = 'file' } = options; // 解构选项
+    const {
+      onProgress,
+      onError,
+      onSuccess,
+      fileItem,
+      name = 'files'
+    } = options; // 解构选项
     onProgress(20); // 初始进度更新
     const formData = new FormData(); // 创建 FormData 对象
+    formData.append('width', '200');
     formData.append(name as string, fileItem.file as Blob); // 将文件添加到 FormData
-
-    const onUploadProgress = (event: ProgressEvent) => {
-      // 定义上传进度回调
-      let percent;
-      if (event.total > 0) {
-        percent = (event.loaded / event.total) * 100; // 计算上传百分比
-      }
-      onProgress(parseInt(String(percent), 10), event); // 更新进度
-    };
 
     try {
       // 调用文件上传 API
-      const res = await userUploadApi(formData, {
-        controller, // 传入 controller 以支持取消请求
-        onUploadProgress // 传入进度回调
+      const res = await userUploadApi(formData);
+
+      await updatePersonalInfo({
+        ...reset,
+        path: res.data[0].url
       });
       onSuccess(res); // 成功时调用成功回调
     } catch (error) {

@@ -1,6 +1,6 @@
-import axios from 'axios';
+// import axios from 'axios';
 import request from '@/api/interceptor';
-import type { Data } from '@/api/base';
+// import type { Data } from '@/api/base';
 
 // 获取用户个人资料
 export interface BasicInfoModel {
@@ -11,7 +11,7 @@ export interface BasicInfoModel {
   user_signature: string;
   path: string;
   user_tags: string[];
-  all_tag_names: string[];
+  all_tag_names?: string[];
 }
 
 // 更新用户个人资料
@@ -36,29 +36,25 @@ export interface AccountInfoModel {
 }
 
 // 更新用户头像
-export function userUploadApi(
-  data: FormData,
-  config: {
-    controller: AbortController;
-    onUploadProgress?: (progressEvent: any) => void;
-  }
-) {
+export function userUploadApi(data: FormData) {
   // const controller = new AbortController();
-  return axios.post('/produce_image_url', data, config);
+  return request.post<any>('/produce_image_url', data);
 }
 
 // 获取当前用户详细信息
-export function getPersonalInfo(id: number) {
-  return request.get<Data>(`/user/form_personal_data/${id}`); // 使用模板字符串插入 id
+export function getPersonalInfo() {
+  return request.get<BasicInfoModel>(`/user/form_personal_data`); // 使用模板字符串插入 id
 }
 
 // 获取当前账号设置
-export function getAccountInfo(id: number) {
-  return request.get<Data>(`/user/account_settings/${id}`);
+export function getAccountInfo() {
+  return request.get<AccountInfoModel>(`/user/account_settings`);
 }
 
 // 更新当前用户资料
 export function updatePersonalInfo(data: BasicInfoModel) {
+  console.log(data);
+
   return request.post<UpdateBasic>('/user/form_personal_data', data);
 }
 
