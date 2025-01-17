@@ -98,6 +98,7 @@ const columns = computed<TableColumnData[]>(() => [
     title: '角色名称',
     dataIndex: 'name'
   },
+
   {
     title: '角色编码',
     dataIndex: 'code'
