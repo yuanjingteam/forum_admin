@@ -17,15 +17,21 @@
 </template>
 
 <script lang="ts" setup>
+import dayjs from 'dayjs';
 import useLoading from '@/hooks/useLoading';
 // import { queryContentData } from '@/api/dashboard';
-import { IBarChartSpec } from '@visactor/vchart';
-import { onMounted } from 'vue';
+// import { IBarChartSpec } from '@visactor/vchart';
+import { onMounted, ref } from 'vue';
 import { getWorkplaceArticleSumService } from '@/api/workplace';
 
-const spec: IBarChartSpec = {
+const spec: any = ref({
   type: 'bar',
-  data: [],
+  data: [
+    {
+      id: 'id0',
+      values: []
+    }
+  ],
   xField: ['x'],
   yField: 'y',
   axes: [
@@ -62,7 +68,7 @@ const spec: IBarChartSpec = {
       }
     ]
   }
-};
+});
 
 const { loading, setLoading } = useLoading(true);
 const fetchData = async () => {
@@ -70,12 +76,17 @@ const fetchData = async () => {
   const {
     data: { article_sum }
   } = await getWorkplaceArticleSumService();
-  spec.data = [
-    {
-      id: 'id0',
-      values: article_sum
-    }
-  ];
+  const presetData = article_sum;
+  const getLineData = () => {
+    const count = 14;
+    return new Array(count).fill(0).map((_el, idx) => ({
+      x: dayjs()
+        .subtract(count - idx, 'day')
+        .format('YYYY-MM-DD'),
+      y: presetData[idx]
+    }));
+  };
+  spec.value.data[0].values = getLineData();
   setLoading(false);
 };
 

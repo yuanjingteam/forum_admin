@@ -29,7 +29,7 @@ const spec = ref<ISpec>({
   type: 'pie',
   data: [
     {
-      id: 'id0',
+      id: 'id1',
       values: []
     }
   ],
