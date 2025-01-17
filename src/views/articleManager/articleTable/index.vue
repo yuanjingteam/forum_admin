@@ -187,6 +187,7 @@ const detailVisible = ref(false);
 // 获取搜索数据
 const fetchData = async item => {
   setLoading(true);
+
   try {
     const { data } = await queryArticleList(item);
     formModel.value = data.data.article_list;
@@ -396,8 +397,9 @@ const batchDelArticle = async () => {
 
 // 初始化
 onMounted(() => {
+  // console.log(props.searchModel,234234234);
   // 初始化表格
-  fetchData(props.searchModel.value);
+  fetchData(props.searchModel);
 });
 
 // 监听是否可以批量删除
