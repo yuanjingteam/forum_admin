@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { FormInstance } from '@arco-design/web-vue/es/form';
 import type { BasicInfoModel } from '@/api/user-center';
 import { updatePersonalInfo } from '@/api/user-center';
@@ -27,10 +27,6 @@ const validate = async () => {
     user_tags: formData.value.user_tags,
     path: formData.value.path
   });
-  // const res = await formRef.value?.validate();
-  // if (!res) {
-  //   // 保存用户信息
-  // }
 };
 
 // 重置表单

@@ -59,6 +59,6 @@ export function updatePersonalInfo(data: BasicInfoModel) {
 }
 
 // 更新账号设置
-export function updateAccountInfo(data: BasicInfoModel) {
+export function updateAccountInfo(data: AccountInfoModel) {
   return request.post<AccountInfoModel>('/user/form_personal_data', data);
 }

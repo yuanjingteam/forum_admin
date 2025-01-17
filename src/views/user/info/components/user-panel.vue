@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type {
   FileItem,
   RequestOption
@@ -20,10 +20,12 @@ const userInfo = defineModel('userInfo', {
 // const userBasic = ref(userInfo)
 
 // 单独提取出需要的用户个人资料
-const { all_tag_names, ...reset } = userInfo.value;
+const reset = computed(() => {
+  const { all_tag_names, ...rest } = userInfo.value; // 使用动态数据
+  return rest; // 返回需要的字段
+});
 
-console.log(userStore.email, 3424);
-
+//获取到父传子的头像
 const file = computed(() => ({
   uid: '-2',
   name: 'avatar.png',
@@ -52,12 +54,19 @@ const renderData = computed(
       }
     ] as DescData[]
 );
+
+// 用户头像
 const fileList = ref<FileItem[]>([file.value]);
+
+// 更新头像
 const uploadChange = (_fileItemList: FileItem[], fileItem: FileItem) => {
   fileList.value = [fileItem];
 };
 
-// const uploadProgress = ref(0); // 用于存储上传进度
+// 当头像变化就动态更新
+watch(file, newFile => {
+  fileList.value = [newFile];
+});
 
 const customRequest = (options: RequestOption) => {
   const controller = new AbortController(); // 创建一个 AbortController 实例
@@ -79,10 +88,10 @@ const customRequest = (options: RequestOption) => {
     try {
       // 调用文件上传 API
       const res = await userUploadApi(formData);
-
+      const url = res.data[0].url;
       await updatePersonalInfo({
-        ...reset,
-        path: res.data[0].url
+        ...reset.value,
+        path: url
       });
       onSuccess(res); // 成功时调用成功回调
     } catch (error) {

@@ -25,7 +25,11 @@ const props = defineProps({
   },
   itemType: {
     type: String,
-    default: '1'
+    default: '0'
+  },
+  article_condition: {
+    type: Number,
+    default: 1
   }
 });
 
@@ -397,9 +401,12 @@ const batchDelArticle = async () => {
 
 // 初始化
 onMounted(() => {
-  // console.log(props.searchModel,234234234);
   // 初始化表格
-  fetchData(props.searchModel);
+  fetchData({
+    ...props.searchModel,
+    article_condition: props.article_condition,
+    ...pagination
+  });
 });
 
 // 监听是否可以批量删除
@@ -415,7 +422,7 @@ watch(selectedKeys, newCount => {
 const reFresh = () => {
   fetchData({
     ...props.searchModel,
-    itemType: props.itemType,
+    article_condition: props.article_condition,
     ...pagination
   } as unknown);
 };
