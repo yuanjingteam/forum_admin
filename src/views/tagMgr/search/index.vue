@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 
 // 邮箱
 const name = ref('');
 
-const search = reactive({
+const search = ref({
   name: name
 });
 
@@ -14,6 +14,7 @@ const emit = defineEmits(['search', 'clearAll']);
 
 // 搜索
 const handleSearch = () => {
+  console.log(search.value.name, 127893183);
   emit('search', search);
 };
 // 重置

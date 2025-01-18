@@ -56,7 +56,7 @@ export function getBasicInfo() {
 }
 
 export function getPersonalInfo(id: number) {
-  return request.get<PersonalInfoModel>(`/user/getInfo=${id}`); // 使用模板字符串插入 id
+  return request.get<PersonalInfoModel>(`/user/getInfo?id=${id}`); // 使用模板字符串插入 id
 }
 
 // 获取当前账号设置

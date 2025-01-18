@@ -55,7 +55,7 @@ const getTags = async () => {
     limit: 1000,
     name: ''
   });
-  tag_list.value = data.data.tag_list;
+  tag_list.value = data.tag_list;
 };
 
 // 初始化

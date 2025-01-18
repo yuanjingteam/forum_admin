@@ -19,8 +19,7 @@ const notifyRefresh = () => {
 
 // 在当前条件下搜索
 const handleSearch = (term: any) => {
-  searchTerm.name = term.name; // 直接更新搜索关键词
-  console.log(searchTerm.name);
+  searchTerm.name = term.value.name; // 直接更新搜索关键词
   notifyRefresh(); // 调用相关处理
 };
 </script>

@@ -65,12 +65,8 @@ export interface ArticleDetailData extends TableData {
 }
 
 export interface ArticleData {
-  code: number; // 状态码
-  data: {
-    article_list: ArticleTableData[]; // 使用扩展后的 TableData 类型
-    total: number; // 文章总数
-  };
-  msg: string; // 消息
+  article_list: ArticleTableData[]; // 使用扩展后的 TableData 类型
+  total: number; // 文章总数
 }
 
 // 获取文章

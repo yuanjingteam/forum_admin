@@ -146,7 +146,7 @@ const editData = ref({
   article_count: 0,
   heat: 0,
   fans_count: 0,
-  path: 'src/assets/images/green_dog.jpg'
+  path: ''
 });
 
 // 获取列表数据
@@ -158,8 +158,10 @@ const getList = async () => {
       limit: PAGE_LIMIT.value,
       name: props.search.name
     });
-    tag_list.value = data.data.tag_list;
-    total.value = data.data.total;
+
+    tag_list.value = data.tag_list;
+    // total.value = data.total;
+    total.value = 0;
   } catch {
   } finally {
     setLoading(false);
@@ -182,7 +184,7 @@ const handlePageChange = current => {
 const confirmDeleteSelect = async (selectArray: Array<number>) => {
   try {
     // 删除选中的标签
-    await deleteTag({ list: selectArray });
+    await deleteTag({ id: selectArray });
     // 删除
     selectedKeys.value = selectedKeys.value.filter(
       key => !selectArray.includes(key)
@@ -264,7 +266,7 @@ defineExpose({ reFresh });
       :editData="editData"
       @refresh="reFresh"
     ></edit-item>
-    <add-item v-model:visible="addVisible" @refresh="reFresh"></add-item>
+    <add-item v-model:visible="addVisible" @update="reFresh"></add-item>
     <a-modal
       v-model:visible="deleteDialog"
       @ok="confirmDeleteSelect(selectList)"

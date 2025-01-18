@@ -24,7 +24,7 @@ const userInfo = ref<PersonalInfoModel | null>({
 const personalInfo = async () => {
   try {
     // 获取用户个人信息
-    const { data } = await getPersonalInfo(1);
+    const { data } = await getPersonalInfo(userStore.id);
     userInfo.value = data as PersonalInfoModel; // 更新为获取到的数据
     console.log(userInfo.value, '111111111111111');
   } catch (error) {
@@ -59,7 +59,7 @@ const renderData = computed<DescData[]>(() => {
     },
     {
       label: '用户状态',
-      value: '封禁' // 使用默认值
+      value: userInfo.value.user_status // 使用默认值
     },
     {
       label: '用户邮箱',
@@ -167,7 +167,7 @@ const customRequest = (options: RequestOption) => {
 
           <span v-else-if="data.label === '用户角色'">
             <a-tag v-for="(item, index) in value" :key="index">
-              {{ item }}
+              {{ item === 1 ? '管理员' : '普通用户' }}
             </a-tag>
           </span>
           <span v-else>{{ value }}</span>
