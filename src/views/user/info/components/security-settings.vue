@@ -28,8 +28,8 @@ const accountData = ref({
 
 // 获取账号设置
 const AccountSettings = async () => {
-  const { data } = await getAccountInfo(userStore.id);
-  accountData.value = data.data as AccountInfoModel;
+  const { data } = await getAccountInfo();
+  accountData.value = data as AccountInfoModel;
 };
 onMounted(() => {
   // 获取个人信息

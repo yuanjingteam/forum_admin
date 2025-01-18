@@ -2,41 +2,36 @@
 import { onMounted, ref } from 'vue';
 import { FormInstance } from '@arco-design/web-vue/es/form';
 import type { BasicInfoModel } from '@/api/user-center';
-import { getPersonalInfo, updatePersonalInfo } from '@/api/user-center';
+import { updatePersonalInfo } from '@/api/user-center';
 
 import { useUserStore } from '@/store';
+
+const userInfo = defineModel('userInfo', {
+  type: Object as () => BasicInfoModel,
+  required: true
+});
 
 const userStore = useUserStore();
 
 const formRef = ref<FormInstance>();
 
-const formData = ref<BasicInfoModel>({
-  id: 0,
-  nickname: '',
-  career_direction: '',
-  user_home_page: '',
-  user_signature: '',
-  path: '',
-  user_tags: [],
-  all_tag_names: []
-});
-const validate = async () => {
-  const res = await formRef.value?.validate();
-  if (!res) {
-    // 保存用户信息
-    await updatePersonalInfo(formData.value);
-  }
-};
+const formData = ref(userInfo);
 
-const PersonalInfo = async () => {
-  // 获取用户个人信息
-  const { data } = await getPersonalInfo(userStore.id);
-  formData.value = data.data as BasicInfoModel;
+const validate = async () => {
+  await updatePersonalInfo({
+    id: formData.value.id,
+    nickname: formData.value.nickname,
+    career_direction: formData.value.career_direction,
+    user_home_page: formData.value.user_home_page,
+    user_signature: formData.value.user_signature,
+    user_tags: formData.value.user_tags,
+    path: formData.value.path
+  });
+  // const res = await formRef.value?.validate();
+  // if (!res) {
+  //   // 保存用户信息
+  // }
 };
-onMounted(() => {
-  // 获取个人信息
-  PersonalInfo();
-});
 
 // 重置表单
 const reset = async () => {

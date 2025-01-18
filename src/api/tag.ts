@@ -18,6 +18,8 @@ export interface TagData {
 
 // 获取评论列表
 export function getTagList(data) {
+  console.log(data, 32222222222222);
+
   return request.get<TagData>('/backstage_tag/batch_query', data); // 这里会自动拼接 baseURL
 }
 

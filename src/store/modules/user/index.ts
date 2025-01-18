@@ -70,9 +70,12 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const { data } = await userLogin(loginForm);
-
         setToken(data.token);
-        this.setInfo(data.userinfo);
+        debugger;
+
+        this.setInfo({
+          email: loginForm.email // 确保以对象的形式传递
+        });
         // 将用户信息存储到 localStorage
         localStorage.setItem('userInfo', JSON.stringify(data.userinfo));
       } catch (err) {
