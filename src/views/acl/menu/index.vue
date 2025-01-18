@@ -57,7 +57,7 @@ const generateFormModel = () => {
     name: '',
     code: '',
     icon: '',
-    type: '',
+    type: 0,
     route_name: '',
     route_path: '',
     component_path: '',
@@ -73,10 +73,10 @@ const originForm = () => {
   return {
     icon: '',
     name: '',
-    type: '',
+    type: 0,
     route_name: '',
     route_path: '',
-    isVisible: undefined,
+    isVisible: 0,
     code: '',
     component_path: '',
     pid: 0,
@@ -268,11 +268,11 @@ const originAddForm = () => {
   return {
     id: undefined,
     pid: undefined,
-    type: '1',
+    type: 1,
     icon: '',
     name: '',
     sort: 0,
-    isVisible: undefined,
+    isVisible: 0,
     route_name: '',
     route_param: '',
     route_path: '',
@@ -541,8 +541,8 @@ const changePageSize = (pageSize: number) => {
         </template>
         <!-- 权限类型 -->
         <template #type="{ record }">
-          <a-tag v-if="record.type == '1'" color="purple">目录</a-tag>
-          <a-tag v-else-if="record.type == '2'" color="blue">菜单</a-tag>
+          <a-tag v-if="record.type == 1" color="purple">目录</a-tag>
+          <a-tag v-else-if="record.type == 2" color="blue">菜单</a-tag>
           <a-tag v-else color="green">按钮</a-tag>
         </template>
         <!-- 操作项 -->
@@ -588,7 +588,7 @@ const changePageSize = (pageSize: number) => {
       @ok="handleOkDrawer"
       @cancel="handleCancelDrawer"
     >
-      <div v-if="addMenuForm.type == '1'">
+      <div v-if="addMenuForm.type == 1">
         <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
           <a-form-item v-if="state == 'edit'" field="id" label="ID">
             <a-input v-model="addMenuForm.id" disabled />
@@ -677,7 +677,7 @@ const changePageSize = (pageSize: number) => {
           </a-form-item>
         </a-form>
       </div>
-      <div v-if="addMenuForm.type == '2'">
+      <div v-if="addMenuForm.type == 2">
         <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
           <a-form-item v-if="state == 'edit'" field="id" label="ID">
             <a-input v-model="addMenuForm.id" disabled />
@@ -774,7 +774,7 @@ const changePageSize = (pageSize: number) => {
           </a-form-item>
         </a-form>
       </div>
-      <div v-if="addMenuForm.type == '3'">
+      <div v-if="addMenuForm.type == 3">
         <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
           <a-form-item v-if="state == 'edit'" field="id" label="ID">
             <a-input v-model="addMenuForm.id" disabled />

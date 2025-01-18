@@ -79,7 +79,7 @@ export interface APIGroup {
 
 export interface Select {
   label: string;
-  value: number;
+  value: string;
   [property: string]: any;
 }
 

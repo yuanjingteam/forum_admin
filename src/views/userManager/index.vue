@@ -10,11 +10,9 @@ import {
   getUserDetailService,
   deleteUserService,
   editUserService,
-  resetUserService,
-  // downloadUserService,
-  downloadTemService
+  resetUserService
+  // downloadTemService
 } from '@/api/user_manager';
-import axios from 'axios';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import { IconSearch } from '@arco-design/web-vue/es/icon';
@@ -30,13 +28,13 @@ const uploadHeaders = ref({
 });
 
 const userManageStore = useUserManageStore();
-const btnAclArr = ref(
-  JSON.parse(localStorage.getItem('permissionButtton')) || []
-);
+// const btnAclArr = ref(
+//   JSON.parse(localStorage.getItem('permissionButtton')) || []
+// );
 
-const ifHasEdit = computed(() => {
-  return btnAclArr.value.includes('acl:user:edit');
-});
+// const ifHasEdit = computed(() => {
+//   return btnAclArr.value.includes('acl:user:edit');
+// });
 
 // 如果你有可能更新 localStorage，可以考虑一个方法来更新 btnAclArr
 // const updatePermissions = () => {
@@ -328,68 +326,64 @@ const terserChecked = ref(false);
 //重写导出接口
 const downloadUserService = async () => {
   const token = localStorage.getItem('Authorization');
-  const response = await axios({
-    url: '/api/user/export', // 你的后端接口地址
+  const response = await fetch('/api/user/export', {
     method: 'GET',
-    responseType: 'blob', // 重要：设置响应类型为 blob
     headers: {
       Authorization: `Bearer ${token}` // 添加 Authorization 头
     }
   });
-  return response;
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.blob(); // 将响应转换为 Blob 对象
 };
-//导出
+
 const outputFile = async () => {
   try {
-    const res: any = await downloadUserService();
-    // console.log(res);
-    // 假设res.data是二进制数据
-    const blob = new Blob([res.data], { type: 'application/vnd.ms-excel' }); // 更精确的类型
-    const downloadElement = document.createElement('a');
-    const href = window.URL.createObjectURL(blob);
-    downloadElement.href = href;
-    // 如果后端返回的响应中包含文件名，可以使用该文件名
-    downloadElement.download = 'users.xlsx'; // 如果是Excel文件
-    document.body.appendChild(downloadElement);
-    downloadElement.click();
-    document.body.removeChild(downloadElement);
-    window.URL.revokeObjectURL(href); // 释放URL对象
+    const blob = await downloadUserService();
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = 'users.xlsx'; // 设置下载文件的名称
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(a.href); // 释放 URL 对象
   } catch (err) {
     console.error('下载失败:', err);
-    // 可以在这里添加用户反馈，例如显示错误消息
   }
 };
-// const outputFile = () => {
-//   const token = localStorage.getItem('Authorization');
-//   axios({
-//     method: 'get', //请求方式
-//     url: '/api/user/export',
-//     responseType: 'blob', //服务器返回的数据类型
-//     headers: {
-//       Authorization: `Bearer ${token}` // 添加 Authorization 头
-//     }
-//   }).then(response => {
-//     const content = response.data; //返回的内容
-//     const fileName = 'users.xls'; //下载文件名
-//     download(content, fileName);
-//     console.log(response.data, 'data');
-//   });
 
-//   //处理下载流
-//   function download(content, fileName) {
-//     const blob = new Blob([content]); //创建一个类文件对象：Blob对象表示一个不可变的、原始数据的类文件对象
-//     const url = window.URL.createObjectURL(blob); //URL.createObjectURL(object)表示生成一个File对象或Blob对象
-//     let dom = document.createElement('a'); //设置一个隐藏的a标签，href为输出流，设置download
-//     dom.style.display = 'none';
-//     dom.href = url;
-//     dom.setAttribute('download', fileName); //指示浏览器下载url,而不是导航到它；因此将提示用户将其保存为本地文件
-//     document.body.appendChild(dom);
-//     dom.click();
-//   }
-// };
+const downloadTemService = async () => {
+  const token = localStorage.getItem('Authorization');
+  const response = await fetch('/user/download_template', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}` // 添加 Authorization 头
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.blob(); // 将响应转换为 Blob 对象
+};
 //下载模版
 const downloadTemExcel = async () => {
-  await downloadTemService();
+  try {
+    const blob = await downloadTemService();
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = 'users.xlsx'; // 设置下载文件的名称
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(a.href); // 释放 URL 对象
+  } catch (err) {
+    console.error('下载失败:', err);
+  }
 };
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
@@ -488,7 +482,7 @@ const handleChangeIntercept = async (newValue, id) => {
   addUserForm.value.user_status = newValue;
   addUserForm.value.role_ids = data.role_ids;
   //回显用户头像
-  // addUserForm.value.avatar_path = data.avatar_path;
+  addUserForm.value.avatar_path = data.avatar_path;
   try {
     await editUserService(addUserForm.value);
     Message.success('编辑成功');
@@ -517,49 +511,33 @@ const loadData = async () => {
 };
 loadData();
 
-const roleNameList = userManageStore.roleNameList;
-console.log(roleNameList, 123);
+const roleNameList = computed(() => userManageStore.roleNameList);
 
-// const userRoleOptions = computed(() => {
-//   return roleNameList.map(option => ({
-//     label: option.name,
-//     value: option.id
-//   }));
-// });
-const fieldNames = { value: 'id', label: 'name' };
-const userRoleOptions = [
-  {
-    id: 1,
-    name: '用户'
-  },
-  {
-    id: 2,
-    name: '管理员'
-  },
-  {
-    id: 127,
-    name: '超级管理员'
-  }
-];
+const userRoleOptions = computed(() => {
+  return roleNameList.value.map(option => ({
+    label: option.name,
+    value: option.id
+  }));
+});
 
-//改变下拉框中的值调用
-const changeRole = async (value, id) => {
-  const { data } = await getUserDetailService(id);
-  addUserForm.value.user_id = data.id;
-  addUserForm.value.nickname = data.nickname;
-  addUserForm.value.email = data.email;
-  addUserForm.value.user_status = data.user_status;
-  addUserForm.value.role_ids = value;
-  try {
-    await editUserService(addUserForm.value);
-    Message.success('设定用户角色成功');
-  } catch {
-    Message.error('设定用户角色失败，用户身份不能为空');
-  } finally {
-    //清空数据
-    addUserForm.value = originAddForm();
-  }
-};
+// //改变下拉框中的值调用
+// const changeRole = async (value, id) => {
+//   const { data } = await getUserDetailService(id);
+//   addUserForm.value.user_id = data.id;
+//   addUserForm.value.nickname = data.nickname;
+//   addUserForm.value.email = data.email;
+//   addUserForm.value.user_status = data.user_status;
+//   addUserForm.value.role_ids = value;
+//   try {
+//     await editUserService(addUserForm.value);
+//     Message.success('设定用户角色成功');
+//   } catch {
+//     Message.error('设定用户角色失败，用户身份不能为空');
+//   } finally {
+//     //清空数据
+//     addUserForm.value = originAddForm();
+//   }
+// };
 
 //--------------重置密码-----------
 const resetUser = async (id: number) => {
@@ -623,7 +601,6 @@ const importUser = () => {
                       :max-tag-count="2"
                       allow-clear
                       :options="userRoleOptions"
-                      :field-names="fieldNames"
                     ></a-select>
                   </a-form-item>
                 </a-col>
@@ -834,23 +811,24 @@ const importUser = () => {
         <!-- 头像 -->
         <template #avatar_path="{ record }">
           <a-avatar :size="32">
-            <img alt="avatar" :src="record.avatar_path" />
+            <img
+              alt="avatar"
+              :src="record.avatar_path || 'https://picsum.photos/200/200'"
+            />
           </a-avatar>
         </template>
 
         <!-- 用户身份 -->
         <template #role_ids="{ record }">
-          <a-select
-            v-model="record.role_ids"
-            :disabled="!ifHasEdit"
-            placeholder="请选择用户身份"
-            multiple
-            :max-tag-count="2"
-            :scrollbar="true"
-            :options="userRoleOptions"
-            :field-names="fieldNames"
-            @change="value => changeRole(value, record.id)"
-          ></a-select>
+          <a-space>
+            <a-tag
+              v-for="(item, index) in record.role_names"
+              :key="index"
+              color="arcoblue"
+            >
+              {{ item }}
+            </a-tag>
+          </a-space>
         </template>
 
         <!-- 状态开关 -->
@@ -969,7 +947,6 @@ const importUser = () => {
               :max-tag-count="2"
               :scrollbar="true"
               :options="userRoleOptions"
-              :field-names="fieldNames"
             ></a-select>
           </a-form-item>
         </a-form>
