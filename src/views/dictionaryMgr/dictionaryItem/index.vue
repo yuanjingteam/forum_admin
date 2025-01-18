@@ -313,8 +313,12 @@ const addDicItem = () => {
 
 // 批量删除
 const batchDeleteDic = async () => {
+  debugger;
+
   try {
     setLoading(true);
+    console.log(props.dict_type, 3222222222);
+
     await delDicItem({
       dict_type_code: props.dict_type,
       id_list: selectedKeys.value
@@ -332,18 +336,12 @@ const reFresh = () => {
   getList();
 };
 
-// watch(
-//   () => props.dict_type,
-//   (newValue, oldValue) => {
-//     getList(); // 在 dict_type 变化时调用 getList
-//     console.log(1111111111111); // 打印信息
-//   }
-// );
 // 监听切换
 watch(
   () => props.dict_type,
   () => {
     curPage.value = 1; // 重置当前页为1
+    selectedKeys.value = [];
     getList();
   }
 );

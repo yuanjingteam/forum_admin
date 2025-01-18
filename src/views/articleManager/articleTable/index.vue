@@ -403,9 +403,10 @@ const batchDelArticle = async () => {
 onMounted(() => {
   // 初始化表格
   fetchData({
-    ...props.searchModel,
+    page: pagination.current,
+    limit: pagination.pageSize,
     article_condition: props.article_condition,
-    ...pagination
+    ...props.searchModel
   });
 });
 
@@ -421,10 +422,11 @@ watch(selectedKeys, newCount => {
 // 通用刷新方法
 const reFresh = () => {
   fetchData({
-    ...props.searchModel,
+    page: pagination.current,
+    limit: pagination.pageSize,
     article_condition: props.article_condition,
-    ...pagination
-  } as unknown);
+    ...props.searchModel
+  });
 };
 // 暴露方法给父组件
 defineExpose({ reFresh });

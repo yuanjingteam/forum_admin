@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import useUser from '@/hooks/useUser';
 import { getAccountInfo } from '@/api/user-center';
 import { updateAccountInfo } from '@/api/user-center';
 import type { AccountInfoModel } from '@/api/user-center';
 import { onMounted } from 'vue';
 
 import { ref } from 'vue';
-
-const { logout } = useUser();
-const handleLogout = () => {
-  logout();
-};
 
 // 创建响应式账户数据
 const accountData = ref({
@@ -53,14 +47,21 @@ onMounted(() => {
 
 // 更新账号设置
 const updateAccount = async () => {
-  accountData.value[currentField.value] = newLink.value; // 更新链接
-  isModalVisible.value = false; // 关闭模态框
+  const originalValue = accountData.value[currentField.value]; // 备份原始链接
 
+  accountData.value[currentField.value] = newLink.value; // 更新链接
   // 这里可以添加发送更新请求的逻辑
-  await updateAccountInfo({
-    ...accountData.value,
-    [currentField.value]: newLink.value
-  });
+  try {
+    await updateAccountInfo({
+      ...accountData.value,
+      [currentField.value]: newLink.value
+    });
+  } catch {
+    newLink.value = originalValue; // 恢复为原始链接
+  } finally {
+    accountData.value[currentField.value] = newLink.value; // 更新链接
+    isModalVisible.value = false; // 关闭模态框
+  }
 };
 </script>
 

@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia';
-import {
-  login as userLogin,
-  logout as userLogout,
-  type LoginData
-} from '@/api/user';
+// logout as userLogout,
+import { login as userLogin, type LoginData } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import type { UserState } from './types';
@@ -90,9 +87,9 @@ const useUserStore = defineStore('user', {
       removeRouteListener();
     },
     // 用户登出
-    async logout() {
+    logout() {
       try {
-        await userLogout();
+        // await userLogout();
       } finally {
         this.logoutCallBack();
       }
