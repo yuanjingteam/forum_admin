@@ -113,12 +113,12 @@
                 <span>用户中心</span>
               </a-space>
             </a-doption>
-            <a-doption>
+            <!-- <a-doption>
               <a-space @click="$router.push({ name: 'Setting' })">
                 <icon-settings />
                 <span>用户设置</span>
               </a-space>
-            </a-doption>
+            </a-doption> -->
             <a-doption>
               <a-space @click="handleLogout">
                 <icon-export />

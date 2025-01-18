@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia';
-import {
-  login as userLogin,
-  logout as userLogout,
-  type LoginData
-} from '@/api/user';
+// logout as userLogout,
+import { login as userLogin, type LoginData } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import type { UserState } from './types';
@@ -43,7 +40,6 @@ const useUserStore = defineStore('user', {
     // userStore.setInfo({ nickname: '新昵称', email: 'new@example.com' });
     setInfo(partial: Partial<UserState>) {
       console.log(partial, '存储了新的用户信息');
-      console.log(partial, '存储了新的用户信息');
       this.$patch(partial);
     },
 
@@ -71,9 +67,12 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const { data } = await userLogin(loginForm);
-
         setToken(data.token);
-        this.setInfo(data.userinfo);
+        debugger;
+
+        this.setInfo({
+          email: loginForm.email // 确保以对象的形式传递
+        });
         // 将用户信息存储到 localStorage
         localStorage.setItem('userInfo', JSON.stringify(data.userinfo));
       } catch (err) {
@@ -88,9 +87,9 @@ const useUserStore = defineStore('user', {
       removeRouteListener();
     },
     // 用户登出
-    async logout() {
+    logout() {
       try {
-        await userLogout();
+        // await userLogout();
       } finally {
         this.logoutCallBack();
       }

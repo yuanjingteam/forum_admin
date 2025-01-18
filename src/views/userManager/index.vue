@@ -11,9 +11,10 @@ import {
   deleteUserService,
   editUserService,
   resetUserService,
-  downloadUserService,
+  // downloadUserService,
   downloadTemService
 } from '@/api/user_manager';
+import axios from 'axios';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { TableRowSelection, Message } from '@arco-design/web-vue';
 import { IconSearch } from '@arco-design/web-vue/es/icon';
@@ -324,22 +325,68 @@ const handleCancelModal = () => {
 //------------------上传---------------
 //是否压缩文件
 const terserChecked = ref(false);
+//重写导出接口
+const downloadUserService = async () => {
+  const token = localStorage.getItem('Authorization');
+  const response = await axios({
+    url: '/api/user/export', // 你的后端接口地址
+    method: 'GET',
+    responseType: 'blob', // 重要：设置响应类型为 blob
+    headers: {
+      Authorization: `Bearer ${token}` // 添加 Authorization 头
+    }
+  });
+  return response;
+};
 //导出
 const outputFile = async () => {
-  const res: any = await downloadUserService();
-  console.log(res.data);
-  // 假设res.data是二进制数据
-  const blob = new Blob([res.data], { type: 'application/octet-stream' });
-  const downloadElement = document.createElement('a');
-  const href = window.URL.createObjectURL(blob);
-  downloadElement.href = href;
-  // 根据实际文件类型修改文件后缀
-  downloadElement.download = 'users.xls'; // 如果是Excel文件
-  document.body.appendChild(downloadElement);
-  downloadElement.click();
-  document.body.removeChild(downloadElement);
-  window.URL.revokeObjectURL(href); // 释放URL对象
+  try {
+    const res: any = await downloadUserService();
+    // console.log(res);
+    // 假设res.data是二进制数据
+    const blob = new Blob([res.data], { type: 'application/vnd.ms-excel' }); // 更精确的类型
+    const downloadElement = document.createElement('a');
+    const href = window.URL.createObjectURL(blob);
+    downloadElement.href = href;
+    // 如果后端返回的响应中包含文件名，可以使用该文件名
+    downloadElement.download = 'users.xlsx'; // 如果是Excel文件
+    document.body.appendChild(downloadElement);
+    downloadElement.click();
+    document.body.removeChild(downloadElement);
+    window.URL.revokeObjectURL(href); // 释放URL对象
+  } catch (err) {
+    console.error('下载失败:', err);
+    // 可以在这里添加用户反馈，例如显示错误消息
+  }
 };
+// const outputFile = () => {
+//   const token = localStorage.getItem('Authorization');
+//   axios({
+//     method: 'get', //请求方式
+//     url: '/api/user/export',
+//     responseType: 'blob', //服务器返回的数据类型
+//     headers: {
+//       Authorization: `Bearer ${token}` // 添加 Authorization 头
+//     }
+//   }).then(response => {
+//     const content = response.data; //返回的内容
+//     const fileName = 'users.xls'; //下载文件名
+//     download(content, fileName);
+//     console.log(response.data, 'data');
+//   });
+
+//   //处理下载流
+//   function download(content, fileName) {
+//     const blob = new Blob([content]); //创建一个类文件对象：Blob对象表示一个不可变的、原始数据的类文件对象
+//     const url = window.URL.createObjectURL(blob); //URL.createObjectURL(object)表示生成一个File对象或Blob对象
+//     let dom = document.createElement('a'); //设置一个隐藏的a标签，href为输出流，设置download
+//     dom.style.display = 'none';
+//     dom.href = url;
+//     dom.setAttribute('download', fileName); //指示浏览器下载url,而不是导航到它；因此将提示用户将其保存为本地文件
+//     document.body.appendChild(dom);
+//     dom.click();
+//   }
+// };
 //下载模版
 const downloadTemExcel = async () => {
   await downloadTemService();

@@ -58,7 +58,7 @@ request.interceptors.response.use(
           okText: '去登录', // 确认按钮文本
           async onOk() {
             const userStore = useUserStore(); // 获取用户状态管理
-            await userStore.logout(); // 调用 logout 方法
+            userStore.logout(); // 调用 logout 方法
             window.location.reload(); // 刷新页面
           }
         });

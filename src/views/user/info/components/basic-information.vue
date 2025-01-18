@@ -2,15 +2,10 @@
 import { onMounted, ref } from 'vue';
 import { FormInstance } from '@arco-design/web-vue/es/form';
 import type { BasicInfoModel } from '@/api/user-center';
-import { getPersonalInfo, updatePersonalInfo } from '@/api/user-center';
+import { updateBasicInfo } from '@/api/user-center';
+import { getBasicInfo } from '@/api/user-center';
 
-import { useUserStore } from '@/store';
-
-const userStore = useUserStore();
-
-const formRef = ref<FormInstance>();
-
-const formData = ref<BasicInfoModel>({
+const userInfo = ref<BasicInfoModel | null>({
   id: 0,
   nickname: '',
   career_direction: '',
@@ -20,28 +15,43 @@ const formData = ref<BasicInfoModel>({
   user_tags: [],
   all_tag_names: []
 });
-const validate = async () => {
-  const res = await formRef.value?.validate();
-  if (!res) {
-    // 保存用户信息
-    await updatePersonalInfo(formData.value);
+
+const PersonalInfo = async () => {
+  try {
+    // 获取用户个人信息
+    const { data } = await getBasicInfo();
+    userInfo.value = data as BasicInfoModel; // 更新为获取到的数据
+    console.log(userInfo.value, '111111111111111');
+  } catch (error) {
+    console.error('获取个人信息失败:', error);
   }
 };
 
-const PersonalInfo = async () => {
-  // 获取用户个人信息
-  const { data } = await getPersonalInfo(userStore.id);
-  formData.value = data.data as BasicInfoModel;
-};
 onMounted(() => {
-  // 获取个人信息
-  PersonalInfo();
+  PersonalInfo(); // 调用异步函数
+  console.log(111);
 });
 
-// 重置表单
-const reset = async () => {
-  await formRef.value?.resetFields();
+const formRef = ref<FormInstance>();
+
+const formData = ref(userInfo);
+
+const validate = async () => {
+  await updateBasicInfo({
+    id: formData.value.id,
+    nickname: formData.value.nickname,
+    career_direction: formData.value.career_direction,
+    user_home_page: formData.value.user_home_page,
+    user_signature: formData.value.user_signature,
+    user_tags: formData.value.user_tags,
+    path: formData.value.path
+  });
 };
+
+// 重置表单
+// const reset = async () => {
+//   await formRef.value?.resetFields();
+// };
 </script>
 
 <template>

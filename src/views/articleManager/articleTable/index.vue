@@ -25,7 +25,11 @@ const props = defineProps({
   },
   itemType: {
     type: String,
-    default: '1'
+    default: '0'
+  },
+  article_condition: {
+    type: Number,
+    default: 1
   }
 });
 
@@ -44,24 +48,24 @@ const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数�
 // 文章数据模型
 const generateFormModel = (): ArticleTableData => {
   return {
-    id: null,
-    title: '',
-    nickname: '',
-    article_condition: null,
-    views_count: null,
-    likes_count: null,
-    collections_count: null,
-    comments_count: null,
-    heat: null,
-    published_at: '',
-    updated_at: '',
-    tags: [
-      {
-        ID: null,
-        name: ''
-      }
-    ]
-  };
+    // id: null,
+    // title: '',
+    // nickname: '',
+    // article_condition: null,
+    // views_count: null,
+    // likes_count: null,
+    // collections_count: null,
+    // comments_count: null,
+    // heat: null,
+    // published_at: '',
+    // updated_at: '',
+    // tags: [
+    //   {
+    //     ID: null,
+    //     name: ''
+    //   }
+    // ]
+  } as ArticleTableData;
 };
 // -------------表格配置--------------------
 // 列配置
@@ -170,7 +174,7 @@ const pagination = reactive({
 
 // -----------------------表格渲染--------------------------------
 // 表格数据
-const formModel: Ref<ArticleTableData[]> = ref([generateFormModel()]);
+const formModel: Ref<ArticleTableData[]> = ref();
 
 // 表格项数据
 const detailData = ref(generateFormModel());
@@ -397,9 +401,13 @@ const batchDelArticle = async () => {
 
 // 初始化
 onMounted(() => {
-  // console.log(props.searchModel,234234234);
   // 初始化表格
-  fetchData(props.searchModel);
+  fetchData({
+    page: pagination.current,
+    limit: pagination.pageSize,
+    article_condition: props.article_condition,
+    ...props.searchModel
+  });
 });
 
 // 监听是否可以批量删除
@@ -414,10 +422,11 @@ watch(selectedKeys, newCount => {
 // 通用刷新方法
 const reFresh = () => {
   fetchData({
-    ...props.searchModel,
-    itemType: props.itemType,
-    ...pagination
-  } as unknown);
+    page: pagination.current,
+    limit: pagination.pageSize,
+    article_condition: props.article_condition,
+    ...props.searchModel
+  });
 };
 // 暴露方法给父组件
 defineExpose({ reFresh });
