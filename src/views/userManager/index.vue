@@ -357,7 +357,7 @@ const outputFile = async () => {
 
 const downloadTemService = async () => {
   const token = localStorage.getItem('Authorization');
-  const response = await fetch('/user/download_template', {
+  const response = await fetch('/api/user/download_template', {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}` // 添加 Authorization 头
