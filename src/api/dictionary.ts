@@ -111,7 +111,7 @@ export function addDicType(data: AddDicList) {
 
 // 删除字典类型
 export function delDicType(data: DelDicList) {
-  return request.delete<Data>('/dict/delete_type', { params: data });
+  return request.delete<Data>('/dict/delete_type', { data });
 }
 
 // 修改字典类型

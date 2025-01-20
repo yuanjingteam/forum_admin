@@ -9,6 +9,7 @@ import { ref } from 'vue';
 // 创建响应式账户数据
 const accountData = ref({
   id: 0,
+  nickname: '',
   email: '',
   blog_link: '',
   weibo_link: '',

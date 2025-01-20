@@ -21,6 +21,8 @@ const userInfo = ref<PersonalInfoModel | null>({
   role_ids: []
 });
 
+const terserChecked = ref(false);
+
 const personalInfo = async () => {
   try {
     // 获取用户个人信息
@@ -91,7 +93,11 @@ const customRequest = (options: RequestOption) => {
   (async () => {
     const { onError, onSuccess, fileItem, name = 'files' } = options; // 解构选项
     const formData = new FormData(); // 创建 FormData 对象
-    formData.append('width', '200');
+    if (terserChecked.value == true) {
+      formData.append('width', '200');
+    } else {
+      formData.append('width', '0');
+    }
     formData.append(name as string, fileItem.file as Blob); // 将文件添加到 FormData
 
     try {
@@ -99,8 +105,10 @@ const customRequest = (options: RequestOption) => {
       const res = await userUploadApi(formData);
       const url = res.data[0].url;
 
+      const { id, ...mid } = userInfo.value;
       await updatePersonalInfo({
-        ...userInfo.value,
+        user_id: id,
+        ...mid,
         avatar_path: url
       });
 
@@ -138,6 +146,7 @@ const customRequest = (options: RequestOption) => {
           </a-avatar>
         </template>
       </a-upload>
+      <a-checkbox v-model="terserChecked">压缩</a-checkbox>
       <!-- <a-progress v-if="uploadProgress > 0" :percent="uploadProgress" /> -->
       <a-descriptions
         :data="renderData"

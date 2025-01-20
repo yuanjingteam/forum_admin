@@ -81,7 +81,7 @@ export function delArticleList(data) {
 
 // 封禁文章
 export function banArticleList(data) {
-  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+  return request.post<ArticleData>('/article/ban', data); // 这里会自动拼接 baseURL
 }
 
 // 解封文章

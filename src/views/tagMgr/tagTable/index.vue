@@ -212,6 +212,7 @@ const handlePageSizeChange = size => {
   console.log(`每页条目数已更改为: ${size}`);
   PAGE_LIMIT.value = size; // 更新每页条目数
   curPage.value = 1; // 重置当前页为1
+  getList();
 };
 
 // 单选,可勾选多个
