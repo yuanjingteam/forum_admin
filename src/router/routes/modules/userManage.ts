@@ -3,7 +3,7 @@ import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
   path: '/userManager',
-  name: 'userMan',
+  name: 'userManager',
   redirect: '/userManager',
 
   component: DEFAULT_LAYOUT,
@@ -24,8 +24,8 @@ const LIST: AppRouteRecordRaw = {
       name: 'userManager', // 子路由名称
       component: () => import('@/views/userManager/index.vue'),
       meta: {
-        activeMenu: 'userMan',
-        locale: '查询表格',
+        activeMenu: 'userManager',
+        locale: '用户管理',
         requiresAuth: true,
         roles: ['*']
       }

@@ -9,6 +9,7 @@ import {
   dispatchApiForRoleService
 } from '@/api/menu';
 import { Message } from '@arco-design/web-vue';
+import { convertToNestedTree } from '@/utils/convertToNestedTree';
 const props = defineProps({
   roleId: Number
 });
@@ -20,52 +21,53 @@ const activeKey = ref('1');
 
 // --------------------------设置菜单权限-------------------------------
 //数据
-let TreeData = [
-  {
-    title: '工作台',
-    key: 0
-  },
-  {
-    title: '用户管理',
-    key: 1
-  },
-  {
-    title: '文章管理',
-    key: 2
-  },
-  {
-    title: '权限管理',
-    key: 10,
-    children: [
-      {
-        title: '角色管理',
-        key: 11
-      },
-      {
-        title: '菜单管理',
-        key: 12
-      },
-      {
-        title: 'api管理',
-        key: 12
-      }
-    ]
-  },
-  {
-    title: '字典管理',
-    key: 20,
-    children: [
-      {
-        title: '标签管理',
-        key: 21
-      },
-      {
-        title: '某某管理',
-        key: 22
-      }
-    ]
-  }
-];
+let TreeData = [];
+// let TreeData = [
+//   {
+//     title: '工作台',
+//     key: 0
+//   },
+//   {
+//     title: '用户管理',
+//     key: 1
+//   },
+//   {
+//     title: '文章管理',
+//     key: 2
+//   },
+//   {
+//     title: '权限管理',
+//     key: 10,
+//     children: [
+//       {
+//         title: '角色管理',
+//         key: 11
+//       },
+//       {
+//         title: '菜单管理',
+//         key: 12
+//       },
+//       {
+//         title: 'api管理',
+//         key: 12
+//       }
+//     ]
+//   },
+//   {
+//     title: '字典管理',
+//     key: 20,
+//     children: [
+//       {
+//         title: '标签管理',
+//         key: 21
+//       },
+//       {
+//         title: '某某管理',
+//         key: 22
+//       }
+//     ]
+//   }
+// ];
 
 //当前选中的key
 const CheckedKeys = ref([]);
@@ -77,8 +79,8 @@ const Temp = [21, 22, 12];
 watch(visible, (newvalue, oldvalue) => {
   if (newvalue) {
     //一开始就获取菜单的数据赋值
-    // getMenuType()
-    // getRoleMenu()
+    getMenuType();
+    getRoleMenu();
     CheckedKeys.value = Temp;
   }
 });
@@ -86,21 +88,18 @@ watch(visible, (newvalue, oldvalue) => {
 //获取所有菜单权限列表
 const getMenuType = async () => {
   const {
-    data: {
-      data: { menu_type_list }
-    }
+    data: { menu_type_list }
   } = await getMenuTypeService();
   console.log(menu_type_list);
   //将处理过后的数据放到treedata里面
-  TreeData = menu_type_list;
+  TreeData = convertToNestedTree(menu_type_list);
+  console.log(TreeData, 'tree');
 };
 
 //获取所有api列表
 const getApiList = async () => {
   const {
-    data: {
-      data: { api_list }
-    }
+    data: { api_list }
   } = await getApiListService();
   console.log(api_list);
   //将处理过后的数据放到treedata里面
@@ -109,9 +108,7 @@ const getApiList = async () => {
 //获取当前角色拥有的菜单权限
 const getRoleMenu = async () => {
   const {
-    data: {
-      data: { perm }
-    }
+    data: { perm }
   } = await getRoleMenuService(props.roleId);
   console.log(perm);
   //将处理过后的数据放到CheckedKeys里面
@@ -120,9 +117,7 @@ const getRoleMenu = async () => {
 //获取当前角色拥有的api权限
 const getAllApiList = async () => {
   const {
-    data: {
-      data: { group }
-    }
+    data: { group }
   } = await getAllApiListService(props.roleId);
   console.log(group);
   //将处理过后的数据放到CheckedKeys里面
@@ -157,14 +152,14 @@ const changeTab = () => {
     //当前显示的是菜单
     console.log(111);
     //获取菜单相应的数据并渲染
-    // getMenuType()
-    // getRoleMenu()
+    getMenuType();
+    getRoleMenu();
   } else {
     //当前显示的是api
     console.log(222);
     //获取api相应的数据并渲染
-    // getApiList()
-    // getAllApiList()
+    getApiList();
+    getAllApiList();
   }
 };
 </script>
@@ -184,6 +179,10 @@ const changeTab = () => {
           v-model:checked-keys="CheckedKeys"
           :checkable="true"
           :data="TreeData"
+          :fieldNames="{
+            key: 'id',
+            title: 'name'
+          }"
         />
       </a-tab-pane>
       <a-tab-pane key="2" title="角色api">
