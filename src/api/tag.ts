@@ -11,16 +11,13 @@ export interface AddTagList {
 }
 
 export interface TagData {
-  code: number;
-  data: { tag_list: Array<Object>; total: number };
-  msg: string;
+  tag_list: Array<Object>;
+  total: number;
 }
 
-// 获取评论列表
+// 获取标签列表
 export function getTagList(data) {
-  console.log(data, 32222222222222);
-
-  return request.get<TagData>('/backstage_tag/batch_query', data); // 这里会自动拼接 baseURL
+  return request.post<TagData>('/backstage_tag/batch_query', data); // 这里会自动拼接 baseURL
 }
 
 // 批量删除标签

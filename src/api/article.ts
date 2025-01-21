@@ -65,12 +65,8 @@ export interface ArticleDetailData extends TableData {
 }
 
 export interface ArticleData {
-  code: number; // 状态码
-  data: {
-    article_list: ArticleTableData[]; // 使用扩展后的 TableData 类型
-    total: number; // 文章总数
-  };
-  msg: string; // 消息
+  article_list: ArticleTableData[]; // 使用扩展后的 TableData 类型
+  total: number; // 文章总数
 }
 
 // 获取文章
@@ -85,12 +81,12 @@ export function delArticleList(data) {
 
 // 封禁文章
 export function banArticleList(data) {
-  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+  return request.post<ArticleData>('/article/ban', data); // 这里会自动拼接 baseURL
 }
 
 // 解封文章
 export function unsealArticleList(data) {
-  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+  return request.post<ArticleData>('/article/unblock', data); // 这里会自动拼接 baseURL
 }
 
 // 审核文章

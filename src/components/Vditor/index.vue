@@ -15,7 +15,7 @@ const previewElement = ref(null);
 
 onMounted(async () => {
   const { data } = await getArticleDetail(props.id);
-  const markdownContent = data.data.article.content;
+  const markdownContent = data.article.content;
 
   // 渲染 Markdown
   Vditor.preview(previewElement.value, markdownContent, {

@@ -76,7 +76,7 @@ const columns = computed<TableColumnData[]>(() => [
     slotName: 'index'
   },
   {
-    title: '文章标题',
+    title: '标题',
     dataIndex: 'title'
   },
   {
@@ -89,20 +89,24 @@ const columns = computed<TableColumnData[]>(() => [
     slotName: 'tags'
   },
   {
-    title: '文章浏览量',
-    dataIndex: 'views_count'
+    title: '浏览量',
+    dataIndex: 'views_count',
+    width: 80
   },
   {
-    title: '文章点赞量',
-    dataIndex: 'likes_count'
+    title: '点赞量',
+    dataIndex: 'likes_count',
+    width: 80
   },
   {
-    title: '文章收藏量',
-    dataIndex: 'collections_count'
+    title: '收藏量',
+    dataIndex: 'collections_count',
+    width: 80
   },
   {
-    title: '文章评论数量',
-    dataIndex: 'comments_count'
+    title: '评论数量',
+    dataIndex: 'comments_count',
+    width: 90
   },
   {
     title: '发布时间',
@@ -113,7 +117,7 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'updated_at'
   },
   {
-    title: '文章热度',
+    title: '热度',
     dataIndex: 'heat'
   },
   {
@@ -125,7 +129,8 @@ const columns = computed<TableColumnData[]>(() => [
     title: '操作',
     dataIndex: 'operations',
     slotName: 'operations',
-    align: 'center'
+    align: 'center',
+    width: 60
   }
 ]);
 
@@ -194,9 +199,9 @@ const fetchData = async item => {
 
   try {
     const { data } = await queryArticleList(item);
-    formModel.value = data.data.article_list;
-    pagination.total = data.data.total;
-    total.value = data.data.total;
+    formModel.value = data.article_list;
+    pagination.total = data.total;
+    total.value = data.total;
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
@@ -611,7 +616,7 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition != '1'">
+          <span v-if="record.article_condition == 0">
             <a-popconfirm
               content="您确定封禁当前文章吗？"
               @ok="confirmBanOne(record.id)"
@@ -624,7 +629,7 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition != '2'">
+          <span v-if="record.article_condition == 2">
             <a-popconfirm
               content="您确定要解封当前文章吗？"
               @ok="confirmUnsealOne(record.id)"

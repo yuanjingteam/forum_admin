@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { getTagList } from '@/api/tag';
 import type { ArticleForm } from '@/api/article';
 import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
@@ -55,7 +55,7 @@ const getTags = async () => {
     limit: 1000,
     name: ''
   });
-  tag_list.value = data.data.tag_list;
+  tag_list.value = data.tag_list;
 };
 
 // 初始化
@@ -133,7 +133,12 @@ const search = () => {
 // 重置
 const reset = () => {
   searchModel.value = searchFromModel();
+  search();
 };
+
+watch(itemType, newvalue => {
+  search();
+});
 </script>
 
 <script lang="ts">
