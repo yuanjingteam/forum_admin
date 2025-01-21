@@ -1,9 +1,12 @@
 import type { DirectiveBinding } from 'vue';
+import { getRoleAllCodeService } from '@/api/menu';
 
 // 定义一个函数 checkPermission，用于检查元素的权限
-function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
+async function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   // 从绑定对象中获取权限值
   const { value } = binding;
+  const res = await getRoleAllCodeService(2);
+  console.log(res);
 
   // 获取当前角色的按钮权限数组
   localStorage.setItem(
