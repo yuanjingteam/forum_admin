@@ -8,7 +8,7 @@ export interface LoginData {
 
 export interface LoginRes {
   token: string;
-  userinfo: {
+  userInfo: {
     id: number;
     nickname: string;
   };
@@ -40,7 +40,7 @@ export interface UserItem {
 
 // 登录
 export function login(data: LoginData) {
-  return request.post<LoginRes>('/user/login', data);
+  return request.post<LoginRes>('/backstage/login', data);
 }
 
 // 退出登录

@@ -12,7 +12,10 @@ const useUserStore = defineStore('user', {
     nickname: undefined,
     email: undefined,
     user_status: undefined,
+    role_ids: undefined,
+    code: undefined,
     role_names: undefined,
+    role_id: undefined,
     avatar_path: undefined
   }),
 
@@ -74,7 +77,7 @@ const useUserStore = defineStore('user', {
           email: loginForm.email // 确保以对象的形式传递
         });
         // 将用户信息存储到 localStorage
-        localStorage.setItem('userInfo', JSON.stringify(data.userinfo));
+        localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
       } catch (err) {
         clearToken();
         throw err;

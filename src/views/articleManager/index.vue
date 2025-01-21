@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { getTagList } from '@/api/tag';
 import type { ArticleForm } from '@/api/article';
 import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
@@ -135,6 +135,10 @@ const reset = () => {
   searchModel.value = searchFromModel();
   search();
 };
+
+watch(itemType, newvalue => {
+  search();
+});
 </script>
 
 <script lang="ts">
