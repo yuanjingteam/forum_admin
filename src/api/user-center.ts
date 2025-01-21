@@ -21,6 +21,7 @@ export interface PersonalInfoModel {
   email: string;
   user_status: number;
   role_ids: number[];
+  role_names: string[];
 }
 export interface UpdatePersonalInfo {
   user_id: number;

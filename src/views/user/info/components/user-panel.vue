@@ -18,7 +18,8 @@ const userInfo = ref<PersonalInfoModel | null>({
   nickname: '',
   email: '',
   user_status: 0,
-  role_ids: []
+  role_ids: [],
+  role_names: []
 });
 
 const terserChecked = ref(false);
@@ -69,7 +70,7 @@ const renderData = computed<DescData[]>(() => {
     },
     {
       label: '用户角色',
-      value: userInfo.value.role_ids
+      value: userStore.role_names
     }
   ] as DescData[]; // 强制类型断言
 });
@@ -176,7 +177,7 @@ const customRequest = (options: RequestOption) => {
 
           <span v-else-if="data.label === '用户角色'">
             <a-tag v-for="(item, index) in value" :key="index">
-              {{ item === 1 ? '管理员' : '普通用户' }}
+              {{ item }}
             </a-tag>
           </span>
           <span v-else>{{ value }}</span>

@@ -86,7 +86,7 @@ export function banArticleList(data) {
 
 // 解封文章
 export function unsealArticleList(data) {
-  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+  return request.post<ArticleData>('/article/unblock', data); // 这里会自动拼接 baseURL
 }
 
 // 审核文章
