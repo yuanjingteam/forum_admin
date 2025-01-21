@@ -385,4 +385,8 @@ defineExpose({ reFresh });
     border-radius: 30px;
   }
 }
+
+.selectAll button {
+  margin-left: 5px;
+}
 </style>

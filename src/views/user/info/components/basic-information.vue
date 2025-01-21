@@ -4,6 +4,9 @@ import { FormInstance } from '@arco-design/web-vue/es/form';
 import type { BasicInfoModel } from '@/api/user-center';
 import { updateBasicInfo } from '@/api/user-center';
 import { getBasicInfo } from '@/api/user-center';
+import { useUserStore } from '@/store';
+
+const userStore = useUserStore();
 
 const userInfo = ref<BasicInfoModel | null>({
   id: 0,
@@ -19,7 +22,7 @@ const userInfo = ref<BasicInfoModel | null>({
 const PersonalInfo = async () => {
   try {
     // 获取用户个人信息
-    const { data } = await getBasicInfo();
+    const { data } = await getBasicInfo(userStore.id);
     userInfo.value = data as BasicInfoModel; // 更新为获取到的数据
     console.log(userInfo.value, '111111111111111');
   } catch (error) {

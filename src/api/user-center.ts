@@ -60,8 +60,10 @@ export function userUploadApi(data: FormData) {
 }
 
 // 获取用户基本资料
-export function getBasicInfo() {
-  return request.get<BasicInfoModel>(`/user/form_personal_data`); // 使用模板字符串插入 id
+export function getBasicInfo(id: number) {
+  return request.get<BasicInfoModel>(
+    `/user/form_personal_data?author_id=${id}`
+  ); // 使用模板字符串插入 id
 }
 
 // 获取用户个人信息

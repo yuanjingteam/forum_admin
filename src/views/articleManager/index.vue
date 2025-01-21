@@ -133,6 +133,7 @@ const search = () => {
 // 重置
 const reset = () => {
   searchModel.value = searchFromModel();
+  search();
 };
 </script>
 
