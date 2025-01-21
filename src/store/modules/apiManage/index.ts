@@ -27,9 +27,7 @@ export const useApiStore = defineStore('api', () => {
   //获取所有api方法
   const getApiMethods = async () => {
     const {
-      data: {
-        data: { methods }
-      }
+      data: { methods }
     } = await getApiMethodsService();
     apiMethods.value = methods;
   };
@@ -38,9 +36,7 @@ export const useApiStore = defineStore('api', () => {
   //获取所有api方法
   const getApiGroups = async () => {
     const {
-      data: {
-        data: { groups }
-      }
+      data: { groups }
     } = await getApiGroupsService();
     apiGroups.value = groups;
   };
