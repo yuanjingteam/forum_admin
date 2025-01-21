@@ -2,8 +2,8 @@ import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
-  path: '/userManager',
-  name: 'userManager',
+  path: '/userMgr',
+  name: 'userMgr',
   redirect: '/userManager',
 
   component: DEFAULT_LAYOUT,

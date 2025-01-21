@@ -289,7 +289,8 @@ const originAddForm = () => {
 //添加菜单表格数据
 const addMenuForm = ref(originAddForm());
 //添加菜单
-const addMenu = () => {
+const addMenu = async () => {
+  await menuStore.getMenuList();
   title.value = '新建菜单';
   state.value = 'add';
   addMenuForm.value = originAddForm();
@@ -585,6 +586,7 @@ const handleCancelDrawer = () => {
           </a-form-item>
           <a-form-item field="pid" label="父级菜单">
             <a-cascader
+              check-strictly
               :field-names="{
                 value: 'id',
                 label: 'name'
@@ -685,6 +687,7 @@ const handleCancelDrawer = () => {
               }"
               :options="menuOptions"
               placeholder="请选择父级菜单"
+              check-strictly
             />
           </a-form-item>
           <a-form-item
@@ -783,6 +786,7 @@ const handleCancelDrawer = () => {
           >
             <a-cascader
               v-model="addMenuForm.pid"
+              check-strictly
               :field-names="{
                 value: 'id',
                 label: 'name'
