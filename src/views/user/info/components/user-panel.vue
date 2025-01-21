@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import type {
   FileItem,
   RequestOption
@@ -7,91 +7,119 @@ import type {
 import { userUploadApi } from '@/api/user-center';
 import { useUserStore } from '@/store';
 import type { DescData } from '@arco-design/web-vue/es/descriptions/interface';
-import type { BasicInfoModel } from '@/api/user-center';
+import type { PersonalInfoModel } from '@/api/user-center';
 import { updatePersonalInfo } from '@/api/user-center';
-
+import { getPersonalInfo } from '@/api/user-center';
 const userStore = useUserStore();
-const userInfo = defineModel('userInfo', {
-  type: Object as () => BasicInfoModel,
-  required: true
+
+const userInfo = ref<PersonalInfoModel | null>({
+  id: 0,
+  avatar_path: '',
+  nickname: '',
+  email: '',
+  user_status: 0,
+  role_ids: []
 });
 
-// 更新用户个人资料
-// const userBasic = ref(userInfo)
+const terserChecked = ref(false);
+
+const personalInfo = async () => {
+  try {
+    // 获取用户个人信息
+    const { data } = await getPersonalInfo(userStore.id);
+    userInfo.value = data as PersonalInfoModel; // 更新为获取到的数据
+    console.log(userInfo.value, '111111111111111');
+  } catch (error) {
+    console.error('获取个人信息失败:', error);
+  }
+};
+
+onMounted(() => {
+  personalInfo(); // 调用异步函数
+  console.log(111);
+});
 
 // 单独提取出需要的用户个人资料
-const { all_tag_names, ...reset } = userInfo.value;
+// const reset = computed(() => {
+//   const { avatar_path, ...rest } = userInfo.value; // 使用动态数据
+//   return rest; // 返回需要的字段
+// });
 
-console.log(userStore.email, 3424);
-
+// 获取到父传子的头像
 const file = computed(() => ({
   uid: '-2',
   name: 'avatar.png',
-  url: userInfo.value.path
+  url: userInfo.value.avatar_path
 }));
 
 // 创建 renderData 的计算属性
-const renderData = computed(
-  () =>
-    [
-      {
-        label: '用户ID',
-        value: userInfo.value.id
-      },
-      {
-        label: '用户状态',
-        value: '封禁' // 使用默认值
-      },
-      {
-        label: '用户邮箱',
-        value: userStore.email
-      },
-      {
-        label: '用户角色',
-        value: userInfo.value.all_tag_names
-      }
-    ] as DescData[]
-);
+const renderData = computed<DescData[]>(() => {
+  return [
+    {
+      label: '用户ID',
+      value: userInfo.value.id
+    },
+    {
+      label: '用户状态',
+      value: userInfo.value.user_status // 使用默认值
+    },
+    {
+      label: '用户邮箱',
+      value: userInfo.value.email
+    },
+    {
+      label: '用户角色',
+      value: userInfo.value.role_ids
+    }
+  ] as DescData[]; // 强制类型断言
+});
+// 用户头像
 const fileList = ref<FileItem[]>([file.value]);
-const uploadChange = (_fileItemList: FileItem[], fileItem: FileItem) => {
+
+// 更新头像
+const uploadChange = (fileItemList: FileItem[], fileItem: FileItem) => {
   fileList.value = [fileItem];
 };
 
-// const uploadProgress = ref(0); // 用于存储上传进度
+// 当头像变化就动态更新
+watch(file, newFile => {
+  fileList.value = [newFile];
+});
 
+// 自定义请求上传头像
 const customRequest = (options: RequestOption) => {
   const controller = new AbortController(); // 创建一个 AbortController 实例
 
-  (async function requestWrap() {
-    // 自执行异步函数
-    const {
-      onProgress,
-      onError,
-      onSuccess,
-      fileItem,
-      name = 'files'
-    } = options; // 解构选项
-    onProgress(20); // 初始进度更新
+  (async () => {
+    const { onError, onSuccess, fileItem, name = 'files' } = options; // 解构选项
     const formData = new FormData(); // 创建 FormData 对象
-    formData.append('width', '200');
+    if (terserChecked.value == true) {
+      formData.append('width', '200');
+    } else {
+      formData.append('width', '0');
+    }
     formData.append(name as string, fileItem.file as Blob); // 将文件添加到 FormData
 
     try {
       // 调用文件上传 API
       const res = await userUploadApi(formData);
+      const url = res.data[0].url;
 
+      const { id, ...mid } = userInfo.value;
       await updatePersonalInfo({
-        ...reset,
-        path: res.data[0].url
+        user_id: id,
+        ...mid,
+        avatar_path: url
       });
+
       onSuccess(res); // 成功时调用成功回调
     } catch (error) {
       onError(error); // 发生错误时调用错误回调
     }
   })(); // 立即执行异步请求
+
   return {
     abort() {
-      // 返回一个包含 abort 方法的对象
       controller.abort(); // 调用 abort 方法取消请求
     }
   };
@@ -118,6 +146,7 @@ const customRequest = (options: RequestOption) => {
           </a-avatar>
         </template>
       </a-upload>
+      <a-checkbox v-model="terserChecked">压缩</a-checkbox>
       <!-- <a-progress v-if="uploadProgress > 0" :percent="uploadProgress" /> -->
       <a-descriptions
         :data="renderData"
@@ -147,7 +176,7 @@ const customRequest = (options: RequestOption) => {
 
           <span v-else-if="data.label === '用户角色'">
             <a-tag v-for="(item, index) in value" :key="index">
-              {{ item }}
+              {{ item === 1 ? '管理员' : '普通用户' }}
             </a-tag>
           </span>
           <span v-else>{{ value }}</span>

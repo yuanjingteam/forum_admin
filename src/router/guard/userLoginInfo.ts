@@ -34,7 +34,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
           next(); // 获取成功后继续路由导航
         } catch (error) {
           // 如果获取用户信息失败，执行登出操作
-          await userStore.logout();
+          userStore.logout();
           // 导航到登录页面，并携带重定向信息
           next({
             name: LOGIN_ROUTE_NAME,

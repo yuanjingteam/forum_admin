@@ -2,8 +2,16 @@
 import { addTag } from '@/api/tag';
 import { Message } from '@arco-design/web-vue';
 import { reactive, ref } from 'vue';
-import { upLoadFile } from '@/api/upload';
+import { userUploadApi } from '@/api/user-center';
 import { AddTagList } from '@/api/tag';
+import useLoading from '@/hooks/useLoading';
+import type {
+  FileItem,
+  RequestOption
+} from '@arco-design/web-vue/es/upload/interfaces';
+
+const { loading, setLoading } = useLoading(false);
+
 // 定义模型
 const addVisible = defineModel('visible', {
   type: Boolean,
@@ -16,8 +24,13 @@ const emit = defineEmits<{
 }>();
 
 // 添加标签图片
-const file = ref(null);
-const url = ref('');
+const file = ref({
+  uid: '-2',
+  name: 'avatar.png',
+  url: ''
+});
+
+const fileList = ref<FileItem[]>([file.value]);
 
 // 定义初始状态
 const initialState: AddTagList = {
@@ -50,6 +63,8 @@ const submitAdd = async () => {
       Message.info('添加成功');
       // 将 addType 重置为初始状态
       Object.assign(addType, initialState);
+      fileList.value[0].url = '';
+      file.value.url = '';
     } else {
       addVisible.value = true;
     }
@@ -64,34 +79,39 @@ const cancelAdd = (): void => {
   Object.assign(addType, initialState);
 };
 
-const onChange = async (_, currentFile) => {
-  // 更新 file 的值
+// 上传文件变化的处理函数
+const onChange = (_, currentFile) => {
   file.value = {
     ...currentFile
-    // 如果需要，可以创建文件的 URL
-    // url: URL.createObjectURL(currentFile.file),
   };
-
-  // 创建 FormData 对象
-  const formData = new FormData();
-  const width = '20';
-
-  // 确保正确附加文件
-  formData.append('file', currentFile.file); // 使用 'file' 作为字段名
-  formData.append('width', width); // 直接设置 width 的值为 20
-
-  try {
-    // 调用上传文件的接口
-    const { data } = await upLoadFile(formData);
-    url.value = data.data.url;
-    console.log('上传成功:', url);
-  } catch (error) {
-    console.error('上传失败:', error);
-  }
 };
 
-const onProgress = currentFile => {
-  file.value = currentFile;
+// 自定义请求上传头像
+const customRequest = (options: RequestOption) => {
+  const controller = new AbortController(); // 创建一个 AbortController 实例
+
+  (async () => {
+    const { onError, onSuccess, fileItem, name = 'files' } = options; // 解构选项
+    const formData = new FormData(); // 创建 FormData 对象
+    formData.append('width', '200');
+    formData.append(name as string, fileItem.file as Blob); // 将文件添加到 FormData
+    try {
+      setLoading(true);
+      // 调用文件上传 API
+      const res = await userUploadApi(formData);
+      addType.path[0] = res.data[0].url;
+      onSuccess(res); // 成功时调用成功回调
+    } catch (error) {
+      onError(error); // 发生错误时调用错误回调
+    } finally {
+      setLoading(false);
+    }
+  })(); // 立即执行异步请求
+  return {
+    abort() {
+      controller.abort(); // 调用 abort 方法取消请求
+    }
+  };
 };
 </script>
 
@@ -130,21 +150,15 @@ const onProgress = currentFile => {
           label-align="left"
         >
           <a-upload
-            action="/"
-            :fileList="file ? [file] : []"
-            :show-file-list="false"
+            :custom-request="customRequest"
             list-type="picture-card"
+            :file-list="fileList"
+            :show-upload-button="true"
+            :show-file-list="false"
             @change="onChange"
-            @progress="onProgress"
           >
             <template #upload-button>
-              <div
-                :class="`arco-upload-list-item${
-                  file && file.status === 'error'
-                    ? ' arco-upload-list-item-error'
-                    : ''
-                }`"
-              >
+              <div>
                 <div
                   v-if="file && file.url"
                   class="arco-upload-list-picture custom-upload-avatar"
@@ -153,18 +167,6 @@ const onProgress = currentFile => {
                   <div class="arco-upload-list-picture-mask">
                     <IconEdit />
                   </div>
-                  <a-progress
-                    v-if="file.status === 'uploading' && file.percent < 100"
-                    :percent="file.percent"
-                    type="circle"
-                    size="mini"
-                    :style="{
-                      position: 'absolute',
-                      left: '50%',
-                      top: '50%',
-                      transform: 'translateX(-50%) translateY(-50%)'
-                    }"
-                  />
                 </div>
                 <div v-else class="arco-upload-picture-card">
                   <div class="arco-upload-picture-card-text">

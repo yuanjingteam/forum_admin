@@ -14,6 +14,23 @@ export interface BasicInfoModel {
   all_tag_names?: string[];
 }
 
+export interface PersonalInfoModel {
+  id: number;
+  avatar_path: string;
+  nickname: string;
+  email: string;
+  user_status: number;
+  role_ids: number[];
+}
+export interface UpdatePersonalInfo {
+  user_id: number;
+  avatar_path: string;
+  nickname: string;
+  email: string;
+  user_status: number;
+  role_ids: number[];
+}
+
 // 更新用户个人资料
 export interface UpdateBasic {
   id: number;
@@ -28,6 +45,7 @@ export interface UpdateBasic {
 // 获取/更新用户账号设置
 export interface AccountInfoModel {
   id: number;
+  nickname: string;
   email: string;
   blog_link: string;
   weibo_link: string;
@@ -41,24 +59,35 @@ export function userUploadApi(data: FormData) {
   return request.post<any>('/produce_image_url', data);
 }
 
-// 获取当前用户详细信息
-export function getPersonalInfo() {
-  return request.get<BasicInfoModel>(`/user/form_personal_data`); // 使用模板字符串插入 id
+// 获取用户基本资料
+export function getBasicInfo(id: number) {
+  return request.get<BasicInfoModel>(
+    `/user/form_personal_data?author_id=${id}`
+  ); // 使用模板字符串插入 id
 }
 
-// 获取当前账号设置
+// 获取用户个人信息
+export function getPersonalInfo(id: number) {
+  return request.get<PersonalInfoModel>(`/user/getInfo?id=${id}`); // 使用模板字符串插入 id
+}
+
+// 获取用户账号设置
 export function getAccountInfo() {
   return request.get<AccountInfoModel>(`/user/account_settings`);
 }
 
-// 更新当前用户资料
-export function updatePersonalInfo(data: BasicInfoModel) {
-  console.log(data);
-
-  return request.post<UpdateBasic>('/user/form_personal_data', data);
+// 更新用户基本信息
+export function updateBasicInfo(data: BasicInfoModel) {
+  return request.post<PersonalInfoModel>('/user/form_personal_data', data);
 }
 
-// 更新账号设置
-export function updateAccountInfo(data: BasicInfoModel) {
-  return request.post<AccountInfoModel>('/user/form_personal_data', data);
+// 更新用户个人信息
+export function updatePersonalInfo(data: UpdatePersonalInfo) {
+  console.log(data);
+  return request.post<UpdatePersonalInfo>('/user/edit', data);
+}
+
+// 更新用户账号设置
+export function updateAccountInfo(data: AccountInfoModel) {
+  return request.post<AccountInfoModel>('/user/account_settings', data);
 }

@@ -126,8 +126,8 @@ const fetchComments = async (): Promise<void> => {
     console.log(props.search.email, '筛选邮箱');
     console.log(props.itemType, '当前选项');
     console.log(curPage.value, '当前页');
-    comments.value = data.data.comlist;
-    total.value = data.data.total;
+    comments.value = data.comlist;
+    total.value = data.total;
   } catch (error) {
     Message.info(error.msg);
   } finally {

@@ -9,17 +9,13 @@ export interface Data {
 }
 
 export interface ComData {
-  code: number;
-  data: {
-    comlist: TableData[];
-    total: number;
-  };
-  msg: string;
+  comlist: TableData[];
+  total: number;
 }
 
 // 获取评论列表
 export function getCommentList(data) {
-  return request.get<ComData>('/backstage_comment/list', data); // 这里会自动拼接 baseURL
+  return request.post<ComData>('/backstage_comment/list', data); // 这里会自动拼接 baseURL
 }
 
 // 修改评论内容

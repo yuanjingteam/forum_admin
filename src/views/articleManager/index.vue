@@ -55,7 +55,7 @@ const getTags = async () => {
     limit: 1000,
     name: ''
   });
-  tag_list.value = data.data.tag_list;
+  tag_list.value = data.tag_list;
 };
 
 // 初始化
@@ -75,11 +75,11 @@ const tagTypeOptions = computed<SelectOptionData[]>(() => [
 // 状态栏
 const stateTypeOptions = computed<SelectOptionData[]>(() => [
   {
-    label: '全部',
+    label: '公开',
     value: 0
   },
   {
-    label: '公开',
+    label: '全部',
     value: 1
   },
   {
@@ -133,6 +133,7 @@ const search = () => {
 // 重置
 const reset = () => {
   searchModel.value = searchFromModel();
+  search();
 };
 </script>
 
@@ -264,6 +265,7 @@ export default {
               v-model:total="total_1"
               :itemType="itemType"
               :searchModel="searchModel"
+              :article_condition="1"
             ></article-table>
           </a-tab-pane>
           <a-tab-pane key="2" :title="`已批准${total_2}`">
@@ -272,6 +274,7 @@ export default {
               v-model:total="total_2"
               :itemType="itemType"
               :searchModel="searchModel"
+              :article_condition="0"
             ></article-table>
           </a-tab-pane>
           <a-tab-pane key="3" :title="`已封禁${total_3}`">
@@ -280,6 +283,7 @@ export default {
               v-model:total="total_3"
               :itemType="itemType"
               :searchModel="searchModel"
+              :article_condition="2"
             ></article-table>
           </a-tab-pane>
         </a-tabs>
