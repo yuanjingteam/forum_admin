@@ -46,13 +46,13 @@ function formatModules(
     // 遍历模块列表
     moduleList.forEach(route => {
       // 检查当前路由或其子路由是否包含在允许的名称数组中
-      if (allowedNames.includes(route.name as string)) {
+      if (allowedNames?.includes(route.name as string)) {
         // 如果当前路由名称允许，直接添加
         result.push(route);
       } else if (route.children) {
         // 如果当前路由名称不允许，但有子路由，检查子路由
         route.children = route.children.filter(child =>
-          allowedNames.includes(child.name as string)
+          allowedNames?.includes(child.name as string)
         );
         // 如果子路由中有允许的项，则保留当前路由
         if (route.children.length > 0) {
