@@ -1,4 +1,4 @@
-import visualizer from 'rollup-plugin-visualizer';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 /**
  * 生成打包分析
