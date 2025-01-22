@@ -4,6 +4,24 @@ import type { RouteRecordNormalized } from 'vue-router';
 // 使用 glob API 动态导入指定目录下的所有模块
 const modules = import.meta.glob('./modules/*.ts', { eager: true });
 
+localStorage.setItem(
+  'permissionMenu',
+  JSON.stringify([
+    'Workplace',
+    'userManager',
+    'Acl',
+    'Role',
+    'article',
+    'dictionaryMgr',
+    'commentMgr',
+    'tagMgr',
+    'user',
+    'Info',
+    'Api',
+    'Menu'
+  ])
+);
+
 // 定义允许的路由名称数组
 const allowedNames = JSON.parse(localStorage.getItem('permissionMenu'));
 
