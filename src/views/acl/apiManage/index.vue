@@ -237,6 +237,8 @@ const handleOkModal = async () => {
   apiForm.value.page = 1;
   fetchData();
   Message.success('删除成功');
+  //清空选择的key
+  selectedKeys.value = [];
 };
 //取消批量删除
 const handleCancelModal = () => {
@@ -550,7 +552,7 @@ const changePageSize = (pageSize: number) => {
             :rules="[
               { required: true, message: '请填写API路径' },
               {
-                match: /^\/([a-zA-Z0-9]+\/)*[a-zA-Z0-9]*$/,
+                match: /^\/([a-zA-Z0-9_]+\/)*[a-zA-Z0-9_]*$/,
                 message: 'API路径需以/开头，由字母数字组成'
               }
             ]"

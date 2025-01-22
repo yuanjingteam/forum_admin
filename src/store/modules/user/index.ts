@@ -71,7 +71,6 @@ const useUserStore = defineStore('user', {
       try {
         const { data } = await userLogin(loginForm);
         setToken(data.token);
-        debugger;
 
         this.setInfo({
           email: loginForm.email // 确保以对象的形式传递

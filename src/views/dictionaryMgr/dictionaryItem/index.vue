@@ -313,8 +313,6 @@ const addDicItem = () => {
 
 // 批量删除
 const batchDeleteDic = async () => {
-  debugger;
-
   try {
     setLoading(true);
     console.log(props.dict_type, 3222222222);

@@ -1,59 +1,10 @@
 import type { DirectiveBinding } from 'vue';
-// import { getRoleAllCodeService } from '@/api/menu';
 
 // 定义一个函数 checkPermission，用于检查元素的权限
 async function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   // 从绑定对象中获取权限值
   const { value } = binding;
-  // const res = await getRoleAllCodeService(2);
-  // console.log(res);
 
-  // 获取当前角色的按钮权限数组
-  localStorage.setItem(
-    'permissionButtton',
-    JSON.stringify([
-      'acl:api:search',
-      'acl:api:add',
-      'acl:api:delete',
-      'acl:api:edit',
-      'acl:role:search',
-      'acl:role:add',
-      'acl:role:delete',
-      'acl:role:edit',
-      'acl:role:permission',
-      'acl:user:search',
-      'acl:user:add',
-      'acl:user:delete',
-      'acl:user:edit',
-      'acl:user:import',
-      'acl:user:export',
-      'acl:user:reset',
-      'acl:menu:search',
-      'acl:menu:add',
-      'acl:menu:edit',
-      'acl:menu:delete',
-      'acl:article:search',
-      'acl:article:view',
-      'acl:articel:del',
-      'acl:article:ban',
-      'acl:article:unblock',
-      'acl:dic:add',
-      'acl:dic:delete',
-      'acl:dic:edit',
-      'acl:dic_item:search',
-      'acl:dic_item:add',
-      'acl:dic_item:delete',
-      'acl:dic_item:edit',
-      'acl:comment:search',
-      'acl:comment:view',
-      'acl:comment:delete',
-      'acl:comment:audit',
-      'acl:tag:search',
-      'acl:tag:add',
-      'acl:tag:delete',
-      'acl:tag:edit'
-    ])
-  );
   const btnAclArr = JSON.parse(localStorage.getItem('permissionButtton'));
 
   // 检查 value 是否为数组
