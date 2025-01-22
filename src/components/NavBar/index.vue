@@ -1,3 +1,61 @@
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
+import { Message } from '@arco-design/web-vue';
+import { useFullscreen } from '@vueuse/core';
+import { useAppStore, useUserStore } from '@/store';
+import useLocale from '@/hooks/useLocale';
+import useUser from '@/hooks/useUser';
+import useThemes from '@/hooks/useThemes';
+
+const appStore = useAppStore();
+const userStore = useUserStore();
+const { logout } = useUser();
+const { changeLocale, currentLocale } = useLocale();
+const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
+const locales = [
+  { label: '中文', value: 'zh-CN' },
+  { label: 'English', value: 'en-US' }
+];
+const theme = computed(() => {
+  return appStore.theme;
+});
+const topMenu = computed(() => appStore.topMenu && appStore.menu);
+
+const { toggleTheme: handleToggleTheme } = useThemes();
+
+const setVisible = () => {
+  appStore.updateSettings({ globalSettings: true });
+};
+const handleReload = () => {
+  window.location.reload();
+};
+const refBtn = ref();
+const triggerBtn = ref();
+const setPopoverVisible = () => {
+  const event = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true
+  });
+  refBtn.value.dispatchEvent(event);
+};
+const handleLogout = () => {
+  logout();
+};
+const setDropDownVisible = () => {
+  const event = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true
+  });
+  triggerBtn.value.dispatchEvent(event);
+};
+const switchRoles = async () => {
+  const res = await userStore.switchRoles();
+  Message.success(res as string);
+};
+</script>
+
 <template>
   <div class="navbar">
     <LogoBar class="left-side" />
@@ -131,64 +189,6 @@
     </ul>
   </div>
 </template>
-
-<script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
-import { useFullscreen } from '@vueuse/core';
-import { useAppStore, useUserStore } from '@/store';
-import useLocale from '@/hooks/useLocale';
-import useUser from '@/hooks/useUser';
-import useThemes from '@/hooks/useThemes';
-
-const appStore = useAppStore();
-const userStore = useUserStore();
-const { logout } = useUser();
-const { changeLocale, currentLocale } = useLocale();
-const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-const locales = [
-  { label: '中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' }
-];
-const theme = computed(() => {
-  return appStore.theme;
-});
-const topMenu = computed(() => appStore.topMenu && appStore.menu);
-
-const { toggleTheme: handleToggleTheme } = useThemes();
-
-const setVisible = () => {
-  appStore.updateSettings({ globalSettings: true });
-};
-const handleReload = () => {
-  window.location.reload();
-};
-const refBtn = ref();
-const triggerBtn = ref();
-const setPopoverVisible = () => {
-  const event = new MouseEvent('click', {
-    view: window,
-    bubbles: true,
-    cancelable: true
-  });
-  refBtn.value.dispatchEvent(event);
-};
-const handleLogout = () => {
-  logout();
-};
-const setDropDownVisible = () => {
-  const event = new MouseEvent('click', {
-    view: window,
-    bubbles: true,
-    cancelable: true
-  });
-  triggerBtn.value.dispatchEvent(event);
-};
-const switchRoles = async () => {
-  const res = await userStore.switchRoles();
-  Message.success(res as string);
-};
-</script>
 
 <style scoped lang="less">
 .navbar {
