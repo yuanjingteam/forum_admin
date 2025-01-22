@@ -7,7 +7,7 @@ import {
   ref,
   watch
 } from 'vue';
-import { VChart, ISpec } from '@visactor/vchart';
+import { default as VChart, ISpec } from '@visactor/vchart';
 
 const props = defineProps({
   options: {
