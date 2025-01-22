@@ -4,8 +4,14 @@ import type { RouteRecordNormalized } from 'vue-router';
 // 使用 glob API 动态导入指定目录下的所有模块
 const modules = import.meta.glob('./modules/*.ts', { eager: true });
 
+// 定义允许的路由名称数组
+const allowedNames = JSON.parse(localStorage.getItem('permissionMenu'));
+
 // 定义一个函数 formatModules，用于格式化导入的路由模块
-function formatModules(_modules: any, result: RouteRecordNormalized[]) {
+function formatModules(
+  _modules: any,
+  result: RouteRecordNormalized[]
+): RouteRecordNormalized[] {
   // 遍历所有导入的模块
   Object.keys(_modules).forEach(key => {
     // 获取模块的默认导出
@@ -18,9 +24,26 @@ function formatModules(_modules: any, result: RouteRecordNormalized[]) {
       ? [...defaultModule] // 如果已经是数组，复制一份
       : [defaultModule]; // 如果不是，包装成数组
 
-    // 将模块列表添加到结果数组中
-    result.push(...moduleList);
+    //实现路由权限管理，渲染侧边栏
+    // 遍历模块列表
+    moduleList.forEach(route => {
+      // 检查当前路由或其子路由是否包含在允许的名称数组中
+      if (allowedNames.includes(route.name as string)) {
+        // 如果当前路由名称允许，直接添加
+        result.push(route);
+      } else if (route.children) {
+        // 如果当前路由名称不允许，但有子路由，检查子路由
+        route.children = route.children.filter(child =>
+          allowedNames.includes(child.name as string)
+        );
+        // 如果子路由中有允许的项，则保留当前路由
+        if (route.children.length > 0) {
+          result.push(route);
+        }
+      }
+    });
   });
+
   // 返回格式化后的结果数组
   return result;
 }
