@@ -10,7 +10,7 @@ const LIsaST: AppRouteRecordRaw = {
     locale: '评论管理',
     requiresAuth: true,
     icon: 'icon-list',
-    order: 5,
+    order: 4,
     hideChildrenMenu: true // 隐藏子菜单项
   },
   // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
