@@ -177,6 +177,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   padding: 15px 10px 0;
+  color: #c5c5c5;
 }
 
 .title {
@@ -192,7 +193,7 @@ onMounted(async () => {
 }
 
 .layout:hover {
-  background: #eff6ff;
+  background: #e9eef29e;
 }
 
 :deep(.arco-menu .arco-menu-item .arco-icon) {
