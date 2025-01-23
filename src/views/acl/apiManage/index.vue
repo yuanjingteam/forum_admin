@@ -237,6 +237,8 @@ const handleOkModal = async () => {
   apiForm.value.page = 1;
   fetchData();
   Message.success('删除成功');
+  //清空选择的key
+  selectedKeys.value = [];
 };
 //取消批量删除
 const handleCancelModal = () => {

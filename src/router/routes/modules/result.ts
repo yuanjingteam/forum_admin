@@ -10,7 +10,7 @@ const RESULT: AppRouteRecordRaw = {
     locale: '结果页',
     requiresAuth: true,
     icon: 'icon-check-circle',
-    order: 10
+    order: 7
   },
   children: [
     {

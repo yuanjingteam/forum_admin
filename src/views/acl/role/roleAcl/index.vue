@@ -109,8 +109,11 @@ const getApiList = async () => {
   } = await getApiListService();
   console.log(api_list);
   //将处理过后的数据放到treedata里面
+  api_list.forEach(item => {
+    item.key += 100000;
+  });
   TreeData.value = api_list;
-  console.log(TreeData, 'api-tree');
+  console.log(TreeData.value, 'api-tree');
   loading.value = false;
 };
 
@@ -147,6 +150,11 @@ const handleOkAclDrawer = async () => {
       permIds: CheckedKeys.value
     });
   } else {
+    CheckedKeys.value.forEach((item, index) => {
+      if (item >= 100000) {
+        CheckedKeys.value[index] -= 100000;
+      }
+    });
     //发送修改api权限的请求
     await dispatchApiForRoleService({
       id: props.roleId,

@@ -9,7 +9,7 @@ const ACL: AppRouteRecordRaw = {
     locale: '权限管理',
     icon: 'icon-desktop',
     requiresAuth: true,
-    order: 12,
+    order: 6,
     hideChildrenMenu: false // 隐藏子菜单项
   },
   children: [
