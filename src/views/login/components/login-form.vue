@@ -7,8 +7,10 @@ import useLoading from '@/hooks/useLoading';
 import type { LoginData } from '@/api/user';
 import { pick } from 'lodash';
 import { Message } from '@arco-design/web-vue';
-// import { getRoleAllCodeService, getRoleMenuService } from '@/api/menu';
-
+import { getRoleAllCodeService, getRoleMenuService } from '@/api/menu';
+import { restRouter } from '@/router';
+import { usePermissionNavStore } from '@/store';
+import { changeAppRoutes } from '@/router/routes';
 // CryptoJS 是一个广泛使用的 JavaScript 加密库，这里用不到
 // import CryptoJS from 'crypto-js';
 
@@ -74,70 +76,27 @@ const handleSubmit = () => {
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
 
         //跳转之前调用两个权限相关的接口：获取菜单权限名称和获取按钮权限标识
-        // const roleId = Math.max(
-        //   ...JSON.parse(localStorage.getItem('userInfo'))?.role_ids
-        // );
+        const roleId = Math.max(
+          ...JSON.parse(localStorage.getItem('userInfo'))?.role_ids
+        );
 
         //1.获取按钮权限标识
-        // const {
-        //   data: { code_list }
-        // } = await getRoleAllCodeService(roleId);
-        // // 同时存储当前用户所拥有的所有按钮权限标识;
-        // localStorage.setItem('permissionButtton', JSON.stringify(code_list));
+        const {
+          data: { code_list }
+        } = await getRoleAllCodeService(roleId);
+        // 同时存储当前用户所拥有的所有按钮权限标识;
+        localStorage.setItem('permissionButtton', JSON.stringify(code_list));
 
         //2.获取菜单权限名称
-        // const {
-        //   data: { perm }
-        // } = await getRoleMenuService(roleId);
-        // // 同时存储当前用户所拥有的所有菜单权限;
-        // const permRouteName = perm.map(item => item.route_name);
-        // localStorage.setItem('permissionMenu', JSON.stringify(permRouteName));
-
-        localStorage.setItem(
-          'permissionButtton',
-          JSON.stringify([
-            'acl:api:search',
-            'acl:api:add',
-            'acl:api:delete',
-            'acl:api:edit',
-            'acl:role:search',
-            'acl:role:add',
-            'acl:role:delete',
-            'acl:role:edit',
-            'acl:role:permission',
-            'acl:user:search',
-            'acl:user:add',
-            'acl:user:delete',
-            'acl:user:edit',
-            'acl:user:import',
-            'acl:user:export',
-            'acl:user:reset',
-            'acl:menu:search',
-            'acl:menu:add',
-            'acl:menu:edit',
-            'acl:menu:delete',
-            'acl:article:search',
-            'acl:article:view',
-            'acl:articel:del',
-            'acl:article:ban',
-            'acl:article:unblock',
-            'acl:dic:add',
-            'acl:dic:delete',
-            'acl:dic:edit',
-            'acl:dic_item:search',
-            'acl:dic_item:add',
-            'acl:dic_item:delete',
-            'acl:dic_item:edit',
-            'acl:comment:search',
-            'acl:comment:view',
-            'acl:comment:delete',
-            'acl:comment:audit',
-            'acl:tag:search',
-            'acl:tag:add',
-            'acl:tag:delete',
-            'acl:tag:edit'
-          ])
-        );
+        const {
+          data: { perm }
+        } = await getRoleMenuService(roleId);
+        // 同时存储当前用户所拥有的所有菜单权限;
+        const permRouteName = perm.map(item => item.route_name);
+        localStorage.setItem('permissionMenu', JSON.stringify(permRouteName));
+        restRouter();
+        const usePermissionNav = usePermissionNavStore();
+        usePermissionNav.formatRoutes(changeAppRoutes());
         // 使用 router.push 方法进行路由跳转
         router.push({
           // 设置路由名称为 `redirect` 的值，如果 `redirect` 为空，则默认跳转至 'Workplace'

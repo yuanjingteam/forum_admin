@@ -1,7 +1,8 @@
 import { computed } from 'vue';
 import type { RouteRecordRaw, RouteRecordNormalized } from 'vue-router';
-import { appRoutes } from '@/router/routes';
+// import { appRoutes } from '@/router/routes';
 import usePermission from '@/hooks/usePermission';
+import { changeAppRoutes } from '@/router/routes';
 import { cloneDeep } from 'lodash';
 
 // 导出一个名为 useMenuTree 的组合式函数
@@ -11,6 +12,7 @@ export default function useMenuTree() {
 
   // 计算属性，返回应用路由的映射
   const appRoute = computed(() => {
+    const appRoutes: RouteRecordNormalized[] = changeAppRoutes();
     return appRoutes.map(el => {
       const { name, path, meta, redirect, children } = el;
       return {

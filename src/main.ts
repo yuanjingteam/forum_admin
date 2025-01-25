@@ -1,7 +1,8 @@
 import { createApp } from 'vue';
+import store from './store';
+
 import globalComponents from '@/components';
 import router from './router';
-import store from './store';
 import directive from './directive';
 import './mock';
 import App from './App.vue';
@@ -17,8 +18,8 @@ initVChartArcoTheme();
 
 const app = createApp(App);
 
-app.use(router);
 app.use(store);
+app.use(router);
 app.use(ArcoVueIcon);
 app.use(globalComponents);
 app.use(directive);
