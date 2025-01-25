@@ -4,7 +4,7 @@
   <img width="180" src="./docs/logo.svg" alt="Arco admin logo">
 </a>
 
-<h1>Arco Admin</h1>
+<h1>SiWu Admin</h1>
 <p>An out-of-the-box, feature-rich middle and back-office management system framework, standardized with the latest technology stack.</p>
 
 English | [简体中文](./README.md)
