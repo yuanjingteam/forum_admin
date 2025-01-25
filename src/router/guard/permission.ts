@@ -8,7 +8,7 @@ import usePermission from '@/hooks/usePermission';
 // 导入用户状态管理
 // import { useUserStore } from '@/store';
 // 导入应用路由配置
-// import { appRoutes } from '../routes';
+
 // 导入常量 NOT_FOUND
 // import { NOT_FOUND } from '../constants';
 

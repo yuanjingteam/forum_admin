@@ -1,74 +1,60 @@
 // 导入 Vue Router 的类型定义
 import type { RouteRecordNormalized } from 'vue-router';
-
 // 使用 glob API 动态导入指定目录下的所有模块
-const modules = import.meta.glob('./modules/*.ts', { eager: true });
+// const modules = import.meta.glob('./modules/*.ts', { eager: true });
+import dynamic from './dynamic';
 
-localStorage.setItem(
-  'permissionMenu',
-  JSON.stringify([
-    'Workplace',
-    'userManager',
-    'Acl',
-    'Role',
-    'article',
-    'dictionaryMgr',
-    'commentMgr',
-    'tagMgr',
-    'user',
-    'Info',
-    'Api',
-    'Menu'
-  ])
-);
-
+// localStorage.setItem('modules', modules);
 // 定义允许的路由名称数组
-const allowedNames = JSON.parse(localStorage.getItem('permissionMenu'));
-
 // 定义一个函数 formatModules，用于格式化导入的路由模块
-function formatModules(
-  _modules: any,
+export function formatModules(
+  moduleList: any,
   result: RouteRecordNormalized[]
 ): RouteRecordNormalized[] {
-  // 遍历所有导入的模块
-  Object.keys(_modules).forEach(key => {
-    // 获取模块的默认导出
-    const defaultModule = _modules[key].default;
-    // 如果模块没有默认导出，直接返回
-    if (!defaultModule) return;
+  const allowedNames = JSON.parse(localStorage.getItem('permissionMenu'));
+  // // 遍历所有导入的模块
+  // Object.keys(_modules).forEach(key => {
+  //   // 获取模块的默认导出
+  //   const defaultModule = _modules[key].default;
+  //   // 如果模块没有默认导出，直接返回
+  //   if (!defaultModule) return;
 
-    // 将默认导出转换为数组，以便统一处理
-    const moduleList = Array.isArray(defaultModule)
-      ? [...defaultModule] // 如果已经是数组，复制一份
-      : [defaultModule]; // 如果不是，包装成数组
+  //   // 将默认导出转换为数组，以便统一处理
+  //   const moduleList = Array.isArray(defaultModule)
+  //     ? [...defaultModule] // 如果已经是数组，复制一份
+  //     : [defaultModule]; // 如果不是，包装成数组
 
-    //实现路由权限管理，渲染侧边栏
-    // 遍历模块列表
-    moduleList.forEach(route => {
-      // 检查当前路由或其子路由是否包含在允许的名称数组中
-      if (allowedNames?.includes(route.name as string)) {
-        // 如果当前路由名称允许，直接添加
+  //实现路由权限管理，渲染侧边栏
+  // 遍历模块列表
+  moduleList.forEach(route => {
+    // 检查当前路由或其子路由是否包含在允许的名称数组中
+    if (allowedNames?.includes(route.name as string)) {
+      // 如果当前路由名称允许，直接添加
+      result.push(route);
+    } else if (route.children) {
+      // 如果当前路由名称不允许，但有子路由，检查子路由
+      route.children = route.children.filter(child =>
+        allowedNames?.includes(child.name as string)
+      );
+      // 如果子路由中有允许的项，则保留当前路由
+      if (route.children.length > 0) {
         result.push(route);
-      } else if (route.children) {
-        // 如果当前路由名称不允许，但有子路由，检查子路由
-        route.children = route.children.filter(child =>
-          allowedNames?.includes(child.name as string)
-        );
-        // 如果子路由中有允许的项，则保留当前路由
-        if (route.children.length > 0) {
-          result.push(route);
-        }
       }
-    });
+    }
   });
+  // });
+  debugger;
 
   // 返回格式化后的结果数组
   return result;
 }
 
 // 导出格式化后的应用路由数组
-export const appRoutes: RouteRecordNormalized[] = formatModules(modules, []);
+export const appRoutes: RouteRecordNormalized[] = formatModules(dynamic, []);
 
+export const changeAppRoutes = function () {
+  return formatModules(dynamic, []);
+};
 // 动态路由加载
 // 模块化路由: 通过动态导入多个路由模块，您可以将路由逻辑分散到多个文件中，使代码结构更加清晰和可维护。
 // 按需加载: 仅在需要时加载特定的路由模块，可以提高应用程序的性能，减少初始加载时间。
@@ -90,3 +76,22 @@ export const appRoutes: RouteRecordNormalized[] = formatModules(modules, []);
 // adminRoutes.ts
 // productRoutes.ts
 // 每个文件定义了一组相关的路由，最终通过 appRoutes 组合成一个完整的路由配置供 Vue Router 使用。
+
+// import type { RouteRecordNormalized } from 'vue-router';
+// // import { usePermissionNavStore } from '@/store';
+
+// const modules = import.meta.glob('./modules/*.ts', { eager: true });
+
+// function formatModules(_modules: any, result: RouteRecordNormalized[]) {
+//   Object.keys(_modules).forEach(key => {
+//     const defaultModule = _modules[key].default;
+//     if (!defaultModule) return;
+//     const moduleList = Array.isArray(defaultModule)
+//       ? [...defaultModule]
+//       : [defaultModule];
+//     result.push(...moduleList);
+//   });
+//   return result;
+// }
+
+// export const appRoutes: RouteRecordNormalized[] = formatModules(modules, []);
