@@ -4,7 +4,7 @@
   <img width="180" src="./docs/logo.svg" alt="Arco admin logo">
 </a>
 
-<h1 align="center">Arco Admin</h1>
+<h1 align="center">思悟后台管理系统</h1>
 <p align="center">> March software background management system framework, the latest technology stack standardization specification project.</p> 
 
 简体中文 | [English](./README.en-US.md)
