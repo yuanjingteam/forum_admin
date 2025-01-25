@@ -334,9 +334,8 @@ defineExpose({ reFresh });
                   <a-image-preview-group infinite>
                     <a-space>
                       <a-image
-                        v-for="(src, index) in viewDetail.parent_comment_path"
-                        :key="index"
-                        :src="src"
+                        v-if="viewDetail.parent_comment_path"
+                        :src="viewDetail.parent_comment_path"
                         width="50"
                         height="50"
                         style="object-fit: contain"
@@ -371,9 +370,8 @@ defineExpose({ reFresh });
                   <a-image-preview-group infinite>
                     <a-space>
                       <a-image
-                        v-for="(src, index) in viewDetail.comment_path"
-                        :key="index"
-                        :src="src"
+                        v-if="viewDetail.comment_path"
+                        :src="viewDetail.comment_path"
                         width="50"
                         height="50"
                         style="object-fit: contain"
@@ -469,13 +467,7 @@ defineExpose({ reFresh });
             >
               {{ record.content }}
               <div v-if="record.comment_path.length > 0">
-                <span
-                  v-for="index in record.comment_path.length"
-                  :key="index"
-                  style="color: #165dff"
-                >
-                  [图片]
-                </span>
+                <span style="color: #165dff">[图片]</span>
               </div>
             </a-typography-paragraph>
           </div>

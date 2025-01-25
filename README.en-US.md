@@ -17,26 +17,19 @@ English | [简体中文](./README.md)
 
 *📌The project is still under rapid development, stay tuned! Currently usable as a starter template👈🏻*
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://next.ossinsight.io/widgets/official/compose-last-28-days-stats/thumbnail.png?repo_id=725470717&image_size=auto&color_scheme=dark" width="655" height="auto">
-  <img alt="oljc/arco-admin" src="https://next.ossinsight.io/widgets/official/compose-last-28-days-stats/thumbnail.png?repo_id=725470717&image_size=auto&color_scheme=light" width="655" height="auto">
-</picture>
-
 </div>
 
 ## Features
-+ ⚡️ New version built with [Vite 5](https://vitejs.dev) for lightning-fast response in frontend development.
-+ 👍🏻 [Vue 3](https://vuejs.org) + officially recommended [Vue Router](https://router.vuejs.org) + [Pinia](https://pinia.vuejs.org) state manager.
-+ 🔩 Enterprise-level design ecosystem [ArcoDesign](https://arco.design/) component library by ByteDance.
-+ 🎨 [Less](http://lesscss.org/) CSS preprocessor.
-+ 📚 Utilizing [i18n](https://github.com/intlify/vue-i18n-next/tree/master/packages/vue-i18n#readme) + [i18n-ally](https://github.com/lokalise/i18n-ally) for a simpler, standardized automated internationalization solution.
-+ 🌐 Encapsulated common and convenient request methods based on [Axios](https://axios-http.com).
-+ ⌨️ Built-in various business scenario pages, components, and framework support configurations for easy customization.
-+ 🧚🏻 Fully adopted the `ESM` standard modular syntax, following the trend in modern frontend development.
-+ 📦 Continuously optimized configurations to keep up with updates, deprecations, and merged features of dependencies and `Vite`, ensuring the best bundling optimization.
++ New version built with [Vite 5](https://vitejs.dev) for lightning-fast response in frontend development.
++ [Vue 3](https://vuejs.org) + officially recommended [Vue Router](https://router.vuejs.org) + [Pinia](https://pinia.vuejs.org) state manager.
++ Enterprise-level design ecosystem [ArcoDesign](https://arco.design/) component library by ByteDance.
++ [Less](http://lesscss.org/) CSS preprocessor.
++ Utilizing [i18n](https://github.com/intlify/vue-i18n-next/tree/master/packages/vue-i18n#readme) + [i18n-ally](https://github.com/lokalise/i18n-ally) for a simpler, standardized automated internationalization solution.
++ Encapsulated common and convenient request methods based on [Axios](https://axios-http.com).
++ Built-in various business scenario pages, components, and framework support configurations for easy customization.
++ Fully adopted the `ESM` standard modular syntax, following the trend in modern frontend development.
++ Continuously optimized configurations to keep up with updates, deprecations, and merged features of dependencies and `Vite`, ensuring the best bundling optimization.
 
-## Versions
-- International version：[i18n branch](https://github.com/oljc/arco-admin/tree/i18n)
 
 ## Standards
 Enhance code quality, reduce errors, and ensure consistency in the entire project's code style to facilitate easier code quality and style management.
@@ -54,35 +47,11 @@ Enhance code quality, reduce errors, and ensure consistency in the entire projec
 | >=16| >= 31 | >= 49| >= 31| last 2 versions| >= 36 | last 2 versions
 
 ## Usage
-1. Clone this repository
-```bash
-git clone https://github.com/oljc/arco-admin
-```
-2. Install dependencies
+1. Install dependencies
 ```bash
 pnpm i
 ```
-3. Run
+2. Run
 ```bash
 pnpm run dev
 ```
-
-#### VsCode Tools
-
-| [<img src="https://vue.gallerycdn.vsassets.io/extensions/vue/volar/1.8.24/1701250883040/Microsoft.VisualStudio.Services.Icons.Default" width="24px" height="24px" /><br>Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) | [<img src="https://dbaeumer.gallerycdn.vsassets.io/extensions/dbaeumer/vscode-eslint/2.4.2/1687441427519/Microsoft.VisualStudio.Services.Icons.Default" width="24px" height="24px" /><br>ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) |[<img src="https://esbenp.gallerycdn.vsassets.io/extensions/esbenp/prettier-vscode/10.1.0/1690819498575/Microsoft.VisualStudio.Services.Icons.Default" width="24px" height="24px" /><br>Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) |[<img src="https://lokalise.gallerycdn.vsassets.io/extensions/lokalise/i18n-ally/2.12.0/1695476646920/Microsoft.VisualStudio.Services.Icons.Default" width="24px" height="24px" /><br>i18n Ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally) |[<img src="https://stylelint.gallerycdn.vsassets.io/extensions/stylelint/vscode-stylelint/1.3.0/1698920117910/Microsoft.VisualStudio.Services.Icons.Default" width="25px" height="25px" /><br>Stylelint](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)|[<img src="https://editorconfig.gallerycdn.vsassets.io/extensions/editorconfig/editorconfig/0.16.4/1607315835386/Microsoft.VisualStudio.Services.Icons.Default" width="25px" height="25px" /><br>EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)|[<img src="https://antfu.gallerycdn.vsassets.io/extensions/antfu/vite/0.2.5/1622972526798/Microsoft.VisualStudio.Services.Icons.Default" width="25px" height="25px" /><br>Vite](https://marketplace.visualstudio.com/items?itemName=antfu.vite)|
-| --- | --- | --- | ---| --- | --- | --- |
-
-# Achievements
-Added to the [awesome-vite](https://github.com/vitejs/awesome-vite#vue-3) list 🎉
-
-## Contributing
-
-Welcome contributions in any form and assure you that we will carefully consider each and every one of them.<br/><br/>
-
-<a href="https://github.com/oljc/arco-admin/graphs/contributors"><img src="https://contrib.rocks/image?repo=oljc/arco-admin" />
-</a><br/>
-
-# License
-This project is licensed under the [MIT License](./LICENSE)
-
-[![趋势图](https://starchart.cc/oljc/arco-admin.svg)](https://starchart.cc/oljc/arco-admin)
