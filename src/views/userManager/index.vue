@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, nextTick, h } from 'vue';
+import { computed, ref, reactive, watch, nextTick } from 'vue';
 import useLoading from '@/hooks/useLoading';
 import AvatarUpload from '@/views/userManager/avatarUpload/index.vue';
 import {
@@ -144,10 +144,10 @@ const columns = computed<TableColumnData[]>(() => [
   },
   {
     title: '个人热度',
-    dataIndex: 'heat'
-    // sortable: {
-    //   sortDirections: ['ascend', 'descend']
-    // },
+    dataIndex: 'heat',
+    sortable: {
+      sortDirections: ['ascend', 'descend']
+    }
     // filterable: {
     //   filter: (value, record) => record.heat >= value,
     //   slotName: 'name-filter',

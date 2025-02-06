@@ -688,4 +688,8 @@ const showRoleAcl = id => {
 .user-status {
   margin-left: 12px;
 }
+
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
+}
 </style>
