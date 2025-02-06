@@ -679,10 +679,6 @@ const showRoleAcl = id => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
 .arco-pagination {
   justify-content: flex-end;
   margin-top: 10px;

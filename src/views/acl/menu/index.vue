@@ -896,8 +896,4 @@ const handleCancelDrawer = () => {
     cursor: pointer;
   }
 }
-
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
 </style>

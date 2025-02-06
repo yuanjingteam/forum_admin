@@ -637,13 +637,13 @@ const changePageSize = (pageSize: number) => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
 .arco-pagination {
   justify-content: flex-end;
   margin-top: 10px;
   margin-right: 10px;
+}
+
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
 }
 </style>
