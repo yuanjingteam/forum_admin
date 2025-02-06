@@ -106,7 +106,6 @@ const handleSubmit = () => {
             ...othersQuery // 展开其他查询参数
           }
         });
-        Message.success('登录成功');
       } catch (error) {
       } finally {
         // 表示加载状态已经结束，通常用于更新用户界面的加载指示器。

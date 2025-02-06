@@ -1,21 +1,21 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { computed } from 'vue';
+// import { Message } from '@arco-design/web-vue';
 import { useFullscreen } from '@vueuse/core';
-import { useAppStore, useUserStore } from '@/store';
-import useLocale from '@/hooks/useLocale';
+import { useAppStore } from '@/store';
+// import useLocale from '@/hooks/useLocale';
 import useUser from '@/hooks/useUser';
 import useThemes from '@/hooks/useThemes';
 
 const appStore = useAppStore();
-const userStore = useUserStore();
+// const userStore = useUserStore();
 const { logout } = useUser();
-const { changeLocale, currentLocale } = useLocale();
+// const { changeLocale, currentLocale } = useLocale();
 const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-const locales = [
-  { label: '中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' }
-];
+// const locales = [
+//   { label: '中文', value: 'zh-CN' },
+//   { label: 'English', value: 'en-US' }
+// ];
 const theme = computed(() => {
   return appStore.theme;
 });
@@ -29,31 +29,31 @@ const setVisible = () => {
 const handleReload = () => {
   window.location.reload();
 };
-const refBtn = ref();
-const triggerBtn = ref();
-const setPopoverVisible = () => {
-  const event = new MouseEvent('click', {
-    view: window,
-    bubbles: true,
-    cancelable: true
-  });
-  refBtn.value.dispatchEvent(event);
-};
+// const refBtn = ref();
+// const triggerBtn = ref();
+// const setPopoverVisible = () => {
+//   const event = new MouseEvent('click', {
+//     view: window,
+//     bubbles: true,
+//     cancelable: true
+//   });
+//   refBtn.value.dispatchEvent(event);
+// };
 const handleLogout = () => {
   logout();
 };
-const setDropDownVisible = () => {
-  const event = new MouseEvent('click', {
-    view: window,
-    bubbles: true,
-    cancelable: true
-  });
-  triggerBtn.value.dispatchEvent(event);
-};
-const switchRoles = async () => {
-  const res = await userStore.switchRoles();
-  Message.success(res as string);
-};
+// const setDropDownVisible = () => {
+//   const event = new MouseEvent('click', {
+//     view: window,
+//     bubbles: true,
+//     cancelable: true
+//   });
+//   triggerBtn.value.dispatchEvent(event);
+// };
+// const switchRoles = async () => {
+//   const res = await userStore.switchRoles();
+//   Message.success(res as string);
+// };
 </script>
 
 <template>
@@ -64,27 +64,13 @@ const switchRoles = async () => {
     </div>
     <ul class="right-side">
       <li>
-        <a-input-search style="width: 135px" placeholder="搜索" />
-      </li>
-      <li>
         <a-tooltip content="重新加载">
           <div class="nav-btn" @click="handleReload">
             <icon-sync />
           </div>
         </a-tooltip>
       </li>
-      <li>
-        <a-tooltip content="源码地址">
-          <a
-            class="nav-btn"
-            href="https://github.com/oljc/arco-admin"
-            target="_blank"
-          >
-            <icon-github />
-          </a>
-        </a-tooltip>
-      </li>
-      <li>
+      <!-- <li>
         <a-tooltip content="语言">
           <div class="nav-btn" @click="setDropDownVisible">
             <icon-language />
@@ -105,7 +91,7 @@ const switchRoles = async () => {
             </a-doption>
           </template>
         </a-dropdown>
-      </li>
+      </li> -->
       <li>
         <a-tooltip
           :content="
@@ -118,7 +104,7 @@ const switchRoles = async () => {
           </div>
         </a-tooltip>
       </li>
-      <li>
+      <!-- <li>
         <a-tooltip content="消息通知">
           <a-badge :count="9">
             <div class="nav-btn" @click="setPopoverVisible">
@@ -137,7 +123,7 @@ const switchRoles = async () => {
             <message-box />
           </template>
         </a-popover>
-      </li>
+      </li> -->
       <li>
         <a-tooltip :content="isFullscreen ? '退出全屏' : '全屏'">
           <div class="nav-btn" @click="toggleFullScreen">
@@ -159,12 +145,12 @@ const switchRoles = async () => {
             <IconUser />
           </a-avatar>
           <template #content>
-            <a-doption>
+            <!-- <a-doption>
               <a-space @click="switchRoles">
                 <icon-tag />
                 <span>切换角色</span>
               </a-space>
-            </a-doption>
+            </a-doption> -->
             <a-doption>
               <a-space @click="$router.push({ name: 'Info' })">
                 <icon-user />

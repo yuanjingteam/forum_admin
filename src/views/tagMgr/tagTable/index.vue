@@ -46,7 +46,8 @@ const columns: TableColumnData[] = [
   {
     title: '标签描述',
     dataIndex: 'description',
-    align: 'center'
+    align: 'center',
+    width: 300
   },
   {
     title: '关联的文章数量',
@@ -160,8 +161,7 @@ const getList = async () => {
     });
 
     tag_list.value = data.tag_list;
-    // total.value = data.total;
-    total.value = 0;
+    total.value = data.total;
   } catch {
   } finally {
     setLoading(false);

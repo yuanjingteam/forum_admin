@@ -69,12 +69,13 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '发布者',
     dataIndex: 'nickname',
-    slotName: 'author'
+    slotName: 'author',
+    width: 200
   },
   {
     title: '评论',
     dataIndex: 'content',
-    width: 400,
+    width: 300,
     slotName: 'content'
   },
   {
@@ -266,11 +267,11 @@ const changePage = (item: number) => {
   fetchComments();
 };
 
-const editItem = (item: ViewDetail) => {
-  editVisible.value = true;
-  viewDetail.value = item;
-  console.log(viewDetail);
-};
+// const editItem = (item: ViewDetail) => {
+//   editVisible.value = true;
+//   viewDetail.value = item;
+//   console.log(viewDetail);
+// };
 
 // 处理每页条目数变化
 const handlePageSizeChange = (size: number) => {
@@ -301,26 +302,16 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose>
+    <!-- <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose>
       <template #title>查看评论详情:</template>
       <a-spin :loading="loading" tip="This may take a while..." class="main">
         <div class="drawer">
-          <a-form
-            :model="viewDetail"
-            :style="{ width: '380px' }"
-            layout="vertical"
-          >
+          <a-form :model="viewDetail" :style="{ width: '380px' }" layout="vertical">
             <div v-if="viewDetail.parent_email" class="details-other">
               <a-form-item field="userInfo">
                 <div class="details">
                   <div class="details-info">
-                    <a-image
-                      :src="viewDetail.parent_path"
-                      alt="图片"
-                      width="35"
-                      height="35"
-                      fit="cover"
-                    />
+                    <a-image :src="viewDetail.parent_path" alt="图片" width="35" height="35" fit="cover" />
                     <span>{{ viewDetail.parent_nickname }}</span>
                   </div>
                   <div>邮箱:{{ viewDetail.parent_email }}</div>
@@ -333,13 +324,8 @@ defineExpose({ reFresh });
                 <div class="pic_Details">
                   <a-image-preview-group infinite>
                     <a-space>
-                      <a-image
-                        v-if="viewDetail.parent_comment_path"
-                        :src="viewDetail.parent_comment_path"
-                        width="50"
-                        height="50"
-                        style="object-fit: contain"
-                      />
+                      <a-image v-if="viewDetail.parent_comment_path" :src="viewDetail.parent_comment_path" width="50"
+                        height="50" style="object-fit: contain" />
                     </a-space>
                   </a-image-preview-group>
                 </div>
@@ -349,13 +335,7 @@ defineExpose({ reFresh });
               <a-form-item field="userInfo">
                 <div class="details">
                   <div class="details-info">
-                    <a-image
-                      :src="viewDetail.path"
-                      alt="图片"
-                      width="35"
-                      height="35"
-                      fit="cover"
-                    />
+                    <a-image :src="viewDetail.path" alt="图片" width="35" height="35" fit="cover" />
                     <span>{{ viewDetail.nickname }}</span>
                   </div>
                   <div>邮箱:{{ viewDetail.email }}</div>
@@ -369,13 +349,8 @@ defineExpose({ reFresh });
                 <div class="pic_Details">
                   <a-image-preview-group infinite>
                     <a-space>
-                      <a-image
-                        v-if="viewDetail.comment_path"
-                        :src="viewDetail.comment_path"
-                        width="50"
-                        height="50"
-                        style="object-fit: contain"
-                      />
+                      <a-image v-if="viewDetail.comment_path" :src="viewDetail.comment_path" width="50" height="50"
+                        style="object-fit: contain" />
                     </a-space>
                   </a-image-preview-group>
                 </div>
@@ -384,7 +359,7 @@ defineExpose({ reFresh });
           </a-form>
         </div>
       </a-spin>
-    </a-drawer>
+    </a-drawer> -->
     <!-- <a-modal>
       <template #title>修改评论</template>
       <a-mention type="textarea" placeholder="please enter your username..." />
@@ -473,7 +448,11 @@ defineExpose({ reFresh });
           </div>
         </template>
         <template #parent="{ record }">
-          <router-link :to="{ path: './article' }" class="custom-link">
+          <a
+            :href="`http://192.168.10.7:9901/articledetail/${record.article_id}`"
+            target="_blank"
+            class="custom-link"
+          >
             <p>《 {{ record.title }} 》</p>
             <a-typography-paragraph
               :ellipsis="{
@@ -484,19 +463,15 @@ defineExpose({ reFresh });
             >
               {{ record.summary }}
             </a-typography-paragraph>
-          </router-link>
+          </a>
         </template>
         <template #optional="{ record }">
           <div class="option">
-            <span>
-              <a-button
-                v-permission="['acl:comment:view']"
-                type="text"
-                @click="editItem(record)"
-              >
+            <!-- <span>
+              <a-button v-permission="['acl:comment:view']" type="text" @click="editItem(record)">
                 查看详情
               </a-button>
-            </span>
+            </span> -->
             <span>
               <a-popconfirm
                 content="您确定要删除吗？"
