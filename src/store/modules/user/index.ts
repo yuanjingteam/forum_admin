@@ -1,8 +1,13 @@
 import { defineStore } from 'pinia';
-// logout as userLogout,
-import { login as userLogin, type LoginData } from '@/api/user';
+import {
+  login as userLogin,
+  logout as userLogout,
+  type LoginData
+} from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
+import { Message } from '@arco-design/web-vue';
+
 import type { UserState } from './types';
 
 const useUserStore = defineStore('user', {
@@ -71,15 +76,15 @@ const useUserStore = defineStore('user', {
       try {
         const { data } = await userLogin(loginForm);
         setToken(data.token);
-
         this.setInfo({
           email: loginForm.email // 确保以对象的形式传递
         });
         // 将用户信息存储到 localStorage
         localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
-      } catch (err) {
+        Message.success('登录成功');
+      } catch (error) {
+        Message.info('该用户没有权限');
         clearToken();
-        throw err;
       }
     },
 
@@ -89,9 +94,9 @@ const useUserStore = defineStore('user', {
       removeRouteListener();
     },
     // 用户登出
-    logout() {
+    async logout() {
       try {
-        // await userLogout();
+        await userLogout();
       } finally {
         this.logoutCallBack();
       }
