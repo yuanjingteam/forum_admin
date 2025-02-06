@@ -62,7 +62,6 @@
   },
   "dependencies": {
     "@arco-design/color": "^0.4.0",
-    "@arco-design/web-vue": "^2.55.3",
     "@visactor/vchart": "^1.11.4",
     "@visactor/vchart-arco-theme": "^1.11.2",
     "@vueuse/core": "^10.11.0",
@@ -80,6 +79,7 @@
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
+    "@arco-design/web-vue": "^2.56.3",
     "@arco-plugins/vite-vue": "^1.4.5",
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",

@@ -111,11 +111,15 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'id',
     sortable: {
       sortDirections: ['ascend', 'descend']
-    }
+    },
+    fixed: 'left',
+    width: 100
   },
   {
     title: '权限点名称',
-    dataIndex: 'name'
+    dataIndex: 'name',
+    fixed: 'left',
+    minwidth: 100
   },
   {
     title: '权限点标识',
@@ -159,7 +163,9 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '操作',
     dataIndex: 'operations',
-    slotName: 'operations'
+    slotName: 'operations',
+    fixed: 'right',
+    width: 200
   }
 ]);
 
@@ -531,6 +537,8 @@ const handleCancelDrawer = () => {
         :bordered="false"
         :size="size"
         :pagination="false"
+        :scroll="{ x: 2300 }"
+        :scrollbar="false"
       >
         <!-- 状态 -->
         <template #isVisible="{ record }">
@@ -897,7 +905,7 @@ const handleCancelDrawer = () => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
 }
 </style>

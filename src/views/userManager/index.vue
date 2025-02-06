@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, nextTick, h } from 'vue';
+import { computed, ref, reactive, watch, nextTick } from 'vue';
 import useLoading from '@/hooks/useLoading';
 import AvatarUpload from '@/views/userManager/avatarUpload/index.vue';
 import {
@@ -123,20 +123,20 @@ const columns = computed<TableColumnData[]>(() => [
       sortDirections: ['ascend', 'descend']
     },
     fixed: 'left',
-    minwidth: 100
+    width: 100
   },
   {
     title: '头像',
     dataIndex: 'avatar_path',
     slotName: 'avatar_path',
     fixed: 'left',
-    minwidth: 100
+    width: 100
   },
   {
     title: '用户名',
     dataIndex: 'nickname',
     fixed: 'left',
-    minwidth: 100
+    minwidth: 50
   },
   {
     title: '邮箱',
@@ -147,24 +147,24 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'heat',
     sortable: {
       sortDirections: ['ascend', 'descend']
-    },
-    filterable: {
-      filter: (value, record) => record.heat >= value,
-      slotName: 'name-filter',
-      icon: () => h(IconSearch)
     }
+    // filterable: {
+    //   filter: (value, record) => record.heat >= value,
+    //   slotName: 'name-filter',
+    //   icon: () => h(IconSearch)
+    // }
   },
   {
     title: '粉丝数',
     dataIndex: 'fans_count',
     sortable: {
       sortDirections: ['ascend', 'descend']
-    },
-    filterable: {
-      filter: (value, record) => record.fans_count >= value,
-      slotName: 'name-filter',
-      icon: () => h(IconSearch)
     }
+    // filterable: {
+    //   filter: (value, record) => record.fans_count >= value,
+    //   slotName: 'name-filter',
+    //   icon: () => h(IconSearch)
+    // }
   },
   {
     title: '用户身份',
@@ -188,12 +188,16 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '状态',
     dataIndex: 'user_status',
-    slotName: 'user_status'
+    slotName: 'user_status',
+    width: 150,
+    fixed: 'right'
   },
   {
     title: '操作',
     dataIndex: 'operations',
-    slotName: 'operations'
+    slotName: 'operations',
+    width: 350,
+    fixed: 'right'
   }
 ]);
 
@@ -778,6 +782,7 @@ const importUser = () => {
       </a-row>
       <a-table
         v-model:selectedKeys="selectedKeys"
+        style="overflow-x: auto"
         row-key="id"
         :loading="loading"
         :columns="cloneColumns as TableColumnData[]"
@@ -786,6 +791,8 @@ const importUser = () => {
         :bordered="false"
         :size="size"
         :pagination="false"
+        :scroll="{ x: 2300 }"
+        :scrollbar="false"
       >
         <template
           #name-filter="{
@@ -998,10 +1005,6 @@ const importUser = () => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
 .arco-pagination {
   justify-content: flex-end;
   margin-top: 10px;
@@ -1030,5 +1033,13 @@ const importUser = () => {
 .custom-filter-footer {
   display: flex;
   justify-content: space-between;
+}
+
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
+}
+
+.arco-col:deep(.arco-picker-size-medium) {
+  width: 100%;
 }
 </style>

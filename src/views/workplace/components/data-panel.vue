@@ -41,7 +41,7 @@ loadData();
           show-group-separator
         >
           <template #suffix>
-            W+
+            +
             <span class="unit">个</span>
           </template>
         </a-statistic>
