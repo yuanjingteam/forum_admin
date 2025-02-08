@@ -82,18 +82,20 @@ const handleClear = () => {
     <a-layout-content class="item">
       <Breadcrumb :items="['字典管理', '字典项管理']" />
       <search @search="handleSearch" @clearAll="handleClear"></search>
-      <dictionary-item
-        ref="dicTable"
-        v-model:search="searchItem"
-        :dict_type="dict_type"
-      ></dictionary-item>
+      <a-card class="general-card">
+        <dictionary-item
+          ref="dicTable"
+          v-model:search="searchItem"
+          :dict_type="dict_type"
+        ></dictionary-item>
+      </a-card>
     </a-layout-content>
   </a-layout>
 </template>
 
 <style scoped>
 .list {
-  margin: 10px 10px 0;
+  margin: 10px;
 }
 
 .item {
@@ -101,5 +103,9 @@ const handleClear = () => {
   margin: 10px 10px 0 0;
 
   /* background-color: #fff; */
+}
+
+.general-card {
+  margin-top: 20px;
 }
 </style>

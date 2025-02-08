@@ -279,7 +279,7 @@ defineExpose({ reFresh });
     </a-modal>
 
     <a-card :title="`全部(${total}) `" :bordered="false">
-      <template #extra>
+      <a-spin :loading="loading" tip="This may take a while..." class="main">
         <span class="selectAll">
           <a-button
             v-permission="['acl:tag:search']"
@@ -308,8 +308,6 @@ defineExpose({ reFresh });
             批量删除
           </a-button>
         </span>
-      </template>
-      <a-spin :loading="loading" tip="This may take a while..." class="main">
         <a-table
           v-model:selectedKeys="selectedKeys"
           :columns="columns"
@@ -387,6 +385,6 @@ defineExpose({ reFresh });
 }
 
 .selectAll button {
-  margin-left: 5px;
+  margin: 0 5px 12px;
 }
 </style>

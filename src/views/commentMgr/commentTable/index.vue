@@ -48,16 +48,16 @@ const props = defineProps({
 // 定义更新,是否可以进行批量操作
 const emit = defineEmits(['update:enabled']);
 
-// 批量删除
-const delSelectVisible = defineModel('delete', {
-  type: Boolean,
-  required: true
-});
-// 批量审批
-const auditSelectVisible = defineModel('audit', {
-  type: Boolean,
-  required: true
-});
+// // 批量删除
+// const delSelectVisible = defineModel('delete', {
+//   type: Boolean,
+//   required: true
+// });
+// // 批量审批
+// const auditSelectVisible = defineModel('audit', {
+//   type: Boolean,
+//   required: true
+// });
 
 // 定义行
 const columns = computed<TableColumnData[]>(() => [
@@ -109,7 +109,7 @@ const comments: Ref<TableData[]> = ref([]);
 const { loading, setLoading } = useLoading(false);
 
 // 查看详情框
-const editVisible = ref<boolean>(false);
+// const editVisible = ref<boolean>(false);
 
 // 获取列表项
 const fetchComments = async (): Promise<void> => {
@@ -141,18 +141,18 @@ const fetchComments = async (): Promise<void> => {
 const curPage = ref<number>(1);
 
 // 编辑项  查看详情
-const viewDetail = ref<ViewDetail>({
-  nickname: '',
-  email: '',
-  path: '',
-  content: '',
-  comment_path: '',
-  parent_nickname: '',
-  parent_path: '',
-  parent_content: '',
-  parent_email: '',
-  parent_comment_path: ''
-});
+// const viewDetail = ref<ViewDetail>({
+//   nickname: '',
+//   email: '',
+//   path: '',
+//   content: '',
+//   comment_path: '',
+//   parent_nickname: '',
+//   parent_path: '',
+//   parent_content: '',
+//   parent_email: '',
+//   parent_comment_path: ''
+// });
 
 // 一共多少数据
 const total = defineModel('total', {
@@ -190,6 +190,30 @@ const handlePageChange = (current: number) => {
   if (current <= maxPage.value && current > 0) {
     pagination.current = current; // 更新当前页码
   }
+};
+
+// 控制按钮的启用状态
+const isButtonEnabled = ref<boolean>(false);
+
+// 批量删除
+const deleteDialog = ref<boolean>(false);
+
+// 批量审核
+const auditDialog = ref<boolean>(false);
+
+// // 打开批量删除对话框
+const notifyDeleteSelect = () => {
+  deleteDialog.value = true;
+};
+
+// 打开一键审核对话框
+const notifyAudit = () => {
+  auditDialog.value = true;
+};
+
+// 更新按钮状态,是否可以进行批量操作/对于删除和审核
+const updateButtonState = (value: boolean) => {
+  isButtonEnabled.value = value; // 根据子组件的值更新按钮状态
 };
 
 // 全选,一次性选中当前页所有
@@ -283,7 +307,9 @@ const handlePageSizeChange = (size: number) => {
 
 // 监听 selectedCount 的变化并发射事件
 watch(selectedKeys, newCount => {
-  emit('update:enabled', newCount.length > 0);
+  if (newCount.length > 0) {
+    updateButtonState(true);
+  }
 });
 
 // 父组件刷新方法
@@ -382,17 +408,49 @@ defineExpose({ reFresh });
       </a-upload>
     </a-modal> -->
 
-    <a-modal v-model:visible="delSelectVisible" @ok="confirmDeleteSelect">
+    <a-modal v-model:visible="deleteDialog" @ok="confirmDeleteSelect">
       <template #title>批量删除</template>
       <div style="text-align: center">
         确认批量删除选中评论吗?删除之后将无法再恢复。
       </div>
     </a-modal>
 
-    <a-modal v-model:visible="auditSelectVisible" @ok="confirmAuditSelect">
+    <a-modal v-model:visible="auditDialog" @ok="confirmAuditSelect">
       <template #title>批量审核</template>
       <div style="text-align: center">确认一键审核选中评论吗？</div>
     </a-modal>
+
+    <a-row style="margin: 16px 0">
+      <a-space>
+        <a-button
+          v-permission="['acl:comment:search']"
+          type="primary"
+          @click="reFresh"
+        >
+          刷新
+        </a-button>
+      </a-space>
+      <a-button
+        v-permission="['acl:comment:delete']"
+        type="dashed"
+        status="danger"
+        :disabled="!isButtonEnabled"
+        @click="notifyDeleteSelect"
+      >
+        批量删除
+      </a-button>
+      <span v-if="itemType == '2'">
+        <a-button
+          v-permission="['acl:comment:audit']"
+          type="outline"
+          status="success"
+          :disabled="!isButtonEnabled"
+          @click="notifyAudit"
+        >
+          一键审核
+        </a-button>
+      </span>
+    </a-row>
 
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-table

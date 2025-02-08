@@ -179,7 +179,11 @@ watch(
             label="标签描述"
             label-col-flex="90px"
           >
-            <a-input v-model="edit.description" placeholder="输入标签描述..." />
+            <a-textarea
+              v-model="edit.description"
+              placeholder="输入标签描述..."
+              :auto-size="{ minRows: 3, maxRows: 6 }"
+            />
           </a-form-item>
           <a-form-item
             field="article_count"

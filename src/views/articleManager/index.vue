@@ -73,20 +73,20 @@ const tagTypeOptions = computed<SelectOptionData[]>(() => [
 ]);
 
 // 状态栏
-const stateTypeOptions = computed<SelectOptionData[]>(() => [
-  {
-    label: '公开',
-    value: 0
-  },
-  {
-    label: '全部',
-    value: 1
-  },
-  {
-    label: '封禁',
-    value: 2
-  }
-]);
+// const stateTypeOptions = computed<SelectOptionData[]>(() => [
+//   {
+//     label: '公开',
+//     value: 0
+//   },
+//   {
+//     label: '全部',
+//     value: 1
+//   },
+//   {
+//     label: '封禁',
+//     value: 2
+//   }
+// ]);
 
 // 排序
 const hotOptions = computed<SelectOptionData[]>(() => [
