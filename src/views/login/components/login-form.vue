@@ -7,10 +7,10 @@ import useLoading from '@/hooks/useLoading';
 import type { LoginData } from '@/api/user';
 import { pick } from 'lodash';
 import { Message } from '@arco-design/web-vue';
-import { getRoleAllCodeService, getRoleMenuService } from '@/api/menu';
-import { restRouter } from '@/router';
-import { usePermissionNavStore } from '@/store';
-import { changeAppRoutes } from '@/router/routes';
+// import { getRoleAllCodeService, getRoleMenuService } from '@/api/menu';
+// import { restRouter } from '@/router';
+// import { usePermissionNavStore } from '@/store';
+// import { changeAppRoutes } from '@/router/routes';
 // CryptoJS 是一个广泛使用的 JavaScript 加密库，这里用不到
 // import CryptoJS from 'crypto-js';
 
@@ -73,40 +73,23 @@ const handleSubmit = () => {
         // 从当前路由的查询参数中解构出 `redirect` 属性
         // `redirect` 用于存储重定向的目标地址
         // `...othersQuery` 收集其余的查询参数，存储在 `othersQuery` 对象中
-        const { redirect, ...othersQuery } = router.currentRoute.value.query;
+        // const { redirect, ...othersQuery } = router.currentRoute.value.query;
 
-        //跳转之前调用两个权限相关的接口：获取菜单权限名称和获取按钮权限标识
-        const roleId = Math.max(
-          ...JSON.parse(localStorage.getItem('userInfo'))?.role_ids
-        );
-
-        //1.获取按钮权限标识
-        const {
-          data: { code_list }
-        } = await getRoleAllCodeService(roleId);
-        // 同时存储当前用户所拥有的所有按钮权限标识;
-        localStorage.setItem('permissionButtton', JSON.stringify(code_list));
-
-        //2.获取菜单权限名称
-        const {
-          data: { perm }
-        } = await getRoleMenuService(roleId);
-        // 同时存储当前用户所拥有的所有菜单权限;
-        const permRouteName = perm.map(item => item.route_name);
-        localStorage.setItem('permissionMenu', JSON.stringify(permRouteName));
-        restRouter();
-        const usePermissionNav = usePermissionNavStore();
-        usePermissionNav.formatRoutes(changeAppRoutes());
+        // restRouter();
+        // const usePermissionNav = usePermissionNavStore();
+        // usePermissionNav.formatRoutes(changeAppRoutes());
         // 使用 router.push 方法进行路由跳转
-        router.push({
-          // 设置路由名称为 `redirect` 的值，如果 `redirect` 为空，则默认跳转至 'Workplace'
-          name: (redirect as string) || 'Workplace',
-          // 将其他查询参数传递给新的路由
-          query: {
-            ...othersQuery // 展开其他查询参数
-          }
-        });
+        // router.push({
+        //   // 设置路由名称为 `redirect` 的值，如果 `redirect` 为空，则默认跳转至 'Home'
+        //   name: (redirect as string) || 'Home',
+        //   // 将其他查询参数传递给新的路由
+        //   query: {
+        //     ...othersQuery // 展开其他查询参数
+        //   }
+        // });
+        router.push('/workplace');
       } catch (error) {
+        console.log('登录路由跳转出错');
       } finally {
         // 表示加载状态已经结束，通常用于更新用户界面的加载指示器。
         setLoading(false);

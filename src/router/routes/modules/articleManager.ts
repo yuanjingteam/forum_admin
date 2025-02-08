@@ -1,11 +1,10 @@
-import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const LIST: AppRouteRecordRaw = {
   path: '/article',
   name: 'article',
-  component: DEFAULT_LAYOUT,
-  redirect: '/articleManager',
+  component: () => import('@/layout/default-layout.vue'),
+  redirect: '/article',
   meta: {
     locale: '文章管理',
     requiresAuth: true,
@@ -19,14 +18,12 @@ const LIST: AppRouteRecordRaw = {
   // 渲染 role-maragement / index.vue 组件。
   children: [
     {
-      path: '/articleManager', // 使用空路径以匹配父路由
-      name: 'articleManager', // 子路由名称
+      path: '/article', // 使用空路径以匹配父路由
+      name: 'article', // 子路由名称
       component: () => import('@/views/articleManager/index.vue'),
       meta: {
         activeMenu: 'article',
-        locale: '文章管理',
-        requiresAuth: true,
-        roles: ['*']
+        requiresAuth: true
       }
     }
   ]

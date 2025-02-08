@@ -81,6 +81,11 @@ const useUserStore = defineStore('user', {
         });
         // 将用户信息存储到 localStorage
         localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
+        localStorage.setItem(
+          'permissionButton',
+          JSON.stringify(data.code_list)
+        );
+        localStorage.setItem('permissionMenu', JSON.stringify(data.perm));
         Message.success('登录成功');
       } catch (error) {
         Message.info('该用户没有权限');

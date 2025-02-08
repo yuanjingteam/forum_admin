@@ -2,18 +2,21 @@ import { computed } from 'vue';
 import type { RouteRecordRaw, RouteRecordNormalized } from 'vue-router';
 // import { appRoutes } from '@/router/routes';
 import usePermission from '@/hooks/usePermission';
-import { changeAppRoutes } from '@/router/routes';
 import { cloneDeep } from 'lodash';
+import generateDynamicRoutes from '@/router/routes';
 
 // 导出一个名为 useMenuTree 的组合式函数
 export default function useMenuTree() {
   // 获取权限相关的功能
   const permission = usePermission();
+  //获取本地存储的当前用户的菜单权限
+  const permissionMenu = JSON.parse(localStorage.getItem('permissionMenu'));
+  //拿到侧边栏生成树结果
+  const dynamic = generateDynamicRoutes(permissionMenu);
 
   // 计算属性，返回应用路由的映射
   const appRoute = computed(() => {
-    const appRoutes: RouteRecordNormalized[] = changeAppRoutes();
-    return appRoutes.map(el => {
+    return dynamic.map(el => {
       const { name, path, meta, redirect, children } = el;
       return {
         name, // 路由名称

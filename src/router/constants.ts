@@ -19,6 +19,6 @@ export const DEFAULT_ROUTE_NAME = 'Login';
 // 定义默认路由的对象，包括标题、名称和完整路径
 export const DEFAULT_ROUTE = {
   title: '工作台', // 路由标题
-  name: 'Workplace', // 路由名称
+  name: 'Home', // 路由名称
   fullPath: '/workplace' // 路由的完整路径
 };
