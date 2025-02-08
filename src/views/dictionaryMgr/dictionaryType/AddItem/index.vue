@@ -62,7 +62,12 @@ const switchChange = (status: number): void => {
 </script>
 
 <template>
-  <a-modal v-model:visible="addVisible" @ok="submitAdd" @cancel="cancelAdd">
+  <a-drawer
+    v-model:visible="addVisible"
+    :width="450"
+    @ok="submitAdd"
+    @cancel="cancelAdd"
+  >
     <template #title>新增字典</template>
     <div>
       <a-form ref="formRef" :model="addType" :style="{ width: '380px' }">
@@ -123,7 +128,7 @@ const switchChange = (status: number): void => {
         </a-form-item>
       </a-form>
     </div>
-  </a-modal>
+  </a-drawer>
 </template>
 
 <style scoped>

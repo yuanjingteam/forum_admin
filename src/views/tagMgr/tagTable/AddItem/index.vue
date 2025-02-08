@@ -116,7 +116,13 @@ const customRequest = (options: RequestOption) => {
 </script>
 
 <template>
-  <a-modal v-model:visible="addVisible" @ok="submitAdd" @cancel="cancelAdd">
+  <a-drawer
+    v-model:visible="addVisible"
+    :width="450"
+    unmountOnClose
+    @ok="submitAdd"
+    @cancel="cancelAdd"
+  >
     <template #title>新增标签</template>
     <div>
       <a-form ref="formRef" :model="addType" :style="{ width: '380px' }">
@@ -124,7 +130,7 @@ const customRequest = (options: RequestOption) => {
           field="name"
           tooltip="请输入标签名"
           label="标签名"
-          label-col-flex="115px"
+          label-col-flex="90px"
           :rules="[{ required: true, message: '标签名不能为空' }]"
         >
           <a-input v-model="addType.name" placeholder="输入标签名..." />
@@ -133,13 +139,13 @@ const customRequest = (options: RequestOption) => {
           field="description"
           tooltip="输入标签描述"
           label="标签描述"
-          label-col-flex="115px"
+          label-col-flex="90px"
           :rules="[{ required: true, message: '标签描述不能为空' }]"
         >
           <a-textarea
             v-model="addType.description"
             placeholder="输入标签描述..."
-            auto-size
+            :auto-size="{ minRows: 3, maxRows: 6 }"
           />
         </a-form-item>
         <a-form-item
@@ -180,7 +186,7 @@ const customRequest = (options: RequestOption) => {
         </a-form-item>
       </a-form>
     </div>
-  </a-modal>
+  </a-drawer>
 </template>
 
 <style scoped lang="less"></style>

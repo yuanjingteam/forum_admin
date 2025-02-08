@@ -439,7 +439,7 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <a-drawer v-model:visible="detailVisible" :width="420" unmountOnClose>
+    <a-drawer v-model:visible="detailVisible" :width="600" unmountOnClose>
       <template #title>
         <h3>文章详情</h3>
       </template>
