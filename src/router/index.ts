@@ -15,6 +15,23 @@ import { DEFAULT_ROUTE_NAME, LOGIN_ROUTE_NAME } from './constants';
 import createRouteGuard from './guard';
 // import generateDynamicRoutes from '@/router/routes';
 import { useUserStore } from '@/store';
+// 定义静态映射
+const componentMap = {
+  '/userManager/index': () => import('../views/userManager/index.vue'),
+  '/articleManager/index': () => import('../views/articleManager/index.vue'),
+  '/commentMgr/index': () => import('../views/commentMgr/index.vue'),
+  '/tagMgr/index': () => import('../views/tagMgr/index.vue'),
+  '/dictionaryMgr/index': () => import('../views/dictionaryMgr/index.vue'),
+  '/acl/role/index': () => import('../views/acl/role/index.vue'),
+  '/acl/menu/index': () => import('../views/acl/menu/index.vue'),
+  '/acl/apiManage/index': () => import('../views/acl/apiManage/index.vue'),
+  '/result/success/index': () => import('../views/result/success/index.vue'),
+  '/result/error/index': () => import('../views/result/error/index.vue'),
+  '/user/info/index': () => import('../views/user/info/index.vue'),
+  '/exception/403/index': () => import('../views/exception/403/index.vue'),
+  '/exception/404/index': () => import('../views/exception/404/index.vue'),
+  '/exception/500/index': () => import('../views/exception/500/index.vue')
+};
 
 // 配置 NProgress，设置不显示加载指示器
 NProgress.configure({ showSpinner: false });
@@ -111,8 +128,7 @@ router.beforeEach((to, from, next) => {
               children: item.children.map(child => ({
                 path: child.route_path,
                 name: child.route_name,
-                component: () =>
-                  import('../views' + child.component_path + '.vue'),
+                component: componentMap[child.component_path],
                 meta: {
                   locale: child.name,
                   requiresAuth: true
@@ -137,8 +153,7 @@ router.beforeEach((to, from, next) => {
                 {
                   path: item.route_path,
                   name: item.route_name,
-                  component: () =>
-                    import('../views' + item.component_path + '.vue'),
+                  component: componentMap[item.component_path],
                   meta: {
                     activeMenu: item.route_name,
                     requiresAuth: true
