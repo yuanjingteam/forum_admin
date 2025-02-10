@@ -1,6 +1,25 @@
 export default function generateDynamicRoutes(data) {
   const map = new Map();
   const routes = [];
+  // 定义静态映射
+  const componentMap = {
+    '/userManager/index': () => import('../../views/userManager/index.vue'),
+    '/articleManager/index': () =>
+      import('../../views/articleManager/index.vue'),
+    '/commentMgr/index': () => import('../../views/commentMgr/index.vue'),
+    '/tagMgr/index': () => import('../../views/tagMgr/index.vue'),
+    '/dictionaryMgr/index': () => import('../../views/dictionaryMgr/index.vue'),
+    '/acl/role/index': () => import('../../views/acl/role/index.vue'),
+    '/acl/menu/index': () => import('../../views/acl/menu/index.vue'),
+    '/acl/apiManage/index': () => import('../../views/acl/apiManage/index.vue'),
+    '/result/success/index': () =>
+      import('../../views/result/success/index.vue'),
+    '/result/error/index': () => import('../../views/result/error/index.vue'),
+    '/user/info/index': () => import('../../views/user/info/index.vue'),
+    '/exception/403/index': () => import('../../views/exception/403/index.vue'),
+    '/exception/404/index': () => import('../../views/exception/404/index.vue'),
+    '/exception/500/index': () => import('../../views/exception/500/index.vue')
+  };
 
   // 首先将所有节点存入 map
   data.forEach(item => {
@@ -36,8 +55,7 @@ export default function generateDynamicRoutes(data) {
           children: item.children.map(child => ({
             path: child.route_path,
             name: child.route_name,
-            component: () =>
-              import('../../views' + child.component_path + '.vue'),
+            component: componentMap[child.component_path],
             meta: {
               locale: child.name,
               requiresAuth: true
@@ -62,8 +80,7 @@ export default function generateDynamicRoutes(data) {
             {
               path: item.route_path,
               name: item.route_name,
-              component: () =>
-                import('../../views' + item.component_path + '.vue'),
+              component: componentMap[item.component_path],
               meta: {
                 activeMenu: item.route_name,
                 requiresAuth: true
