@@ -1,17 +1,14 @@
-import { DEFAULT_LAYOUT } from './base';
-// import type { AppRouteRecordRaw } from '../types';
-
 const dynamic = [
   {
     path: '/acl',
     name: 'Acl',
-    component: DEFAULT_LAYOUT,
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '权限管理',
       icon: 'icon-desktop',
-      requiresAuth: true,
       order: 6,
-      hideChildrenMenu: false // 隐藏子菜单项
+      requiresAuth: true,
+      hideChildrenMenu: false
     },
     children: [
       {
@@ -20,8 +17,7 @@ const dynamic = [
         component: () => import('@/views/acl/role/index.vue'),
         meta: {
           locale: '角色管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       },
       {
@@ -30,8 +26,7 @@ const dynamic = [
         component: () => import('@/views/acl/menu/index.vue'),
         meta: {
           locale: '菜单管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       },
       {
@@ -40,8 +35,31 @@ const dynamic = [
         component: () => import('@/views/acl/apiManage/index.vue'),
         meta: {
           locale: 'api管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/comment',
+    name: 'comment',
+    redirect: '/comment',
+    component: () => import('@/layout/default-layout.vue'),
+    meta: {
+      locale: '评论管理',
+      requiresAuth: true,
+      icon: 'icon-list',
+      order: 4,
+      hideChildrenMenu: true // 隐藏子菜单项
+    },
+    children: [
+      {
+        path: '/comment', // 使用空路径以匹配父路由
+        name: 'comment', // 子路由名称
+        component: () => import('@/views/commentMgr/index.vue'),
+        meta: {
+          activeMenu: 'comment',
+          requiresAuth: true
         }
       }
     ]
@@ -49,8 +67,8 @@ const dynamic = [
   {
     path: '/article',
     name: 'article',
-    component: DEFAULT_LAYOUT,
-    redirect: '/articleManager',
+    component: () => import('@/layout/default-layout.vue'),
+    redirect: '/article',
     meta: {
       locale: '文章管理',
       requiresAuth: true,
@@ -64,44 +82,12 @@ const dynamic = [
     // 渲染 role-maragement / index.vue 组件。
     children: [
       {
-        path: '/articleManager', // 使用空路径以匹配父路由
-        name: 'articleManager', // 子路由名称
+        path: '/article', // 使用空路径以匹配父路由
+        name: 'article', // 子路由名称
         component: () => import('@/views/articleManager/index.vue'),
         meta: {
           activeMenu: 'article',
-          locale: '文章管理',
-          requiresAuth: true,
-          roles: ['*']
-        }
-      }
-    ]
-  },
-  {
-    path: '/comment',
-    name: 'comment',
-    redirect: '/commentMgr',
-    component: DEFAULT_LAYOUT,
-    meta: {
-      locale: '评论管理',
-      requiresAuth: true,
-      icon: 'icon-list',
-      order: 4,
-      hideChildrenMenu: true // 隐藏子菜单项
-    },
-    // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
-    // 这意味着访问 / role 时，实际上会加载子路由的组件。
-    // 当用户访问 / role 时，Vue Router 会根据路径找到对应的路由配置，
-    // 渲染 role-maragement / index.vue 组件。
-    children: [
-      {
-        path: '/commentMgr', // 使用空路径以匹配父路由
-        name: 'commentMgr', // 子路由名称
-        component: () => import('@/views/commentMgr/index.vue'),
-        meta: {
-          activeMenu: 'comment',
-          locale: '评论管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -109,9 +95,9 @@ const dynamic = [
   {
     path: '/dictionary',
     name: 'dictionary',
-    redirect: '/dictionaryMgr',
+    redirect: '/dictionary',
 
-    component: DEFAULT_LAYOUT,
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '字典管理',
       requiresAuth: true,
@@ -119,20 +105,14 @@ const dynamic = [
       order: 3,
       hideChildrenMenu: true // 隐藏子菜单项
     },
-    // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
-    // 这意味着访问 / role 时，实际上会加载子路由的组件。
-    // 当用户访问 / role 时，Vue Router 会根据路径找到对应的路由配置，
-    // 渲染 role-maragement / index.vue 组件。
     children: [
       {
-        path: '/dictionaryMgr', // 使用空路径以匹配父路由
-        name: 'dictionaryMgr', // 子路由名称
+        path: '/dictionary', // 使用空路径以匹配父路由
+        name: 'dictionary', // 子路由名称
         component: () => import('@/views/dictionaryMgr/index.vue'),
         meta: {
           activeMenu: 'dictionary',
-          locale: '字典管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -140,7 +120,7 @@ const dynamic = [
   {
     path: '/exception',
     name: 'exception',
-    component: DEFAULT_LAYOUT,
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '异常页',
       requiresAuth: true,
@@ -154,8 +134,7 @@ const dynamic = [
         component: () => import('@/views/exception/403/index.vue'),
         meta: {
           locale: '403',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       },
       {
@@ -164,8 +143,7 @@ const dynamic = [
         component: () => import('@/views/exception/404/index.vue'),
         meta: {
           locale: '404',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       },
       {
@@ -174,8 +152,7 @@ const dynamic = [
         component: () => import('@/views/exception/500/index.vue'),
         meta: {
           locale: '500',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -183,7 +160,7 @@ const dynamic = [
   {
     path: '/result',
     name: 'result',
-    component: DEFAULT_LAYOUT,
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '结果页',
       requiresAuth: true,
@@ -197,11 +174,10 @@ const dynamic = [
         component: () => import('@/views/result/success/index.vue'),
         meta: {
           locale: '成功页',
-          requiresAuth: true,
+          requiresAuth: true
           // 角色权限控制：
           // 这个配置表明，只有具有 admin 角色的用户才能访问标记了这个权限的路由或组件。
-          // roles: ['admin'],
-          roles: ['*']
+          // roles: ['admin']
         }
       },
       {
@@ -210,8 +186,7 @@ const dynamic = [
         component: () => import('@/views/result/error/index.vue'),
         meta: {
           locale: '失败页',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -219,9 +194,8 @@ const dynamic = [
   {
     path: '/tag',
     name: 'Tag',
-    redirect: '/tagMgr',
-
-    component: DEFAULT_LAYOUT,
+    redirect: '/tag',
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '标签管理',
       requiresAuth: true,
@@ -229,20 +203,14 @@ const dynamic = [
       order: 5,
       hideChildrenMenu: true // 隐藏子菜单项
     },
-    // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
-    // 这意味着访问 / role 时，实际上会加载子路由的组件。
-    // 当用户访问 / role 时，Vue Router 会根据路径找到对应的路由配置，
-    // 渲染 role-maragement / index.vue 组件。
     children: [
       {
-        path: '/tagMgr', // 使用空路径以匹配父路由
-        name: 'tagMgr', // 子路由名称
+        path: '/tag', // 使用空路径以匹配父路由
+        name: 'Tag', // 子路由名称
         component: () => import('@/views/tagMgr/index.vue'),
         meta: {
           activeMenu: 'Tag',
-          locale: '标签管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -250,7 +218,7 @@ const dynamic = [
   {
     path: '/user',
     name: 'user',
-    component: DEFAULT_LAYOUT,
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '个人中心',
       icon: 'icon-user',
@@ -264,8 +232,7 @@ const dynamic = [
         component: () => import('@/views/user/info/index.vue'),
         meta: {
           locale: '用户信息',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -273,9 +240,8 @@ const dynamic = [
   {
     path: '/userMgr',
     name: 'userMgr',
-    redirect: '/userManager',
-
-    component: DEFAULT_LAYOUT,
+    redirect: '/userMgr',
+    component: () => import('@/layout/default-layout.vue'),
     meta: {
       locale: '用户管理',
       requiresAuth: true,
@@ -283,20 +249,14 @@ const dynamic = [
       order: 1,
       hideChildrenMenu: true // 隐藏子菜单项
     },
-    // 将子路由的 path 设置为空字符串 ''，表示该子路由与父路由的路径完全匹配。
-    // 这意味着访问 / role 时，实际上会加载子路由的组件。
-    // 当用户访问 / role 时，Vue Router 会根据路径找到对应的路由配置，
-    // 渲染 role-maragement / index.vue 组件。
     children: [
       {
-        path: '/userManager', // 使用空路径以匹配父路由
-        name: 'userManager', // 子路由名称
+        path: '/userMgr', // 使用空路径以匹配父路由
+        name: 'userMgr', // 子路由名称
         component: () => import('@/views/userManager/index.vue'),
         meta: {
           activeMenu: 'userMgr',
-          locale: '用户管理',
-          requiresAuth: true,
-          roles: ['*']
+          requiresAuth: true
         }
       }
     ]
@@ -304,7 +264,7 @@ const dynamic = [
   {
     path: '/',
     name: 'Home',
-    component: DEFAULT_LAYOUT,
+    component: () => import('@/layout/default-layout.vue'),
     redirect: '/workplace',
     meta: {
       locale: '工作台',
@@ -316,7 +276,7 @@ const dynamic = [
     children: [
       {
         path: '/workplace',
-        name: 'Workplace',
+        name: 'Home',
         component: () => import('@/views/workplace/index.vue'),
         meta: {
           activeMenu: 'Home'

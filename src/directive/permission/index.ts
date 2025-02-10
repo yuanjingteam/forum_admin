@@ -5,7 +5,7 @@ async function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   // 从绑定对象中获取权限值
   const { value } = binding;
 
-  const btnAclArr = JSON.parse(localStorage.getItem('permissionButtton'));
+  const btnAclArr = JSON.parse(localStorage.getItem('permissionButton')) || [];
 
   // 检查 value 是否为数组
   if (Array.isArray(value)) {

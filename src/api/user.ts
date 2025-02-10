@@ -12,6 +12,8 @@ export interface LoginRes {
     id: number;
     nickname: string;
   };
+  perm: Array<Object>;
+  code_list: Array<String>;
 }
 
 export interface RightVerify {

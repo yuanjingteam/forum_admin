@@ -1,10 +1,9 @@
-import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const DASHBOARD: AppRouteRecordRaw = {
   path: '/',
   name: 'Home',
-  component: DEFAULT_LAYOUT,
+  component: () => import('@/layout/default-layout.vue'),
   redirect: '/workplace',
   meta: {
     locale: '工作台',
@@ -16,7 +15,7 @@ const DASHBOARD: AppRouteRecordRaw = {
   children: [
     {
       path: '/workplace',
-      name: 'Workplace',
+      name: 'Home',
       component: () => import('@/views/workplace/index.vue'),
       meta: {
         activeMenu: 'Home'
@@ -24,5 +23,4 @@ const DASHBOARD: AppRouteRecordRaw = {
     }
   ]
 };
-
 export default DASHBOARD;

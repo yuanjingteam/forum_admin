@@ -6,7 +6,7 @@
 
 <template>
   <div class="container">
-    <Breadcrumb :items="['menu.result', 'menu.resultError']" />
+    <Breadcrumb :items="['结果页', '失败页']" />
     <div class="wrapper">
       <a-result
         class="result"
