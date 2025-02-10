@@ -100,6 +100,7 @@ const useUserStore = defineStore('user', {
     logoutCallBack() {
       this.resetInfo();
       clearToken();
+      localStorage.clear();
       removeRouteListener();
     },
     // 用户登出
