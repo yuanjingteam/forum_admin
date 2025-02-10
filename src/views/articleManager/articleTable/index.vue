@@ -439,14 +439,16 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <a-drawer v-model:visible="detailVisible" :width="420" unmountOnClose>
-      <template #title>
-        <h3>文章详情</h3>
-      </template>
+    <a-drawer
+      v-model:visible="detailVisible"
+      :width="720"
+      unmountOnClose
+      :header="false"
+    >
       <a-layout style="min-height: 450px">
         <a-layout-header>
-          <h3>《{{ detailData.title }}》</h3>
-          <div>作者:{{ detailData.nickname }}</div>
+          <h1>《{{ detailData.title }}》</h1>
+          <h4 class="little_count">—&nbsp;作者:{{ detailData.nickname }}</h4>
           <br />
         </a-layout-header>
         <a-layout-content>
@@ -466,9 +468,11 @@ defineExpose({ reFresh });
               </a-space>
             </a-image-preview-group>
           </div> -->
-          <div>点赞数:{{ detailData.likes_count }}</div>
-          <div>评论数:{{ detailData.comments_count }}</div>
-          <div>收藏数:{{ detailData.collections_count }}</div>
+          <div class="little_count">
+            <div>点赞数:{{ detailData.likes_count }}</div>
+            <div>评论数:{{ detailData.comments_count }}</div>
+            <div>收藏数:{{ detailData.collections_count }}</div>
+          </div>
         </a-layout-content>
         <a-layout-footer></a-layout-footer>
       </a-layout>
@@ -667,5 +671,9 @@ defineExpose({ reFresh });
 
 .detial_img {
   margin-top: 20px;
+}
+
+.little_count {
+  margin: 5px 10px;
 }
 </style>
