@@ -15,7 +15,7 @@
       <Menu />
     </a-layout-sider>
     <a-layout class="layout-content" :style="paddingStyle">
-      <TabBar v-if="appStore.tabBar" />
+      <!-- <TabBar v-if="appStore.tabBar" /> -->
       <a-layout-content>
         <PageLayout />
       </a-layout-content>

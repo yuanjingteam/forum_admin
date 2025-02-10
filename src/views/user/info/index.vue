@@ -12,7 +12,7 @@ export default {
 
 <template>
   <div class="container">
-    <Breadcrumb :items="['用户菜单', '用户信息']" />
+    <Breadcrumb :items="['个人中心', '用户信息']" />
     <a-row style="margin-bottom: 16px">
       <a-col :span="24">
         <UserPanel />

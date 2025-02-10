@@ -9,4 +9,5 @@ export interface UserState {
   role_names?: string[];
   role_id: number[];
   avatar_path?: string;
+  isRoles?: boolean;
 }

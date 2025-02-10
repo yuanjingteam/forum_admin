@@ -21,7 +21,8 @@ const useUserStore = defineStore('user', {
     code: undefined,
     role_names: undefined,
     role_id: undefined,
-    avatar_path: undefined
+    avatar_path: undefined,
+    isRoles: false
   }),
 
   // 返回state的浅拷贝
@@ -32,6 +33,9 @@ const useUserStore = defineStore('user', {
   },
 
   actions: {
+    changeRole() {
+      this.isRoles = true;
+    },
     // 改变用户权限
     switchRoles() {
       return new Promise(resolve => {

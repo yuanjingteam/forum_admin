@@ -1,18 +1,4 @@
-function getViews(path) {
-  // 首先把你需要动态路由的组件地址全部获取
-  let modules = import.meta.glob('./modules/*.ts', { eager: true });
-  // 然后动态路由的时候这样来取
-  return modules[`@/views${path}.vue`];
-}
-// function getLayout(path) {
-//   let modules = import.meta.glob('../../layout/default-layout.vue');
-//   // 然后动态路由的时候这样来取
-//   return modules[`@/views${path}.vue`];
-// }
-
 export default function generateDynamicRoutes(data) {
-  debugger;
-
   const map = new Map();
   const routes = [];
 
@@ -39,7 +25,7 @@ export default function generateDynamicRoutes(data) {
         routes.push({
           path: item.route_path,
           name: item.route_name,
-          component: () => import('@/layout/default-layout.vue'),
+          component: () => import('../../layout/default-layout.vue'),
           meta: {
             locale: item.name,
             icon: item.icon,
@@ -50,7 +36,8 @@ export default function generateDynamicRoutes(data) {
           children: item.children.map(child => ({
             path: child.route_path,
             name: child.route_name,
-            component: getViews(child.component_path),
+            component: () =>
+              import('../../views' + child.component_path + '.vue'),
             meta: {
               locale: child.name,
               requiresAuth: true
@@ -63,7 +50,7 @@ export default function generateDynamicRoutes(data) {
           path: item.route_path,
           name: item.route_name,
           redirect: item.route_path,
-          component: () => import('@/layout/default-layout.vue'),
+          component: () => import('../../layout/default-layout.vue'),
           meta: {
             locale: item.name,
             icon: item.icon,
@@ -75,7 +62,8 @@ export default function generateDynamicRoutes(data) {
             {
               path: item.route_path,
               name: item.route_name,
-              component: () => getViews(item.component_path),
+              component: () =>
+                import('../../views' + item.component_path + '.vue'),
               meta: {
                 activeMenu: item.route_name,
                 requiresAuth: true
@@ -87,29 +75,31 @@ export default function generateDynamicRoutes(data) {
     }
   });
 
-  // routes.push({
-  //   path: '/',
-  //   name: 'Home',
-  //   component: () => import('@/layout/default-layout.vue'),
-  //   redirect: '/workplace',
-  //   meta: {
-  //     locale: '工作台',
-  //     requiresAuth: true,
-  //     hideChildrenMenu: true,
-  //     icon: 'icon-dashboard',
-  //     order: 0
-  //   },
-  //   children: [
-  //     {
-  //       path: '/workplace',
-  //       name: 'Home',
-  //       component: () => getViews('/workplace/index'),
-  //       meta: {
-  //         activeMenu: 'Home'
-  //       }
-  //     }
-  //   ]
-  // });
+  routes.push({
+    path: '/',
+    name: 'Home',
+    component: () => import('../../layout/default-layout.vue'),
+    redirect: '/workplace',
+    meta: {
+      locale: '工作台',
+      requiresAuth: true,
+      hideChildrenMenu: true,
+      icon: 'icon-dashboard',
+      order: 0
+    },
+    children: [
+      {
+        path: '/workplace',
+        name: 'Home',
+        component: () => import('@/views/workplace/index.vue'),
+        meta: {
+          activeMenu: 'Home'
+        }
+      }
+    ]
+  });
+  console.log(routes, 'routes');
+
   return routes;
 }
 
