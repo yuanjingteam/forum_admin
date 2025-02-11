@@ -73,7 +73,9 @@ let router = createRouter({
           }
         }
       ]
-    }
+    },
+    REDIRECT_MAIN,
+    NOT_FOUND_ROUTE
   ],
   scrollBehavior() {
     return { top: 0 }; // 每次路由切换时，滚动到页面顶部
@@ -168,10 +170,6 @@ router.beforeEach((to, from, next) => {
       routes.forEach(route => {
         router.addRoute(route);
       });
-      // 添加 REDIRECT_MAIN 路由
-      router.addRoute(REDIRECT_MAIN);
-      // 添加 NOT_FOUND_ROUTE 路由
-      router.addRoute(NOT_FOUND_ROUTE);
 
       userStore.changeRole();
       //动态处理路由
