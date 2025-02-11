@@ -195,7 +195,7 @@ const handlePageChange = (current: number) => {
 // 控制按钮的启用状态
 const isButtonEnabled = ref<boolean>(false);
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.ARTICLE_URL;
 
 // 批量删除
 const deleteDialog = ref<boolean>(false);
@@ -545,7 +545,7 @@ defineExpose({ reFresh });
                 </a-button>
               </a-popconfirm>
             </span>
-            <span v-if="props.itemType === '2' || record.examine === 1">
+            <span v-if="props.itemType === '2' || record.examine === 0">
               <a-popconfirm
                 content="您确定要审核吗？"
                 @ok="confirmAuditOne(record.id)"
