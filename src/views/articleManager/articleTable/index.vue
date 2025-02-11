@@ -599,11 +599,7 @@ defineExpose({ reFresh });
       <template #operations="{ record }">
         <div class="option">
           <span>
-            <a-button
-              v-permission="['acl:article:view']"
-              type="text"
-              @click="detailSelect(record)"
-            >
+            <a-button type="text" @click="detailSelect(record)">
               查看详情
             </a-button>
           </span>
