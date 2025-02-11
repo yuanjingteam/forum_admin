@@ -195,6 +195,8 @@ const handlePageChange = (current: number) => {
 // 控制按钮的启用状态
 const isButtonEnabled = ref<boolean>(false);
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 // 批量删除
 const deleteDialog = ref<boolean>(false);
 
@@ -507,7 +509,7 @@ defineExpose({ reFresh });
         </template>
         <template #parent="{ record }">
           <a
-            :href="`http://192.168.10.7:9901/articledetail/${record.article_id}`"
+            :href="`${apiBaseUrl}/articledetail/${record.article_id}`"
             target="_blank"
             class="custom-link"
           >
