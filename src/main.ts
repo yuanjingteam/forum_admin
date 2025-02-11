@@ -36,85 +36,88 @@ const componentMap = {
 };
 
 //获取本地存储的当前用户的菜单权限
-const permissionMenu = JSON.parse(localStorage.getItem('permissionMenu'));
+const permissionMenuLocal = localStorage.getItem('permissionMenu');
 
 const map = new Map();
 const routes = [];
 
-// 首先将所有节点存入 map
-permissionMenu.forEach(item => {
-  map.set(item.id, { ...item, children: [] });
-});
+if (permissionMenuLocal) {
+  const permissionMenu = JSON.parse(permissionMenuLocal);
+  // 首先将所有节点存入 map
+  permissionMenu.forEach(item => {
+    map.set(item.id, { ...item, children: [] });
+  });
 
-// 构建树结构
-permissionMenu.forEach(item => {
-  if (item.pid !== 0) {
-    const parent = map.get(item.pid);
-    if (parent) {
-      parent.children.push(map.get(item.id));
+  // 构建树结构
+  permissionMenu.forEach(item => {
+    if (item.pid !== 0) {
+      const parent = map.get(item.pid);
+      if (parent) {
+        parent.children.push(map.get(item.id));
+      }
     }
-  }
-});
+  });
 
-// 生成路由配置
-map.forEach(item => {
-  if (item.pid === 0) {
-    if (item.children.length > 0) {
-      // 有子菜单的情况
-      routes.push({
-        path: item.route_path,
-        name: item.route_name,
-        component: () => import('@/layout/default-layout.vue'),
-        meta: {
-          locale: item.name,
-          icon: item.icon,
-          order: item.sort,
-          requiresAuth: true,
-          hideChildrenMenu: false
-        },
-        children: item.children.map(child => ({
-          path: child.route_path,
-          name: child.route_name,
-          component: componentMap[child.component_path],
+  // 生成路由配置
+  map.forEach(item => {
+    if (item.pid === 0) {
+      if (item.children.length > 0) {
+        // 有子菜单的情况
+        routes.push({
+          path: item.route_path,
+          name: item.route_name,
+          component: () => import('@/layout/default-layout.vue'),
           meta: {
-            locale: child.name,
-            requiresAuth: true
-          }
-        }))
-      });
-    } else {
-      // 无子菜单的情况
-      routes.push({
-        path: item.route_path,
-        name: item.route_name,
-        redirect: item.route_path,
-        component: () => import('@/layout/default-layout.vue'),
-        meta: {
-          locale: item.name,
-          icon: item.icon,
-          order: item.sort,
-          requiresAuth: true,
-          hideChildrenMenu: true
-        },
-        children: [
-          {
-            path: item.route_path,
-            name: item.route_name,
-            component: componentMap[item.component_path],
+            locale: item.name,
+            icon: item.icon,
+            order: item.sort,
+            requiresAuth: true,
+            hideChildrenMenu: false
+          },
+          children: item.children.map(child => ({
+            path: child.route_path,
+            name: child.route_name,
+            component: componentMap[child.component_path],
             meta: {
-              activeMenu: item.route_name,
+              locale: child.name,
               requiresAuth: true
             }
-          }
-        ]
-      });
+          }))
+        });
+      } else {
+        // 无子菜单的情况
+        routes.push({
+          path: item.route_path,
+          name: item.route_name,
+          redirect: item.route_path,
+          component: () => import('@/layout/default-layout.vue'),
+          meta: {
+            locale: item.name,
+            icon: item.icon,
+            order: item.sort,
+            requiresAuth: true,
+            hideChildrenMenu: true
+          },
+          children: [
+            {
+              path: item.route_path,
+              name: item.route_name,
+              component: componentMap[item.component_path],
+              meta: {
+                activeMenu: item.route_name,
+                requiresAuth: true
+              }
+            }
+          ]
+        });
+      }
     }
-  }
-});
-//拿到侧边栏生成树结果
-routes.forEach(route => {
-  router.addRoute(route);
-});
+  });
+  //拿到侧边栏生成树结果
+  routes.forEach(route => {
+    router.addRoute(route);
+  });
+}
 
 app.use(store);
 app.use(router);
