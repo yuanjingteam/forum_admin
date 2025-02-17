@@ -15,7 +15,6 @@ export default function generateDynamicRoutes(data) {
     '/result/success/index': () =>
       import('../../views/result/success/index.vue'),
     '/result/error/index': () => import('../../views/result/error/index.vue'),
-    '/user/info/index': () => import('../../views/user/info/index.vue'),
     '/exception/403/index': () => import('../../views/exception/403/index.vue'),
     '/exception/404/index': () => import('../../views/exception/404/index.vue'),
     '/exception/500/index': () => import('../../views/exception/500/index.vue')

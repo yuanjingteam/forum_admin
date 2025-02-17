@@ -220,6 +220,7 @@ const handlePageSizeChange = size => {
   console.log(`每页条目数已更改为: ${size}`);
   limit.value = size; // 更新每页条目数
   curPage.value = 1; // 重置当前页为1
+  getList();
 };
 
 // 单选可勾选多个
@@ -315,8 +316,6 @@ const addDicItem = () => {
 const batchDeleteDic = async () => {
   try {
     setLoading(true);
-    console.log(props.dict_type, 3222222222);
-
     await delDicItem({
       dict_type_code: props.dict_type,
       id_list: selectedKeys.value

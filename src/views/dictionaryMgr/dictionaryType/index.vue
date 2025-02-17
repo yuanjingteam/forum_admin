@@ -13,7 +13,7 @@ const dic_list = ref<DictType>([]);
 // 定义 `check` 事件,切换列表
 const emit = defineEmits<{
   (e: 'check', payload: string);
-  (e: 'update'): void; // 可以根据需要指定 payload 的类型
+  (e: 'update', payload?: string); // 可以根据需要指定 payload 的类型
   (e: 'init', payload: string); // 初始化
 }>();
 
@@ -109,9 +109,9 @@ const switchCheck = (itemCode: string) => {
 };
 
 // 更新表格数据
-const updateDicType = () => {
-  featchDicList();
-  emit('update');
+const updateDicType = async () => {
+  await featchDicList();
+  emit('update', dic_list.value[0].code);
 };
 
 onMounted(async () => {
@@ -181,7 +181,7 @@ onMounted(async () => {
 }
 
 .title {
-  min-width: 95px;
+  min-width: 120px;
 }
 
 .layout {

@@ -1,7 +1,7 @@
 // 定义一个白名单数组，包含不需要身份验证的路由
 export const WHITE_LIST = [
   { name: 'notFound', children: [] }, // 404 未找到路由
-  { name: 'login', children: [] } // 登录路由
+  { name: 'loginlogin', children: [] } // 登录路由
 ];
 
 // 定义一个常量，表示未找到路由的对象

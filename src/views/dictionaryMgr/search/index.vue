@@ -70,7 +70,7 @@ const onChange = (dateString, date) => {
               <a-form-item field="status" label="启用状态:">
                 <a-select
                   v-model="search.status"
-                  :style="{ width: '320px' }"
+                  :style="{ width: '280px' }"
                   :options="selectOptions"
                   placeholder="Please select ..."
                 />
@@ -109,4 +109,8 @@ const onChange = (dateString, date) => {
   </a-card>
 </template>
 
-<style></style>
+<style scoped>
+.general-card {
+  padding-right: 20px;
+}
+</style>
