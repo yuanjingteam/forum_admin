@@ -30,9 +30,6 @@ const searchItem = ref(searchItemModel());
 // 当前列
 const dict_type = ref('');
 
-// 监听 dict_type 的变化
-watch(dict_type, (newValue, oldValue) => {});
-
 // 初始化
 const notifyInit = itemCode => {
   dict_type.value = itemCode;
@@ -49,6 +46,11 @@ const dicTable = ref();
 // 通知子组件刷新
 const notifyRefresh = () => {
   dicTable.value.reFresh(); // 调用子组件的 refresh 方法
+};
+
+// 通知子组件更新
+const notifyUpdate = itemCode => {
+  dict_type.value = itemCode;
 };
 
 // 在当前条件下搜索
@@ -71,31 +73,39 @@ const handleClear = () => {
 
 <template>
   <a-layout style="min-height: 400px">
-    <a-layout-sider class="list">
-      <dictionary-type
-        v-model:search="searchList"
-        @check="changeType"
-        @update="notifyRefresh"
-        @init="notifyInit"
-      ></dictionary-type>
-    </a-layout-sider>
-    <a-layout-content class="item">
+    <a-layout-header class="header">
       <Breadcrumb :items="['字典管理', '字典项管理']" />
-      <search @search="handleSearch" @clearAll="handleClear"></search>
-      <a-card class="general-card">
-        <dictionary-item
-          ref="dicTable"
-          v-model:search="searchItem"
-          :dict_type="dict_type"
-        ></dictionary-item>
-      </a-card>
-    </a-layout-content>
+    </a-layout-header>
+    <a-layout>
+      <a-layout-sider class="list">
+        <dictionary-type
+          v-model:search="searchList"
+          @check="changeType"
+          @update="notifyUpdate"
+          @init="notifyInit"
+        ></dictionary-type>
+      </a-layout-sider>
+      <a-layout-content class="item">
+        <search @search="handleSearch" @clearAll="handleClear"></search>
+        <a-card class="general-card">
+          <dictionary-item
+            ref="dicTable"
+            v-model:search="searchItem"
+            :dict_type="dict_type"
+          ></dictionary-item>
+        </a-card>
+      </a-layout-content>
+    </a-layout>
   </a-layout>
 </template>
 
 <style scoped>
+.header {
+  margin: 10px 20px -30px;
+}
+
 .list {
-  margin: 10px;
+  margin: 40px 10px 10px;
 }
 
 .item {
