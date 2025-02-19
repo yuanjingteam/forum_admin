@@ -12,10 +12,12 @@ export default function useMenuTree() {
   //获取本地存储的当前用户的菜单权限
   const permissionMenu = JSON.parse(localStorage.getItem('permissionMenu'));
   //拿到侧边栏生成树结果
+  // 获取到路由结果
   const dynamic = generateDynamicRoutes(permissionMenu);
 
   // 计算属性，返回应用路由的映射
   const appRoute = computed(() => {
+    // 返回每个路由的属性组成的对象
     return dynamic.map(el => {
       const { name, path, meta, redirect, children } = el;
       return {
