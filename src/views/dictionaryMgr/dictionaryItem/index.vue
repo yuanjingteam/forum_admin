@@ -56,7 +56,7 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '描述',
     dataIndex: 'description',
-    width: 280,
+    width: 200,
     slotName: 'description',
     align: 'center'
   },
