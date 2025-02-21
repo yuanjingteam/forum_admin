@@ -18,7 +18,8 @@ export default function generateDynamicRoutes(data) {
     '/result/error/index': () => import('../../views/result/error/index.vue'),
     '/exception/403/index': () => import('../../views/exception/403/index.vue'),
     '/exception/404/index': () => import('../../views/exception/404/index.vue'),
-    '/exception/500/index': () => import('../../views/exception/500/index.vue')
+    '/exception/500/index': () => import('../../views/exception/500/index.vue'),
+    '/managerMgr/index': () => import('../../views/managerMgr/index.vue')
   };
 
   // 首先将所有节点存入 map
