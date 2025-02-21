@@ -18,6 +18,7 @@ import { useUserStore } from '@/store';
 // 定义静态映射
 const componentMap = {
   '/userManager/index': () => import('../views/userManager/index.vue'),
+  '/managerManager/index': () => import('../views/managerMgr/index.vue'),
   '/articleManager/index': () => import('../views/articleManager/index.vue'),
   '/commentMgr/index': () => import('../views/commentMgr/index.vue'),
   '/tagMgr/index': () => import('../views/tagMgr/index.vue'),
