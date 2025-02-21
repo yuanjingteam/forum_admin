@@ -29,7 +29,8 @@ const componentMap = {
   '/result/error/index': () => import('../views/result/error/index.vue'),
   '/exception/403/index': () => import('../views/exception/403/index.vue'),
   '/exception/404/index': () => import('../views/exception/404/index.vue'),
-  '/exception/500/index': () => import('../views/exception/500/index.vue')
+  '/exception/500/index': () => import('../views/exception/500/index.vue'),
+  '/managerMgr/index': () => import('../views/managerMgr/index.vue')
 };
 
 // 配置 NProgress，设置不显示加载指示器
