@@ -262,6 +262,30 @@ const dynamic = [
     ]
   },
   {
+    path: '/manager',
+    name: 'manager',
+    redirect: '/manager',
+    component: () => import('@/layout/default-layout.vue'),
+    meta: {
+      locale: '管理员管理',
+      requiresAuth: true,
+      icon: 'icon-skin',
+      order: 6,
+      hideChildrenMenu: true // 隐藏子菜单项
+    },
+    children: [
+      {
+        path: '/manager', // 使用空路径以匹配父路由
+        name: 'manager', // 子路由名称
+        component: () => import('@/views/managerMgr/index.vue'),
+        meta: {
+          activeMenu: 'manager',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+  {
     path: '/',
     name: 'Home',
     component: () => import('@/layout/default-layout.vue'),
