@@ -20,7 +20,6 @@ const app = createApp(App);
 
 const componentMap = {
   '/userManager/index': () => import('./views/userManager/index.vue'),
-  '/managerMgr/index': () => import('./views/managerMgr/index.vue'),
   '/articleManager/index': () => import('./views/articleManager/index.vue'),
   '/commentMgr/index': () => import('./views/commentMgr/index.vue'),
   '/tagMgr/index': () => import('./views/tagMgr/index.vue'),
