@@ -1,7 +1,7 @@
 // 导入 axios 库用于进行 HTTP 请求
 import axios from 'axios';
 // 导入 AxiosResponse 和 InternalAxiosRequestConfig 类型
-import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosResponse } from 'axios';
 // 导入 Arco Design 的 Message 和 Modal 组件
 import { Message, Modal } from '@arco-design/web-vue';
 // 导入用户状态管理和获取 token 的工具函数
@@ -15,13 +15,50 @@ const request = axios.create({
   withCredentials: false // 跨域请求时不使用凭证
 });
 
+// 函数用于获取动态请求头和 Cookie
+async function fetchDynamicHeaders(): Promise<{
+  headers: any;
+}> {
+  try {
+    // 调用另一个接口获取动态请求头和 Cookie
+    const response = await axios.get('/api/get_csrf_token');
+
+    return response;
+  } catch (error) {
+    // 如果获取动态请求头失败，抛出错误
+    throw new Error('Failed to fetch dynamic headers');
+  }
+}
+
 // 添加请求拦截器
 request.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  async (config: any) => {
     // 获取用户的 token
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    try {
+      // 获取动态请求头和 Cookie
+      const { headers } = await fetchDynamicHeaders();
+
+      // 合并动态请求头
+      config.headers = {
+        ...config.headers,
+        'X-Csrf-Token': headers['x-csrf-token']
+      };
+
+      // // 如果需要使用 Cookie，设置 withCredentials 为 true
+      // if (cookies) {
+      //   config.withCredentials = true; // 启用 Cookie
+      //   // 如果需要手动设置 Cookie，可以在 headers 中添加 Cookie 字段
+      //   config.headers.Cookie = cookies;
+      // }
+    } catch (error) {
+      // 如果获取动态请求头失败，可以抛出错误或者记录日志
+      console.error('获取动态请求头失败:', error);
+      // 你可以选择在此处中断请求或者继续发送请求
     }
     return config; // 返回修改后的请求配置
   },
