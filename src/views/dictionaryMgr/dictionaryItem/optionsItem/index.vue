@@ -110,7 +110,9 @@ watch(
     @ok="editOk"
     @cancel="editCancel"
   >
-    <template #title>修改标签信息:</template>
+    <template #title>
+      {{ props.type == 'edit' ? '修改信息:' : '新增' }}
+    </template>
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <div class="drawer">
         <a-form :model="edit" :style="{ width: '380px' }">
