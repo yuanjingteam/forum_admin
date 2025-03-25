@@ -21,7 +21,7 @@ async function fetchDynamicHeaders(): Promise<{
 }> {
   try {
     // 调用另一个接口获取动态请求头和 Cookie
-    const response = await axios.get('/api/get_csrf_token');
+    const response = await axios.get('/get_csrf_token');
 
     return response;
   } catch (error) {
