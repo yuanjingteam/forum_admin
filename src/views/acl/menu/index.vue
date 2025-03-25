@@ -743,6 +743,18 @@ const handleCancelDrawer = () => {
             />
           </a-form-item>
           <a-form-item
+            field="icon"
+            label="图标名"
+            required
+            :rules="[{ required: true, message: '请选择图标名' }]"
+          >
+            <a-select
+              v-model="addMenuForm.icon"
+              :options="filterIconlistOptions"
+              placeholder="请选择图标名"
+            />
+          </a-form-item>
+          <a-form-item
             field="component_path"
             label="组件路径"
             :rules="[{ required: true, message: '请输入组件路径' }]"

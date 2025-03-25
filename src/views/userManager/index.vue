@@ -594,7 +594,7 @@ const importUser = () => {
                     />
                   </a-form-item>
                 </a-col>
-                <a-col :span="8">
+                <!-- <a-col :span="8">
                   <a-form-item field="role_ids" label="用户身份">
                     <a-select
                       v-model="userForm.role_ids"
@@ -607,7 +607,7 @@ const importUser = () => {
                       :options="userRoleOptions"
                     ></a-select>
                   </a-form-item>
-                </a-col>
+                </a-col> -->
 
                 <a-col :span="8">
                   <a-form-item field="last_login_time" label="上次登录时间">
