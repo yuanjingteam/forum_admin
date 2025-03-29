@@ -15,11 +15,11 @@ const request = axios.create({
   withCredentials: false // 跨域请求时不使用凭证
 });
 
-// const csrfRequest = axios.create({
-//   baseURL: import.meta.env.VITE_API_BASE_URL,
-//   timeout: 5000, // 设置较短的超时时间
-//   withCredentials: false
-// });
+const csrfRequest = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 5000, // 设置较短的超时时间
+  withCredentials: false
+});
 
 // 函数用于获取动态请求头和 Cookie
 async function fetchDynamicHeaders(): Promise<{
@@ -28,7 +28,7 @@ async function fetchDynamicHeaders(): Promise<{
   try {
     debugger;
     // 调用另一个接口获取动态请求头和 Cookie
-    const response = await axios.get('/get_csrf_token');
+    const response = await csrfRequest.get('/get_csrf_token');
     console.log(response, 'response');
 
     // 确保返回的 headers 中包含 x-csrf-token
