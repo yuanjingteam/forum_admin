@@ -26,6 +26,7 @@ async function fetchDynamicHeaders(): Promise<{
   headers: any;
 }> {
   try {
+    debugger;
     // 调用另一个接口获取动态请求头和 Cookie
     const response = await csrfRequest.get('/get_csrf_token');
     console.log(response, 'response');
@@ -47,6 +48,7 @@ request.interceptors.request.use(
   async (config: any) => {
     // 获取用户的 token
     const token = getToken();
+    debugger;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       config.withCredentials = true; // 启用 Cookie
