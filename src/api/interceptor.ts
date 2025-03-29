@@ -8,17 +8,17 @@ import { Message, Modal } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 
-const csrfRequest = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 5000, // 设置较短的超时时间
-  withCredentials: false
-});
-
 // 创建 axios 实例，设置基础配置
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL, // API 基础 URL
   timeout: 10000, // 请求超时的毫秒数
   withCredentials: false // 跨域请求时不使用凭证
+});
+
+const csrfRequest = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 5000, // 设置较短的超时时间
+  withCredentials: false
 });
 
 // 函数用于获取动态请求头和 Cookie
@@ -29,6 +29,11 @@ async function fetchDynamicHeaders(): Promise<{
     // 调用另一个接口获取动态请求头和 Cookie
     const response = await csrfRequest.get('/get_csrf_token');
     console.log(response, 'response');
+
+    // 确保返回的 headers 中包含 x-csrf-token
+    if (!response.headers['x-csrf-token']) {
+      throw new Error('Missing x-csrf-token in response headers');
+    }
 
     return response;
   } catch (error) {
@@ -44,12 +49,13 @@ request.interceptors.request.use(
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      config.withCredentials = true; // 启用 Cookie
     }
 
     try {
       // 获取动态请求头和 Cookie
       const { headers } = await fetchDynamicHeaders();
-      console.log(headers);
+      console.log(headers, 'headers');
 
       // 合并动态请求头
       config.headers = {
