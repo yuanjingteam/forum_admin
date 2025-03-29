@@ -68,12 +68,12 @@ export default defineComponent({
           return;
         }
         if (item.children?.length) {
-          item.children.forEach(el => {
+          item.children?.forEach(el => {
             backtrack(el, [...keys, el.name as string]);
           });
         }
       };
-      menuTree.value.forEach((el: RouteRecordRaw) => {
+      menuTree.value?.forEach((el: RouteRecordRaw) => {
         if (isFind) return; // (性能优化)Performance optimization
         backtrack(el, [el.name as string]);
       });
@@ -102,7 +102,7 @@ export default defineComponent({
     const renderSubMenu = () => {
       function travel(_route: RouteRecordRaw[], nodes = []) {
         if (_route) {
-          _route.forEach(element => {
+          _route?.forEach(element => {
             // (这是一个demo,可以根据需要修改节点)This is demo, modify nodes as needed
             const icon = element?.meta?.icon
               ? () => h(compile(`<${element?.meta?.icon}/>`))
