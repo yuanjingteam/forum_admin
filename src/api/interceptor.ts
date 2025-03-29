@@ -8,6 +8,12 @@ import { Message, Modal } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 
+const csrfRequest = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 5000, // 设置较短的超时时间
+  withCredentials: false
+});
+
 // 创建 axios 实例，设置基础配置
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL, // API 基础 URL
@@ -21,7 +27,7 @@ async function fetchDynamicHeaders(): Promise<{
 }> {
   try {
     // 调用另一个接口获取动态请求头和 Cookie
-    const response = await axios.get('http://192.168.10.7:8081/get_csrf_token');
+    const response = await csrfRequest.get('/get_csrf_token');
 
     return response;
   } catch (error) {
@@ -48,13 +54,6 @@ request.interceptors.request.use(
         ...config.headers,
         'X-Csrf-Token': headers['x-csrf-token']
       };
-
-      // // 如果需要使用 Cookie，设置 withCredentials 为 true
-      // if (cookies) {
-      //   config.withCredentials = true; // 启用 Cookie
-      //   // 如果需要手动设置 Cookie，可以在 headers 中添加 Cookie 字段
-      //   config.headers.Cookie = cookies;
-      // }
     } catch (error) {
       // 如果获取动态请求头失败，可以抛出错误或者记录日志
       console.error('获取动态请求头失败:', error);
