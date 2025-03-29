@@ -12,7 +12,7 @@ export const usePermissionNavStore = defineStore('permissionNav', () => {
     const result = [];
     const allowedNames = JSON.parse(localStorage.getItem('permissionMenu'));
     // 遍历模块列表
-    permissionNav.forEach(route => {
+    permissionNav?.forEach(route => {
       // 检查当前路由或其子路由是否包含在允许的名称数组中
       if (allowedNames?.includes(route.name)) {
         // 如果当前路由名称允许，直接添加
@@ -29,7 +29,7 @@ export const usePermissionNavStore = defineStore('permissionNav', () => {
       }
     });
     // 添加动态路由
-    result.forEach(route => {
+    result?.forEach(route => {
       router.addRoute(route); // 为每个路由调用 addRoute
     });
   }

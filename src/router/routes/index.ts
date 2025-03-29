@@ -22,12 +22,12 @@ export default function generateDynamicRoutes(data) {
   };
 
   // 首先将所有节点存入 map
-  data.forEach(item => {
+  data?.forEach(item => {
     map.set(item.id, { ...item, children: [] });
   });
 
   // 构建树结构
-  data.forEach(item => {
+  data?.forEach(item => {
     if (item.pid !== 0) {
       const parent = map.get(item.pid);
       if (parent) {
@@ -37,7 +37,7 @@ export default function generateDynamicRoutes(data) {
   });
 
   // 生成路由配置
-  map.forEach(item => {
+  map?.forEach(item => {
     if (item.pid === 0) {
       if (item.children.length > 0) {
         // 有子菜单的情况

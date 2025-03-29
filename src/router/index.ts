@@ -97,12 +97,12 @@ router.beforeEach((to, from, next) => {
       const routes = [];
 
       // 首先将所有节点存入 map
-      permissionMenu.forEach(item => {
+      permissionMenu?.forEach(item => {
         map.set(item.id, { ...item, children: [] });
       });
 
       // 构建树结构
-      permissionMenu.forEach(item => {
+      permissionMenu?.forEach(item => {
         if (item.pid !== 0) {
           const parent = map.get(item.pid);
           if (parent) {
@@ -112,7 +112,7 @@ router.beforeEach((to, from, next) => {
       });
 
       // 生成路由配置
-      map.forEach(item => {
+      map?.forEach(item => {
         if (item.pid === 0) {
           if (item.children.length > 0) {
             // 有子菜单的情况
@@ -167,7 +167,7 @@ router.beforeEach((to, from, next) => {
         }
       });
       //拿到侧边栏生成树结果
-      routes.forEach(route => {
+      routes?.forEach(route => {
         router.addRoute(route);
       });
 
