@@ -52,6 +52,8 @@ const rules = {
 };
 
 const handleSubmit = () => {
+  console.log('登录');
+
   if (loading.value) return;
 
   // 账号登录
