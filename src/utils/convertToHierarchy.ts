@@ -4,12 +4,12 @@ export function convertToHierarchy(data) {
   const result = [];
 
   // 初始化映射表，并标记根节点
-  data.forEach(item => {
+  data?.forEach(item => {
     map[item.id] = { ...item, children: [] }; // 为每个节点添加 children 属性
   });
 
   // 遍历数据，构建父子关系
-  data.forEach(item => {
+  data?.forEach(item => {
     if (item.pid === 0) {
       // 如果 pid 为 0，则为根节点
       result.push(map[item.id]);
@@ -27,7 +27,7 @@ export function convertToHierarchy(data) {
 
   // 清理空的 children 属性
   function cleanEmptyChildren(nodes) {
-    nodes.forEach(node => {
+    nodes?.forEach(node => {
       if (node.children.length === 0) {
         delete node.children; // 如果 children 为空数组，则移除该属性
       } else {
@@ -41,7 +41,7 @@ export function convertToHierarchy(data) {
   // 可选：对结果进行排序
   function sortTree(nodes) {
     nodes.sort((a, b) => a.sort - b.sort);
-    nodes.forEach(node => {
+    nodes?.forEach(node => {
       if (node.children && node.children.length > 0) {
         sortTree(node.children);
       }
