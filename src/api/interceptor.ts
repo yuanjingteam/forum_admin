@@ -28,6 +28,7 @@ async function fetchDynamicHeaders(): Promise<{
   try {
     // 调用另一个接口获取动态请求头和 Cookie
     const response = await csrfRequest.get('/get_csrf_token');
+    console.log(response, 'response');
 
     return response;
   } catch (error) {
@@ -48,6 +49,7 @@ request.interceptors.request.use(
     try {
       // 获取动态请求头和 Cookie
       const { headers } = await fetchDynamicHeaders();
+      console.log(headers);
 
       // 合并动态请求头
       config.headers = {
