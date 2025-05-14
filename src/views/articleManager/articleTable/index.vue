@@ -11,6 +11,7 @@ import {
   banArticleList,
   unsealArticleList
 } from '@/api/article';
+import ArticleVditor from '@/components/Vditor/index.vue';
 import { watch, ref, Ref, onMounted, reactive, computed, nextTick } from 'vue';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 
@@ -24,7 +25,11 @@ const props = defineProps({
   },
   itemType: {
     type: String,
-    default: '1'
+    default: '0'
+  },
+  article_condition: {
+    type: Number,
+    default: 1
   }
 });
 
@@ -43,24 +48,24 @@ const selectedKeys = ref<number[]>([]); // 确保这里初始化为一个空数�
 // 文章数据模型
 const generateFormModel = (): ArticleTableData => {
   return {
-    id: null,
-    title: '',
-    nickname: '',
-    article_condition: null,
-    views_count: null,
-    likes_count: null,
-    collections_count: null,
-    comments_count: null,
-    heat: null,
-    published_at: '',
-    updated_at: '',
-    tags: [
-      {
-        ID: null,
-        name: ''
-      }
-    ]
-  };
+    // id: null,
+    // title: '',
+    // nickname: '',
+    // article_condition: null,
+    // views_count: null,
+    // likes_count: null,
+    // collections_count: null,
+    // comments_count: null,
+    // heat: null,
+    // published_at: '',
+    // updated_at: '',
+    // tags: [
+    //   {
+    //     ID: null,
+    //     name: ''
+    //   }
+    // ]
+  } as ArticleTableData;
 };
 // -------------表格配置--------------------
 // 列配置
@@ -71,7 +76,7 @@ const columns = computed<TableColumnData[]>(() => [
     slotName: 'index'
   },
   {
-    title: '文章标题',
+    title: '标题',
     dataIndex: 'title'
   },
   {
@@ -84,20 +89,24 @@ const columns = computed<TableColumnData[]>(() => [
     slotName: 'tags'
   },
   {
-    title: '文章浏览量',
-    dataIndex: 'views_count'
+    title: '浏览量',
+    dataIndex: 'views_count',
+    width: 80
   },
   {
-    title: '文章点赞量',
-    dataIndex: 'likes_count'
+    title: '点赞量',
+    dataIndex: 'likes_count',
+    width: 80
   },
   {
-    title: '文章收藏量',
-    dataIndex: 'collections_count'
+    title: '收藏量',
+    dataIndex: 'collections_count',
+    width: 80
   },
   {
-    title: '文章评论数量',
-    dataIndex: 'comments_count'
+    title: '评论数量',
+    dataIndex: 'comments_count',
+    width: 90
   },
   {
     title: '发布时间',
@@ -108,7 +117,7 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'updated_at'
   },
   {
-    title: '文章热度',
+    title: '热度',
     dataIndex: 'heat'
   },
   {
@@ -120,7 +129,8 @@ const columns = computed<TableColumnData[]>(() => [
     title: '操作',
     dataIndex: 'operations',
     slotName: 'operations',
-    align: 'center'
+    align: 'center',
+    width: 60
   }
 ]);
 
@@ -169,7 +179,7 @@ const pagination = reactive({
 
 // -----------------------表格渲染--------------------------------
 // 表格数据
-const formModel: Ref<ArticleTableData[]> = ref([generateFormModel()]);
+const formModel: Ref<ArticleTableData[]> = ref();
 
 // 表格项数据
 const detailData = ref(generateFormModel());
@@ -186,11 +196,12 @@ const detailVisible = ref(false);
 // 获取搜索数据
 const fetchData = async item => {
   setLoading(true);
+
   try {
     const { data } = await queryArticleList(item);
-    formModel.value = data.data.article_list;
-    pagination.total = data.data.total;
-    total.value = data.data.total;
+    formModel.value = data.article_list;
+    pagination.total = data.total;
+    total.value = data.total;
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
@@ -396,7 +407,12 @@ const batchDelArticle = async () => {
 // 初始化
 onMounted(() => {
   // 初始化表格
-  fetchData(props.searchModel.value);
+  fetchData({
+    page: pagination.current,
+    limit: pagination.pageSize,
+    article_condition: props.article_condition,
+    ...props.searchModel
+  });
 });
 
 // 监听是否可以批量删除
@@ -411,10 +427,11 @@ watch(selectedKeys, newCount => {
 // 通用刷新方法
 const reFresh = () => {
   fetchData({
-    ...props.searchModel,
-    itemType: props.itemType,
-    ...pagination
-  } as unknown);
+    page: pagination.current,
+    limit: pagination.pageSize,
+    article_condition: props.article_condition,
+    ...props.searchModel
+  });
 };
 // 暴露方法给父组件
 defineExpose({ reFresh });
@@ -422,18 +439,22 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <a-drawer v-model:visible="detailVisible" :width="420" unmountOnClose>
-      <template #title>
-        <h3>文章详情</h3>
-      </template>
+    <a-drawer
+      v-model:visible="detailVisible"
+      :width="720"
+      unmountOnClose
+      :header="false"
+    >
       <a-layout style="min-height: 450px">
         <a-layout-header>
-          <h3>《{{ detailData.title }}》</h3>
-          <div>作者:{{ detailData.nickname }}</div>
+          <h1>《{{ detailData.title }}》</h1>
+          <h4 class="little_count">—&nbsp;作者:{{ detailData.nickname }}</h4>
           <br />
         </a-layout-header>
         <a-layout-content>
-          <div>{{ detailData.article_content.text }}</div>
+          <div ref="editorRef"></div>
+          <article-vditor :id="detailData.id"></article-vditor>
+          <!-- <div>{{ detailData.article_content.text }}</div>
           <div class="detial_img">
             <a-image-preview-group infinite>
               <a-space>
@@ -446,10 +467,12 @@ defineExpose({ reFresh });
                 ></a-image>
               </a-space>
             </a-image-preview-group>
+          </div> -->
+          <div class="little_count">
+            <div>点赞数:{{ detailData.likes_count }}</div>
+            <div>评论数:{{ detailData.comments_count }}</div>
+            <div>收藏数:{{ detailData.collections_count }}</div>
           </div>
-          <div>点赞数:{{ detailData.likes_count }}</div>
-          <div>评论数:{{ detailData.comments_count }}</div>
-          <div>收藏数:{{ detailData.collections_count }}</div>
         </a-layout-content>
         <a-layout-footer></a-layout-footer>
       </a-layout>
@@ -585,7 +608,7 @@ defineExpose({ reFresh });
               content="您确定要删除吗？"
               @ok="confirmDeleteOne(record.id)"
             >
-              <a-button type="text">
+              <a-button v-permission="['acl:articel:del']" type="text">
                 <template #icon>
                   <icon-edit />
                 </template>
@@ -593,12 +616,12 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition == '1'">
+          <span v-if="record.article_condition == 0">
             <a-popconfirm
               content="您确定封禁当前文章吗？"
               @ok="confirmBanOne(record.id)"
             >
-              <a-button type="text">
+              <a-button v-permission="['acl:article:ban']" type="text">
                 <template #icon>
                   <icon-edit />
                 </template>
@@ -606,12 +629,12 @@ defineExpose({ reFresh });
               </a-button>
             </a-popconfirm>
           </span>
-          <span v-if="record.article_condition == '2'">
+          <span v-if="record.article_condition == 2">
             <a-popconfirm
               content="您确定要解封当前文章吗？"
               @ok="confirmUnsealOne(record.id)"
             >
-              <a-button type="text">
+              <a-button v-permission="['acl:article:unblock']" type="text">
                 <template #icon>
                   <icon-edit />
                 </template>
@@ -644,5 +667,9 @@ defineExpose({ reFresh });
 
 .detial_img {
   margin-top: 20px;
+}
+
+.little_count {
+  margin: 5px 10px;
 }
 </style>

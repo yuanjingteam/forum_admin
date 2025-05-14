@@ -2,6 +2,13 @@ import request from '@/api/interceptor';
 import type { TableData } from '@arco-design/web-vue';
 import type { Data } from '@/api/base';
 
+// 通用响应接口
+export interface ApiResponse<T> {
+  code: number;
+  msg: string;
+  data: T;
+}
+
 // 请求字典类型
 export interface DicListForm {
   name: string;
@@ -14,20 +21,17 @@ export interface DicListForm {
 }
 // 获取字典类型
 export interface GetDicList {
-  code: number;
-  data: {
-    dict_type_list: Array<{
-      id: number;
-      name: string;
-      code: string;
-      status: number;
-      description: string;
-      create_at: string;
-    }>;
-    total: number;
-  };
-  msg: string;
+  dict_type_list: Array<{
+    id: number;
+    name: string;
+    code: string;
+    status: number;
+    description: string;
+    create_at: string;
+  }>;
+  total: number;
 }
+
 // 新增字典类型
 export interface AddDicList {
   name: string;
@@ -63,12 +67,8 @@ export interface DicItemForm {
 
 // 获取字典项
 export interface GetDicItem {
-  code: number;
-  data: {
-    dict_item_list: TableData[];
-    total: number;
-  };
-  msg: string;
+  dict_item_list: TableData[];
+  total: number;
 }
 
 // 新增字典项
@@ -111,7 +111,7 @@ export function addDicType(data: AddDicList) {
 
 // 删除字典类型
 export function delDicType(data: DelDicList) {
-  return request.delete<Data>('/dict/delete_type', { params: data });
+  return request.delete<Data>('/dict/delete_type', { data });
 }
 
 // 修改字典类型
@@ -131,7 +131,7 @@ export function addDicItem(data: AddDicItem) {
 
 // 删除字典项
 export function delDicItem(data: DelDicItem) {
-  return request.delete<Data>('/dict/delete_item', { params: data });
+  return request.delete<Data>('/dict/delete_item', { data });
 }
 
 // 修改字典项

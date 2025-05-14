@@ -9,6 +9,7 @@ import useLoading from '@/hooks/useLoading';
 import { deleteTag } from '@/api/tag';
 import { getTagList } from '@/api/tag';
 import EditItem from '@/views/tagMgr/tagTable/EditItem/index.vue';
+import AddItem from '@/views/tagMgr/tagTable/AddItem/index.vue';
 
 const props = defineProps({
   search: {
@@ -24,12 +25,6 @@ const props = defineProps({
 
 // 定义更新,是否可以进行批量操作
 const emit = defineEmits(['update:enabled']);
-
-// 批量删除
-const deleteSelectVisible = defineModel('delete', {
-  type: Boolean,
-  required: true
-});
 
 const columns: TableColumnData[] = [
   {
@@ -51,7 +46,8 @@ const columns: TableColumnData[] = [
   {
     title: '标签描述',
     dataIndex: 'description',
-    align: 'center'
+    align: 'center',
+    width: 300
   },
   {
     title: '关联的文章数量',
@@ -87,6 +83,12 @@ const total = defineModel('total', {
   type: Number,
   required: true
 });
+
+// 控制按钮的启用状态
+const isButtonEnabled = ref(false);
+
+// 删除弹框
+const deleteDialog = ref(false);
 
 // 配置表格分页
 const pageSizes = ref([5, 10, 20]); // 可选择的每页条目数
@@ -132,10 +134,12 @@ const { loading, setLoading } = useLoading(false);
 
 // 修改框
 const editVisible = ref(false);
+const addVisible = ref(false);
 
-// // 当前项ID
+// 当前项ID
 const editId = ref(-1);
 
+// 编辑项
 const editData = ref({
   id: -1,
   name: '',
@@ -143,7 +147,7 @@ const editData = ref({
   article_count: 0,
   heat: 0,
   fans_count: 0,
-  path: 'src/assets/images/green_dog.jpg'
+  path: ''
 });
 
 // 获取列表数据
@@ -151,12 +155,13 @@ const getList = async () => {
   setLoading(true);
   try {
     const { data } = await getTagList({
-      offset: curPage,
-      limit: PAGE_LIMIT,
+      offset: curPage.value,
+      limit: PAGE_LIMIT.value,
       name: props.search.name
     });
-    tag_list.value = data.data.tag_list;
-    total.value = data.data.total;
+
+    tag_list.value = data.tag_list;
+    total.value = data.total;
   } catch {
   } finally {
     setLoading(false);
@@ -179,7 +184,7 @@ const handlePageChange = current => {
 const confirmDeleteSelect = async (selectArray: Array<number>) => {
   try {
     // 删除选中的标签
-    await deleteTag({ list: selectArray });
+    await deleteTag({ id: selectArray });
     // 删除
     selectedKeys.value = selectedKeys.value.filter(
       key => !selectArray.includes(key)
@@ -207,6 +212,7 @@ const handlePageSizeChange = size => {
   console.log(`每页条目数已更改为: ${size}`);
   PAGE_LIMIT.value = size; // 更新每页条目数
   curPage.value = 1; // 重置当前页为1
+  getList();
 };
 
 // 单选,可勾选多个
@@ -229,6 +235,16 @@ const toEditItem = async item => {
   }
 };
 
+// 添加评论
+const toAddItem = () => {
+  addVisible.value = true;
+};
+
+// 打开删除对话框
+const notifyDeleteSelect = () => {
+  deleteDialog.value = true;
+};
+
 // 父组件刷新方法
 const reFresh = () => {
   // 清空
@@ -238,7 +254,7 @@ const reFresh = () => {
 
 // 监听 selectedCount 的变化并发射事件
 watch(selectedKeys, newCount => {
-  emit('update:enabled', newCount.length > 0);
+  isButtonEnabled.value = newCount.length > 0;
 });
 
 defineExpose({ reFresh });
@@ -251,8 +267,9 @@ defineExpose({ reFresh });
       :editData="editData"
       @refresh="reFresh"
     ></edit-item>
+    <add-item v-model:visible="addVisible" @update="reFresh"></add-item>
     <a-modal
-      v-model:visible="deleteSelectVisible"
+      v-model:visible="deleteDialog"
       @ok="confirmDeleteSelect(selectList)"
     >
       <template #title>批量删除</template>
@@ -261,58 +278,92 @@ defineExpose({ reFresh });
       </div>
     </a-modal>
 
-    <a-spin :loading="loading" tip="This may take a while..." class="main">
-      <a-table
-        v-model:selectedKeys="selectedKeys"
-        :columns="columns"
-        :data="tag_list"
-        row-key="id"
-        stripe
-        :row-selection="rowSelection"
-        :pagination="pagination"
-        @select="selectItem"
-        @selection-change="selectAllChange"
-        @page-change="changePage"
-        @page-size-change="handlePageSizeChange"
-      >
-        <template #path="{ record }">
-          <div class="user-path">
-            <a-image
-              :src="record.path"
-              alt="图片"
-              width="45"
-              height="45"
-              fit="cover"
-            />
-          </div>
-        </template>
-        <template #optional="{ record }">
-          <div class="option">
-            <span>
-              <a-button type="text" @click="toEditItem(record)">
-                <template #icon>
-                  <icon-edit />
-                </template>
-                <template #default>修改</template>
-              </a-button>
-            </span>
-            <span>
-              <a-popconfirm
-                content="您确定要删除吗？"
-                @ok="confirmDeleteSelect([record.id])"
-              >
-                <a-button type="text">
+    <a-card :title="`全部(${total}) `" :bordered="false">
+      <a-spin :loading="loading" tip="This may take a while..." class="main">
+        <span class="selectAll">
+          <a-button
+            v-permission="['acl:tag:search']"
+            type="primary"
+            @click="reFresh"
+          >
+            刷新
+          </a-button>
+          <a-button
+            v-permission="['acl:tag:add']"
+            type="primary"
+            @click="toAddItem()"
+          >
+            <template #icon>
+              <icon-plus />
+            </template>
+            新建
+          </a-button>
+          <a-button
+            v-permission="['acl:tag:delete']"
+            type="dashed"
+            status="danger"
+            :disabled="!isButtonEnabled"
+            @click="notifyDeleteSelect"
+          >
+            批量删除
+          </a-button>
+        </span>
+        <a-table
+          v-model:selectedKeys="selectedKeys"
+          :columns="columns"
+          :data="tag_list"
+          row-key="id"
+          stripe
+          :row-selection="rowSelection"
+          :pagination="pagination"
+          @select="selectItem"
+          @selection-change="selectAllChange"
+          @page-change="changePage"
+          @page-size-change="handlePageSizeChange"
+        >
+          <template #path="{ record }">
+            <div class="user-path">
+              <a-image
+                :src="record.path"
+                alt="图片"
+                width="45"
+                height="45"
+                fit="cover"
+              />
+            </div>
+          </template>
+          <template #optional="{ record }">
+            <div class="option">
+              <span>
+                <a-button
+                  v-permission="['acl:tag:edit']"
+                  type="text"
+                  @click="toEditItem(record)"
+                >
                   <template #icon>
-                    <icon-delete />
+                    <icon-edit />
                   </template>
-                  <template #default>删除</template>
+                  <template #default>修改</template>
                 </a-button>
-              </a-popconfirm>
-            </span>
-          </div>
-        </template>
-      </a-table>
-    </a-spin>
+              </span>
+              <span>
+                <a-popconfirm
+                  content="您确定要删除吗？"
+                  @ok="confirmDeleteSelect([record.id])"
+                >
+                  <a-button v-permission="['acl:tag:delete']" type="text">
+                    <template #icon>
+                      <icon-delete />
+                    </template>
+                    <template #default>删除</template>
+                  </a-button>
+                </a-popconfirm>
+              </span>
+            </div>
+          </template>
+        </a-table>
+      </a-spin>
+    </a-card>
   </div>
 </template>
 
@@ -331,5 +382,9 @@ defineExpose({ reFresh });
   :deep(img) {
     border-radius: 30px;
   }
+}
+
+.selectAll button {
+  margin: 0 5px 12px;
 }
 </style>

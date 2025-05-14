@@ -3,11 +3,11 @@ import { reactive, ref } from 'vue';
 import search from '@/views/tagMgr/search/index.vue';
 import TagTable from '@/views/tagMgr/tagTable/index.vue';
 
+// 当前绑定的DOM元素
 const tagTable = ref(null);
+
+// 总数
 const total = ref(10);
-const deleteDialog = ref(false);
-// 控制按钮的启用状态
-const isButtonEnabled = ref(false);
 
 const searchTerm = reactive({
   name: ''
@@ -19,19 +19,8 @@ const notifyRefresh = () => {
 
 // 在当前条件下搜索
 const handleSearch = (term: any) => {
-  searchTerm.name = term.name; // 直接更新搜索关键词
-  console.log(searchTerm.name);
+  searchTerm.name = term.value.name; // 直接更新搜索关键词
   notifyRefresh(); // 调用相关处理
-};
-
-// 打开删除对话框
-const notifyDeleteSelect = () => {
-  deleteDialog.value = true;
-};
-
-// 更新按钮状态,是否可以进行批量操作
-const updateButtonState = (value: boolean) => {
-  isButtonEnabled.value = value; // 根据子组件的值更新按钮状态
 };
 </script>
 
@@ -39,31 +28,11 @@ const updateButtonState = (value: boolean) => {
   <div class="main">
     <Breadcrumb :items="['标签管理']" />
     <search @search="handleSearch" @clearAll="handleSearch"></search>
-    <a-tabs type="line">
-      <template #extra>
-        <span class="selectAll">
-          <a-button type="primary" @click="notifyRefresh">刷新</a-button>
-          <a-button
-            type="dashed"
-            status="danger"
-            :disabled="!isButtonEnabled"
-            @click="notifyDeleteSelect"
-          >
-            批量删除
-          </a-button>
-        </span>
-      </template>
-
-      <a-tab-pane key="1" :title="`全部(${total}) `">
-        <tag-table
-          ref="tagTable"
-          v-model:total="total"
-          v-model:delete="deleteDialog"
-          :search="searchTerm"
-          @update:enabled="updateButtonState"
-        ></tag-table>
-      </a-tab-pane>
-    </a-tabs>
+    <tag-table
+      ref="tagTable"
+      v-model:total="total"
+      :search="searchTerm"
+    ></tag-table>
   </div>
 </template>
 

@@ -110,7 +110,9 @@ watch(
     @ok="editOk"
     @cancel="editCancel"
   >
-    <template #title>修改标签信息:</template>
+    <template #title>
+      {{ props.type == 'edit' ? '修改信息:' : '新增' }}
+    </template>
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <div class="drawer">
         <a-form :model="edit" :style="{ width: '380px' }">
@@ -183,12 +185,12 @@ watch(
             />
           </a-form-item>
           <a-form-item
-            field="label"
+            field="extend_value"
             tooltip="扩展值"
             label="扩展值"
             label-col-flex="90px"
           >
-            <a-input v-model="edit.label" placeholder="输入扩展值..." />
+            <a-input v-model="edit.extend_value" placeholder="输入扩展值..." />
           </a-form-item>
         </a-form>
       </div>

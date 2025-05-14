@@ -56,7 +56,7 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '描述',
     dataIndex: 'description',
-    width: 280,
+    width: 200,
     slotName: 'description',
     align: 'center'
   },
@@ -196,8 +196,9 @@ const getList = async () => {
       page: curPage.value,
       limit: limit.value
     });
-    dictionary.value = data.data.dict_item_list;
-    total.value = data.data.total;
+
+    dictionary.value = data.dict_item_list;
+    total.value = data.total;
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -219,6 +220,7 @@ const handlePageSizeChange = size => {
   console.log(`每页条目数已更改为: ${size}`);
   limit.value = size; // 更新每页条目数
   curPage.value = 1; // 重置当前页为1
+  getList();
 };
 
 // 单选可勾选多个
@@ -331,16 +333,12 @@ const reFresh = () => {
   getList();
 };
 
-// 在组件挂载时获取数据
-onMounted(() => {
-  getList(); // 初始化时调用获取数据
-});
-
 // 监听切换
 watch(
   () => props.dict_type,
   () => {
     curPage.value = 1; // 重置当前页为1
+    selectedKeys.value = [];
     getList();
   }
 );
@@ -383,13 +381,18 @@ defineExpose({ reFresh });
     ></options-item>
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-space class="batch-operation">
-        <a-button type="primary" @click="addDicItem()">
+        <a-button
+          v-permission="['acl:dic_item:add']"
+          type="primary"
+          @click="addDicItem()"
+        >
           <template #icon>
             <icon-plus />
           </template>
           新建
         </a-button>
         <a-button
+          v-permission="['acl:dic_item:delete']"
           type="dashed"
           status="danger"
           :disabled="!isButtonEnabled"
@@ -430,6 +433,7 @@ defineExpose({ reFresh });
           <div>
             <a-switch
               v-model="record.status"
+              v-permission="['acl:dic_item:edit']"
               :checked-value="1"
               :unchecked-value="2"
               @change="switchChange(record)"
@@ -441,7 +445,11 @@ defineExpose({ reFresh });
         </template>
 
         <template #optional="{ record }">
-          <a-button type="text" @click="editSelect(record)">
+          <a-button
+            v-permission="['acl:dic_item:edit']"
+            type="text"
+            @click="editSelect(record)"
+          >
             <template #icon>
               <icon-edit />
             </template>
@@ -452,7 +460,7 @@ defineExpose({ reFresh });
             content="您确定要删除吗？"
             @ok="deleteItem(record.dict_type_code, record.id)"
           >
-            <a-button type="text">
+            <a-button v-permission="['acl:dic_item:delete']" type="text">
               <template #icon>
                 <icon-delete />
               </template>

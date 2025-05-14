@@ -98,6 +98,7 @@ const columns = computed<TableColumnData[]>(() => [
     title: '角色名称',
     dataIndex: 'name'
   },
+
   {
     title: '角色编码',
     dataIndex: 'code'
@@ -123,9 +124,7 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getRoleListService(roleForm.value);
+    const { data } = await getRoleListService(roleForm.value);
     renderData.value = data.role_list;
     total.value = data.total;
   } catch (err) {
@@ -275,12 +274,10 @@ const editRole = async (id: number) => {
   state.value = 'edit';
 
   //回显当前角色的详情
-  const {
-    data: { data }
-  } = await getRoleDetailService(id);
+  const { data } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
-  addRoleForm.value.code = data.code;
+  addRoleForm.value.code = String(data.code);
   addRoleForm.value.status = data.status;
   addRoleForm.value.sort = data.sort;
   visibleDrawer.value = true;
@@ -329,9 +326,7 @@ const changePageSize = (pageSize: number) => {
 const handleChangeIntercept = async (newValue, id) => {
   //newValue为改变后的值
   //获取当前角色信息
-  const {
-    data: { data }
-  } = await getRoleDetailService(id);
+  const { data } = await getRoleDetailService(id);
   addRoleForm.value.id = data.id;
   addRoleForm.value.name = data.name;
   addRoleForm.value.code = data.code;
@@ -684,10 +679,6 @@ const showRoleAcl = id => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
 .arco-pagination {
   justify-content: flex-end;
   margin-top: 10px;
@@ -696,5 +687,9 @@ const showRoleAcl = id => {
 
 .user-status {
   margin-left: 12px;
+}
+
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
 }
 </style>

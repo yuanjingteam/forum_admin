@@ -34,13 +34,39 @@ export interface ArticleTableData extends TableData {
   ];
 }
 
-export interface ArticleData {
-  code: number; // 状态码
+export interface ArticleDetailData extends TableData {
+  code: number;
+  msg: string;
   data: {
-    article_list: ArticleTableData[]; // 使用扩展后的 TableData 类型
-    total: number; // 文章总数
+    article: {
+      id: number;
+      title: string;
+      user_id: number;
+      likes_count: number;
+      like_status: boolean;
+      collections_count: number;
+      collection_status: boolean;
+      views_count: number;
+      heat: string;
+      category_id: number;
+      summary: string;
+      published_at: string;
+      content: string;
+      image_url: string;
+      tags: [ID: number];
+      about: {
+        id: number;
+        title: string;
+        views_count: number;
+        likes_count: number;
+      };
+    };
   };
-  msg: string; // 消息
+}
+
+export interface ArticleData {
+  article_list: ArticleTableData[]; // 使用扩展后的 TableData 类型
+  total: number; // 文章总数
 }
 
 // 获取文章
@@ -55,15 +81,20 @@ export function delArticleList(data) {
 
 // 封禁文章
 export function banArticleList(data) {
-  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+  return request.post<ArticleData>('/article/ban', data); // 这里会自动拼接 baseURL
 }
 
 // 解封文章
 export function unsealArticleList(data) {
-  return request.post<ArticleData>('/article/delete', data); // 这里会自动拼接 baseURL
+  return request.post<ArticleData>('/article/unblock', data); // 这里会自动拼接 baseURL
 }
 
 // 审核文章
 // export function auditArticleList(data) {
 //   return request.post<ArticleData>('/article/audit', data); // 这里会自动拼接 baseURL
 // }
+
+// 获取文章详情
+export function getArticleDetail(id) {
+  return request.get<ArticleDetailData>(`/article/detail?id=${id}`);
+}

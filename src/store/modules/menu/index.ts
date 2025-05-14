@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getIconListService, getAllMenuListService } from '@/api/menu';
-// import { convertToHierarchy } from '@/utils/convertToHierarchy';
+import { getIconListService, getMenuTypeService } from '@/api/menu';
+import { convertToNestedTree } from '@/utils/convertToNestedTree';
+import { getApiListService } from '@/api/menu';
 
 //话题分类列表管理
 export const useMenuStore = defineStore('menu', () => {
@@ -10,9 +11,7 @@ export const useMenuStore = defineStore('menu', () => {
   //获取菜单图标列表
   const getIconList = async () => {
     const {
-      data: {
-        data: { icon_list }
-      }
+      data: { icon_list }
     } = await getIconListService();
     iconList.value = icon_list;
   };
@@ -46,11 +45,21 @@ export const useMenuStore = defineStore('menu', () => {
   const menuList = ref([]);
   const getMenuList = async () => {
     const {
-      data: {
-        data: { menus }
-      }
-    } = await getAllMenuListService({});
-    menuList.value = menus;
+      data: { menu_type_list }
+    } = await getMenuTypeService();
+    console.log(menu_type_list, 'menu');
+    menuList.value = convertToNestedTree(menu_type_list);
+  };
+
+  const apiList = ref([]);
+  //获取所有api列表
+  const getApiList = async () => {
+    const {
+      data: { api_list }
+    } = await getApiListService();
+    console.log(api_list, 'api');
+    //将处理过后的数据放到treedata里面
+    apiList.value = api_list;
   };
   //密度数据
   const densityList = [
@@ -72,9 +81,9 @@ export const useMenuStore = defineStore('menu', () => {
     }
   ];
   const typeOptions = [
-    { label: '目录', value: '1' },
-    { label: '菜单', value: '2' },
-    { label: '按钮', value: '3' }
+    { label: '目录', value: 1 },
+    { label: '菜单', value: 2 },
+    { label: '按钮', value: 3 }
   ];
   return {
     typeOptions,
@@ -84,6 +93,8 @@ export const useMenuStore = defineStore('menu', () => {
     aclStatusOptions,
     aclTypesOptions,
     menuList,
-    getMenuList
+    getMenuList,
+    getApiList,
+    apiList
   };
 });

@@ -2,15 +2,15 @@
   <a-spin :loading="loading" style="width: 100%">
     <a-card
       class="general-card"
-      title="线上热门内容"
+      title="线上热门文章"
       :header-style="{ paddingBottom: '0' }"
       :body-style="{ padding: '17px 20px 21px 20px' }"
     >
-      <template #extra>
+      <!-- <template #extra>
         <a-link>查看更多</a-link>
-      </template>
+      </template> -->
       <a-space direction="vertical" :size="10" fill>
-        <a-radio-group
+        <!-- <a-radio-group
           v-model:model-value="type"
           type="button"
           @change="typeChange as any"
@@ -18,7 +18,7 @@
           <a-radio value="text">文本</a-radio>
           <a-radio value="image">图片</a-radio>
           <a-radio value="video">视频</a-radio>
-        </a-radio-group>
+        </a-radio-group> -->
         <a-table
           :data="renderList"
           :pagination="false"
@@ -26,7 +26,11 @@
           :scroll="{ x: '100%', y: '264px' }"
         >
           <template #columns>
-            <a-table-column title="排名" data-index="key"></a-table-column>
+            <a-table-column title="排名" data-index="id">
+              <template #cell="{ rowIndex }">
+                {{ rowIndex + 1 }}
+              </template>
+            </a-table-column>
             <a-table-column title="内容标题" data-index="title">
               <template #cell="{ record }">
                 <a-typography-paragraph
@@ -39,8 +43,8 @@
               </template>
             </a-table-column>
             <a-table-column
-              title="点击量"
-              data-index="clickNumber"
+              title="点赞量"
+              data-index="likes_count"
             ></a-table-column>
             <a-table-column
               title="日涨幅"
@@ -69,27 +73,24 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import useLoading from '@/hooks/useLoading';
-import { queryPopularList } from '@/api/dashboard';
-import type { TableData } from '@arco-design/web-vue/es/table/interface';
+import { getWorkplaceHotArticlesService } from '@/api/workplace';
 
-const type = ref('text');
 const { loading, setLoading } = useLoading();
-const renderList = ref<TableData[]>();
-const fetchData = async (contentType: string) => {
+const renderList = ref([]);
+const fetchData = async () => {
   try {
     setLoading(true);
-    const { data } = await queryPopularList({ type: contentType });
-    renderList.value = data;
+    const {
+      data: { article_list }
+    } = await getWorkplaceHotArticlesService();
+    renderList.value = article_list;
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
     setLoading(false);
   }
 };
-const typeChange = (contentType: string) => {
-  fetchData(contentType);
-};
-fetchData('text');
+fetchData();
 </script>
 
 <style scoped lang="less">

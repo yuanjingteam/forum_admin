@@ -80,6 +80,9 @@ watch(
           >
             <a-input v-model="edit.name" placeholder="输入标签名..." />
           </a-form-item>
+          <a-form-item label="字典类型:" label-col-flex="90px">
+            <a-input v-model="edit.code" placeholder="字典类型" disabled />
+          </a-form-item>
           <a-form-item
             field="description"
             tooltip="输入标签描述"

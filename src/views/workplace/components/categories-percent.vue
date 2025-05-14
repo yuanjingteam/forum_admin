@@ -2,13 +2,17 @@
   <a-spin :loading="loading" style="width: 100%">
     <a-card
       class="general-card"
-      title="内容类型占比"
+      title="文章标签占比"
       :header-style="{ paddingBottom: '0' }"
       :body-style="{
         padding: '20px'
       }"
     >
-      <VChart height="306px" :options="spec" />
+      <VChart
+        v-if="spec.data[0].values.length > 0"
+        height="306px"
+        :options="spec"
+      />
     </a-card>
   </a-spin>
 </template>
@@ -16,20 +20,17 @@
 <script lang="ts" setup>
 import useLoading from '@/hooks/useLoading';
 import { ISpec } from '@visactor/vchart';
+import { getWorkplacePielistService } from '@/api/workplace';
+import { onMounted, ref } from 'vue';
 
-const { loading } = useLoading();
-const spec: ISpec = {
+const { loading, setLoading } = useLoading();
+//让spec是一个响应式的对象
+const spec = ref<ISpec>({
   type: 'pie',
   data: [
     {
-      id: 'id0',
-      values: [
-        { type: '纯文本', value: '46.60' },
-        { type: '图文', value: '27.72' },
-        { type: '短视频', value: '8.13' },
-        { type: '长视频', value: '5' },
-        { type: '动图', value: '3.63' }
-      ]
+      id: 'id1',
+      values: []
     }
   ],
   outerRadius: 0.8,
@@ -103,11 +104,26 @@ const spec: ISpec = {
               const value = data['value'];
               return value ? `${value}%` : null;
             }
-            return 1234;
+            return null;
           }
         }
       }
     ]
   }
+});
+
+const fetchData = async () => {
+  try {
+    setLoading(true);
+    const {
+      data: { pie_list }
+    } = await getWorkplacePielistService();
+    spec.value.data[0].values = pie_list;
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
 };
+onMounted(() => fetchData());
 </script>

@@ -2,7 +2,11 @@
 import { ref, watch } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { updateTag } from '@/api/tag';
-import { upLoadFile } from '@/api/upload';
+import type {
+  FileItem,
+  RequestOption
+} from '@arco-design/web-vue/es/upload/interfaces';
+import { userUploadApi } from '@/api/user-center';
 
 const emit = defineEmits(['refresh']);
 // 批量删除
@@ -35,18 +39,17 @@ const props = defineProps({
 });
 const edit = ref({ ...props.editData }); // 创建一个拷贝
 const formLoading = ref(false);
-// 修改标签图片
-const file = ref(null);
 
-const onChange = (_, currentFile) => {
-  file.value = {
-    ...currentFile
-    // url: URL.createObjectURL(currentFile.file),
-  };
-  console.log(file.value, 2341231);
-};
-const onProgress = currentFile => {
-  file.value = currentFile;
+const file = ref({
+  uid: '',
+  name: '',
+  url: ''
+});
+
+const fileList = ref<FileItem[]>([file.value]);
+
+const uploadChange = (fileItemList: FileItem[], fileItem: FileItem) => {
+  fileList.value = [fileItem];
 };
 
 const editOk = () => {
@@ -54,40 +57,30 @@ const editOk = () => {
 };
 const editCancel = () => {};
 
-// Promise 表示这个函数会返回一个 Promise 对象，这个 Promise 在完成时会解析为以下类型：
-const convertToFiles = async (
-  path: string
-): Promise<{ uid: string; name: string; url: string; file?: File } | null> => {
-  try {
-    // 使用 fetch 下载图片数据
-    const response = await fetch(path);
+// 自定义请求上传头像
+const customRequest = (options: RequestOption) => {
+  const controller = new AbortController(); // 创建一个 AbortController 实例
 
-    // 检查响应是否成功
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  (async () => {
+    const { onError, onSuccess, fileItem, name = 'files' } = options; // 解构选项
+    const formData = new FormData(); // 创建 FormData 对象
+    formData.append('width', '200');
+    formData.append(name as string, fileItem.file as Blob); // 将文件添加到 FormData
+    try {
+      // 调用文件上传 API
+      const res = await userUploadApi(formData);
+      edit.value.path = res.data[0].url;
+      onSuccess(res); // 成功时调用成功回调
+    } catch (error) {
+      onError(error); // 发生错误时调用错误回调
     }
-
-    const blob = await response.blob(); // 转换为 Blob 对象
-    const fileName = path.split('/').pop() || 'unknown.png'; // 获取文件名，默认文件名为 'unknown.png'
-
-    // 创建 File 对象
-    const file = new File([blob], fileName, { type: blob.type });
-
-    console.log('success');
-
-    // 返回符合你需要格式的对象
-    return {
-      uid: String(Date.now()), // 生成唯一的 uid
-      name: fileName,
-      url: path, // 使用原始链接
-      file: file // 可选，保留对 File 对象的引用
-    };
-  } catch (error) {
-    console.error('Error converting to files:', error);
-    return null; // 返回 null 或者根据需要返回一个适当的错误对象
-  }
+  })(); // 立即执行异步请求
+  return {
+    abort() {
+      controller.abort(); // 调用 abort 方法取消请求
+    }
+  };
 };
-
 const submitEdit = async () => {
   try {
     formLoading.value = true;
@@ -98,13 +91,8 @@ const submitEdit = async () => {
     formData.append('article_count', edit.value.article_count.toString());
     formData.append('heat', edit.value.heat.toString());
     formData.append('fans_count', edit.value.fans_count.toString());
-    // // 返回一个在线链接存储
-    // const {
-    //   data: {
-    //     data: { upload }
-    //   }
-    // } = await upLoadFile({ 'upload[]': file.value, 'width': 20 });
-    // formData.append('uploads', upload); // 使用上传的文件
+    formData.append('path', edit.value.path.toString());
+
     await updateTag(formData);
     emit('refresh');
     Message.info('修改成功');
@@ -134,7 +122,7 @@ watch(
   () => props.editData,
   async newValue => {
     edit.value = { ...newValue };
-    file.value = await convertToFiles(newValue.path);
+    file.value.url = newValue.path;
   }
 );
 </script>
@@ -160,51 +148,20 @@ watch(
             label-align="left"
           >
             <a-upload
-              action="/"
-              :fileList="file ? [file] : []"
-              :show-file-list="false"
+              :custom-request="customRequest"
               list-type="picture-card"
-              @change="onChange"
-              @progress="onProgress"
+              :file-list="fileList"
+              :show-upload-button="true"
+              :show-file-list="false"
+              @change="uploadChange"
             >
               <template #upload-button>
-                <div
-                  :class="`arco-upload-list-item${
-                    file && file.status === 'error'
-                      ? ' arco-upload-list-item-error'
-                      : ''
-                  }`"
-                >
-                  <div
-                    v-if="file && file.url"
-                    class="arco-upload-list-picture custom-upload-avatar"
-                  >
-                    <img :src="file.url" />
-                    <div class="arco-upload-list-picture-mask">
-                      <IconEdit />
-                    </div>
-                    <a-progress
-                      v-if="file.status === 'uploading' && file.percent < 100"
-                      :percent="file.percent"
-                      type="circle"
-                      size="mini"
-                      :style="{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translateX(-50%) translateY(-50%)'
-                      }"
-                    />
-                  </div>
-                  <div v-else class="arco-upload-picture-card">
-                    <div class="arco-upload-picture-card-text">
-                      <IconPlus />
-                      <div style="margin-top: 10px; font-weight: 600">
-                        Upload
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <a-avatar :size="100" class="info-avatar">
+                  <template #trigger-icon>
+                    <icon-camera />
+                  </template>
+                  <img v-if="fileList.length" :src="fileList[0].url" />
+                </a-avatar>
               </template>
             </a-upload>
           </a-form-item>
@@ -222,7 +179,11 @@ watch(
             label="标签描述"
             label-col-flex="90px"
           >
-            <a-input v-model="edit.description" placeholder="输入标签描述..." />
+            <a-textarea
+              v-model="edit.description"
+              placeholder="输入标签描述..."
+              :auto-size="{ minRows: 3, maxRows: 6 }"
+            />
           </a-form-item>
           <a-form-item
             field="article_count"

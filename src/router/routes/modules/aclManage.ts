@@ -1,16 +1,15 @@
-import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
 
 const ACL: AppRouteRecordRaw = {
   path: '/acl',
   name: 'Acl',
-  component: DEFAULT_LAYOUT,
+  component: () => import('@/layout/default-layout.vue'),
   meta: {
     locale: '权限管理',
     icon: 'icon-desktop',
+    order: 6,
     requiresAuth: true,
-    order: 12,
-    hideChildrenMenu: false // 隐藏子菜单项
+    hideChildrenMenu: false
   },
   children: [
     {
@@ -19,8 +18,7 @@ const ACL: AppRouteRecordRaw = {
       component: () => import('@/views/acl/role/index.vue'),
       meta: {
         locale: '角色管理',
-        requiresAuth: true,
-        roles: ['*']
+        requiresAuth: true
       }
     },
     {
@@ -29,8 +27,7 @@ const ACL: AppRouteRecordRaw = {
       component: () => import('@/views/acl/menu/index.vue'),
       meta: {
         locale: '菜单管理',
-        requiresAuth: true,
-        roles: ['*']
+        requiresAuth: true
       }
     },
     {
@@ -39,8 +36,7 @@ const ACL: AppRouteRecordRaw = {
       component: () => import('@/views/acl/apiManage/index.vue'),
       meta: {
         locale: 'api管理',
-        requiresAuth: true,
-        roles: ['*']
+        requiresAuth: true
       }
     }
   ]

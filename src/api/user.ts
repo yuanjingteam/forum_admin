@@ -2,23 +2,18 @@ import request from '@/api/interceptor';
 // import type { UserState } from '@/store/modules/user/types';
 
 export interface LoginData {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface LoginRes {
-  code: string;
-  data: {
-    Authorization: string;
-    userInfo: {
-      nickname: string;
-      email: string;
-      user_status: number;
-      roles_ids: number[];
-      avatar_path: string;
-    };
+  token: string;
+  userInfo: {
+    id: number;
+    nickname: string;
   };
-  msg: string;
+  perm: Array<Object>;
+  code_list: Array<String>;
 }
 
 export interface RightVerify {

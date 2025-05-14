@@ -6,6 +6,8 @@ import {
 } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
+import { Message } from '@arco-design/web-vue';
+
 import type { UserState } from './types';
 
 const useUserStore = defineStore('user', {
@@ -16,7 +18,11 @@ const useUserStore = defineStore('user', {
     email: undefined,
     user_status: undefined,
     role_ids: undefined,
-    avatar_path: undefined
+    code: undefined,
+    role_names: undefined,
+    role_id: undefined,
+    avatar_path: undefined,
+    isRoles: false
   }),
 
   // 返回state的浅拷贝
@@ -27,6 +33,9 @@ const useUserStore = defineStore('user', {
   },
 
   actions: {
+    changeRole() {
+      this.isRoles = true;
+    },
     // 改变用户权限
     switchRoles() {
       return new Promise(resolve => {
@@ -42,7 +51,7 @@ const useUserStore = defineStore('user', {
     // const userStore = useUserStore();
     // userStore.setInfo({ nickname: '新昵称', email: 'new@example.com' });
     setInfo(partial: Partial<UserState>) {
-      console.log(partial, 2333);
+      console.log(partial, '存储了新的用户信息');
       this.$patch(partial);
     },
 
@@ -69,22 +78,29 @@ const useUserStore = defineStore('user', {
     // 获取用户信息
     async login(loginForm: LoginData) {
       try {
-        const res = await userLogin(loginForm);
-        setToken(res.data.data.Authorization);
-        this.setInfo(res.data.data.userInfo);
+        const { data } = await userLogin(loginForm);
+        setToken(data.token);
+        this.setInfo({
+          email: loginForm.email // 确保以对象的形式传递
+        });
         // 将用户信息存储到 localStorage
+        localStorage.setItem('userInfo', JSON.stringify(data.userInfo));
         localStorage.setItem(
-          'userInfo',
-          JSON.stringify(res.data.data.userInfo)
+          'permissionButton',
+          JSON.stringify(data.code_list)
         );
-      } catch (err) {
+        localStorage.setItem('permissionMenu', JSON.stringify(data.perm));
+        Message.success('登录成功');
+      } catch (error) {
+        Message.info('该用户没有权限');
         clearToken();
-        throw err;
       }
     },
+
     logoutCallBack() {
       this.resetInfo();
       clearToken();
+      localStorage.clear();
       removeRouteListener();
     },
     // 用户登出
