@@ -9,8 +9,8 @@ import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 
 // 创建 axios 实例，设置基础配置
-axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '', // 设置 API 的基础 URL
+const request = axios.create({
+  baseURL: 'http://127.0.0.1:4523/m1/4891553-0-default',
   timeout: 10000, // 请求超时的毫秒数
   withCredentials: false // 跨域请求时不使用凭证
 });
@@ -76,3 +76,5 @@ axios.interceptors.response.use(
     return Promise.reject(error); // 返回拒绝的 Promise
   }
 );
+
+export default request;

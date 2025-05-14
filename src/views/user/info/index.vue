@@ -1,89 +1,53 @@
-<template>
-  <div class="container">
-    <Breadcrumb :items="['menu.user', 'menu.userInfo']" />
-    <UserInfoHeader />
-    <div class="content">
-      <div class="content-left">
-        <a-grid :cols="24" :col-gap="16" :row-gap="16">
-          <a-grid-item :span="24">
-            <MyProject />
-          </a-grid-item>
-          <a-grid-item :span="24">
-            <LatestActivity />
-          </a-grid-item>
-        </a-grid>
-      </div>
-      <div class="content-right">
-        <a-grid :cols="24" :row-gap="16">
-          <a-grid-item :span="24">
-            <MyTeam />
-          </a-grid-item>
-          <a-grid-item class="panel" :span="24">
-            <LatestNotification />
-          </a-grid-item>
-        </a-grid>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script lang="ts" setup>
-import UserInfoHeader from './components/user-info-header.vue';
-import LatestNotification from './components/latest-notification.vue';
-import MyProject from './components/my-project.vue';
-import LatestActivity from './components/latest-activity.vue';
-import MyTeam from './components/my-team.vue';
+import UserPanel from './components/user-panel.vue';
+import BasicInformation from './components/basic-information.vue';
+import SecuritySettings from './components/security-settings.vue';
 </script>
 
 <script lang="ts">
 export default {
-  name: 'Info'
+  name: 'Setting'
 };
 </script>
+
+<template>
+  <div class="container">
+    <Breadcrumb :items="['用户菜单', '用户信息']" />
+    <a-row style="margin-bottom: 16px">
+      <a-col :span="24">
+        <UserPanel />
+      </a-col>
+    </a-row>
+    <a-row class="wrapper">
+      <a-col :span="24">
+        <a-tabs default-active-key="1" type="rounded">
+          <a-tab-pane key="1" title="基础信息">
+            <BasicInformation />
+          </a-tab-pane>
+          <a-tab-pane key="2" title="安全设置">
+            <SecuritySettings />
+          </a-tab-pane>
+        </a-tabs>
+      </a-col>
+    </a-row>
+  </div>
+</template>
 
 <style scoped lang="less">
 .container {
   padding: 0 20px 20px;
 }
 
-.content {
-  display: flex;
-  margin-top: 12px;
-
-  &-left {
-    flex: 1;
-    margin-right: 16px;
-    overflow: hidden;
-    // background-color: var(--color-bg-2);
-
-    :deep(.arco-tabs-nav-tab) {
-      margin-left: 16px;
-    }
-  }
-
-  &-right {
-    width: 332px;
-  }
-
-  .tab-pane-wrapper {
-    padding: 0 16px 16px;
-  }
+.wrapper {
+  min-height: 580px;
+  padding: 20px 0 0 20px;
+  background-color: var(--color-bg-2);
+  border-radius: 4px;
 }
-</style>
 
-<style lang="less" scoped>
-.mobile {
-  .content {
-    display: block;
-
-    &-left {
-      margin-right: 0;
-      margin-bottom: 16px;
-    }
-
-    &-right {
-      width: 100%;
-    }
-  }
+:deep(.section-title) {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 14px;
 }
 </style>

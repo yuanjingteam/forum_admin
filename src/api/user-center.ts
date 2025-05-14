@@ -1,81 +1,20 @@
 import axios from 'axios';
+import request from '@/api/interceptor';
+import type { Data } from '@/api/base';
 
-export interface MyProjectRecord {
-  id: number;
-  name: string;
-  description: string;
-  peopleNumber: number;
-  contributors: {
-    name: string;
-    email: string;
-    avatar: string;
-  }[];
-}
-export function queryMyProjectList() {
-  return axios.post('/api/user/my-project/list');
-}
-
-export interface MyTeamRecord {
-  id: number;
-  avatar: string;
-  name: string;
-  peopleNumber: number;
-}
-export function queryMyTeamList() {
-  return axios.post('/api/user/my-team/list');
-}
-
-export interface LatestActivity {
-  id: number;
-  title: string;
-  description: string;
-  avatar: string;
-}
-export function queryLatestActivity() {
-  return axios.post<LatestActivity[]>('/api/user/latest-activity');
-}
-
-export function saveUserInfo() {
-  return axios.post('/api/user/save-info');
-}
-
+// 用户基本信息
 export interface BasicInfoModel {
-  email: string;
+  id: number;
   nickname: string;
-  countryRegion: string;
-  area: string;
-  address: string;
-  profile: string;
+  career_direction: string;
+  user_home_page: string;
+  user_signature: string;
+  path: string;
+  user_tags: string[];
+  all_tag_names: string[];
 }
 
-export interface EnterpriseCertificationModel {
-  accountType: number;
-  status: number;
-  time: string;
-  legalPerson: string;
-  certificateType: string;
-  authenticationNumber: string;
-  enterpriseName: string;
-  enterpriseCertificateType: string;
-  organizationCode: string;
-}
-
-export type CertificationRecord = Array<{
-  certificationType: number;
-  certificationContent: string;
-  status: number;
-  time: string;
-}>;
-
-export interface UnitCertification {
-  enterpriseInfo: EnterpriseCertificationModel;
-  record: CertificationRecord;
-}
-
-export function queryCertification() {
-  return axios.post<UnitCertification>('/api/user/certification');
-}
-
+// 更新用户头像
 export function userUploadApi(
   data: FormData,
   config: {
@@ -84,5 +23,13 @@ export function userUploadApi(
   }
 ) {
   // const controller = new AbortController();
-  return axios.post('/api/user/upload', data, config);
+  return axios.post('/produce_image_url', data, config);
+}
+// 获取当前用户详细信息
+export function getPersonalInfo(id: number) {
+  return request.get<Data>(`/user/form_personal_data/${id}`); // 使用模板字符串插入 id
+}
+// 更新当前用户信息
+export function updatePersonalInfo(data: BasicInfoModel) {
+  return request.post<Data>('/user/form_personal_data', data);
 }

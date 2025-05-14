@@ -9,7 +9,7 @@ const USER: AppRouteRecordRaw = {
     locale: '个人中心',
     icon: 'icon-user',
     requiresAuth: true,
-    order: 7
+    order: 6
   },
   children: [
     {
@@ -18,16 +18,6 @@ const USER: AppRouteRecordRaw = {
       component: () => import('@/views/user/info/index.vue'),
       meta: {
         locale: '用户信息',
-        requiresAuth: true,
-        roles: ['*']
-      }
-    },
-    {
-      path: 'setting',
-      name: 'Setting',
-      component: () => import('@/views/user/setting/index.vue'),
-      meta: {
-        locale: '用户设置',
         requiresAuth: true,
         roles: ['*']
       }

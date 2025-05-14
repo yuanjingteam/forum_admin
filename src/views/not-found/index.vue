@@ -19,7 +19,6 @@ const back = () => {
 
 <style scoped lang="less">
 .content {
-  // padding-top: 100px;
   position: absolute;
   top: 50%;
   left: 50%;

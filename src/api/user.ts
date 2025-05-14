@@ -1,5 +1,5 @@
-import axios from 'axios';
-import type { UserState } from '@/store/modules/user/types';
+import request from '@/api/interceptor';
+// import type { UserState } from '@/store/modules/user/types';
 
 export interface LoginData {
   username: string;
@@ -7,21 +7,66 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  token: string;
+  code: string;
+  data: {
+    Authorization: string;
+    userInfo: {
+      nickname: string;
+      email: string;
+      user_status: number;
+      roles_ids: number[];
+      avatar_path: string;
+    };
+  };
+  msg: string;
 }
+
+export interface RightVerify {
+  code: number;
+  data: {
+    Id: string;
+    Hcode: string;
+    B64: string;
+  };
+  msg: string;
+}
+
+export interface UserList {
+  code: number;
+  data: {
+    user_list: Array<Object>;
+  };
+  msg: string;
+}
+
+export interface UserItem {
+  code: number;
+  data: {};
+  msg: string;
+}
+
+// 登录
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/user/login', data);
+  return request.post<LoginRes>('/backstage/login', data);
 }
 
+// 退出登录
 export function logout() {
-  return axios.post<LoginRes>('/api/user/logout');
+  return request.post<LoginRes>('/backstage/logout');
 }
 
-export function getUserInfo() {
-  return axios.post<UserState>('/api/user/info');
+// 获取所有用户列表
+export function getUserList() {
+  return request.post<UserList>('/user/list');
 }
 
-// 获取验证码
-export function getCaptcha(data: { tel: string }) {
-  return axios.post<{ captcha?: string }>('/api/login/captcha', data);
+// 获取当前列
+export function editUserInfo(data: Object) {
+  return request.post<UserItem>('/user/edit', data);
+}
+
+// 删除用户
+export function deleteUserInfo(data: Object) {
+  data;
+  return request.post<UserItem>('/user/delete', data);
 }
