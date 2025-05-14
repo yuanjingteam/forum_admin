@@ -21,8 +21,11 @@ export default function setupUserLoginInfoGuard(router: Router) {
 
     // 检查用户是否已登录
     if (isLogin()) {
+      console.log('已经登录');
+
       // 如果用户已登录且角色存在，继续路由导航
-      if (userStore.role_ids) {
+      if (userStore.id) {
+        console.log(111);
         next();
       } else {
         try {
@@ -31,7 +34,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
           next(); // 获取成功后继续路由导航
         } catch (error) {
           // 如果获取用户信息失败，执行登出操作
-          await userStore.logout();
+          userStore.logout();
           // 导航到登录页面，并携带重定向信息
           next({
             name: LOGIN_ROUTE_NAME,

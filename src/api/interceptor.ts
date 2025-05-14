@@ -1,7 +1,7 @@
 // 导入 axios 库用于进行 HTTP 请求
 import axios from 'axios';
 // 导入 AxiosResponse 和 InternalAxiosRequestConfig 类型
-import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosResponse } from 'axios';
 // 导入 Arco Design 的 Message 和 Modal 组件
 import { Message, Modal } from '@arco-design/web-vue';
 // 导入用户状态管理和获取 token 的工具函数
@@ -10,19 +10,64 @@ import { getToken } from '@/utils/auth';
 
 // 创建 axios 实例，设置基础配置
 const request = axios.create({
-  baseURL: 'http://127.0.0.1:4523/m1/4891553-0-default',
+  baseURL: import.meta.env.VITE_API_BASE_URL, // API 基础 URL
   timeout: 10000, // 请求超时的毫秒数
   withCredentials: false // 跨域请求时不使用凭证
 });
 
+const csrfRequest = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 5000, // 设置较短的超时时间
+  withCredentials: false
+});
+
+// 函数用于获取动态请求头和 Cookie
+async function fetchDynamicHeaders(): Promise<{
+  headers: any;
+}> {
+  try {
+    debugger;
+    // 调用另一个接口获取动态请求头和 Cookie
+    const response = await csrfRequest.get('/get_csrf_token');
+    console.log(response, 'response');
+
+    // 确保返回的 headers 中包含 x-csrf-token
+    if (!response.headers['x-csrf-token']) {
+      throw new Error('Missing x-csrf-token in response headers');
+    }
+
+    return response;
+  } catch (error) {
+    // 如果获取动态请求头失败，抛出错误
+    throw new Error('Failed to fetch dynamic headers');
+  }
+}
+
 // 添加请求拦截器
-axios.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+request.interceptors.request.use(
+  async (config: any) => {
     // 获取用户的 token
     const token = getToken();
-    // 如果存在 token，则设置请求头中的 Authorization 字段
+    debugger;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      config.withCredentials = true; // 启用 Cookie
+    }
+
+    try {
+      // 获取动态请求头和 Cookie
+      const { headers } = await fetchDynamicHeaders();
+      console.log(headers, 'headers');
+
+      // 合并动态请求头
+      config.headers = {
+        ...config.headers,
+        'X-Csrf-Token': headers['x-csrf-token']
+      };
+    } catch (error) {
+      // 如果获取动态请求头失败，可以抛出错误或者记录日志
+      console.error('获取动态请求头失败:', error);
+      // 你可以选择在此处中断请求或者继续发送请求
     }
     return config; // 返回修改后的请求配置
   },
@@ -33,16 +78,20 @@ axios.interceptors.request.use(
 );
 
 // 添加响应拦截器
-axios.interceptors.response.use(
+request.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data; // 获取响应数据
     // 检查响应中的状态码
-    if (res.code !== 20000) {
-      // 如果状态码不是 20000，则显示错误信息
+    if (res.code !== 2000) {
+      //上传图片的接口格式不一致特殊判断
+      if (!res?.errno) {
+        return res;
+      }
       Message.error({
         content: res.msg || '网络错误', // 显示响应中的错误信息，或默认提示
         duration: 5 * 1000 // 提示持续时间
       });
+
       // 检查特定的错误代码，并且请求的 URL 不是 '/api/user/info'
       if (
         [50008, 50012, 50014].includes(res.code) &&
@@ -55,10 +104,8 @@ axios.interceptors.response.use(
           okText: '去登录', // 确认按钮文本
           async onOk() {
             const userStore = useUserStore(); // 获取用户状态管理
-
-            // 调用 logout 方法并刷新页面
-            await userStore.logout();
-            window.location.reload();
+            userStore.logout(); // 调用 logout 方法
+            window.location.reload(); // 刷新页面
           }
         });
       }
@@ -70,7 +117,7 @@ axios.interceptors.response.use(
   error => {
     // 如果响应失败，显示错误信息
     Message.error({
-      content: error.msg || '网络错误请稍后重试', // 显示错误信息，或默认提示
+      content: error.message || '网络错误，请稍后重试', // 显示错误信息，或默认提示
       duration: 5 * 1000 // 提示持续时间
     });
     return Promise.reject(error); // 返回拒绝的 Promise

@@ -2,7 +2,7 @@
   <div class="container">
     <header class="header">
       <LogoSvg style="width: 36px; color: #165fdd" />
-      <div class="header-text">Arco Admin</div>
+      <div class="header-text">思悟后台管理系统</div>
     </header>
     <div class="content">
       <LoginForm />

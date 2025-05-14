@@ -128,9 +128,7 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getApiListService(apiForm.value);
+    const { data } = await getApiListService(apiForm.value);
     renderData.value = data.api;
     total.value = data.total;
   } catch (err) {
@@ -239,6 +237,8 @@ const handleOkModal = async () => {
   apiForm.value.page = 1;
   fetchData();
   Message.success('删除成功');
+  //清空选择的key
+  selectedKeys.value = [];
 };
 //取消批量删除
 const handleCancelModal = () => {
@@ -278,9 +278,7 @@ const editApi = async (id: number) => {
   state.value = 'edit';
 
   //回显当前api的详情
-  const {
-    data: { data }
-  } = await getApiDetailService(id);
+  const { data } = await getApiDetailService(id);
   addApiForm.value.id = data.id;
   addApiForm.value.brief_introduction = data.brief_introduction;
   addApiForm.value.path = data.path;
@@ -554,7 +552,7 @@ const changePageSize = (pageSize: number) => {
             :rules="[
               { required: true, message: '请填写API路径' },
               {
-                match: /^\/[a-zA-Z0-9]*$/,
+                match: /^\/([a-zA-Z0-9_]+\/)*[a-zA-Z0-9_]*$/,
                 message: 'API路径需以/开头，由字母数字组成'
               }
             ]"
@@ -639,13 +637,13 @@ const changePageSize = (pageSize: number) => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
 .arco-pagination {
   justify-content: flex-end;
   margin-top: 10px;
   margin-right: 10px;
+}
+
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
 }
 </style>

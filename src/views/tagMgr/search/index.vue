@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 
 // 邮箱
 const name = ref('');
 
-const search = reactive({
+const search = ref({
   name: name
 });
 
@@ -14,6 +14,7 @@ const emit = defineEmits(['search', 'clearAll']);
 
 // 搜索
 const handleSearch = () => {
+  console.log(search.value.name, 127893183);
   emit('search', search);
 };
 // 重置
@@ -41,8 +42,19 @@ const handleReset = () => {
             </a-col>
             <a-col :span="3">
               <a-form-item>
-                <a-button type="primary" @click="handleSearch">查询</a-button>
-                <a-button @click="handleReset">重置</a-button>
+                <a-button
+                  v-permission="['acl:tag:search']"
+                  type="primary"
+                  @click="handleSearch"
+                >
+                  查询
+                </a-button>
+                <a-button
+                  v-permission="['acl:tag:search']"
+                  @click="handleReset"
+                >
+                  重置
+                </a-button>
               </a-form-item>
             </a-col>
           </a-row>

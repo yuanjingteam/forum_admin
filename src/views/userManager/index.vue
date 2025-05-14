@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, reactive, watch, nextTick, h } from 'vue';
+import { computed, ref, reactive, watch, nextTick } from 'vue';
 import useLoading from '@/hooks/useLoading';
 import AvatarUpload from '@/views/userManager/avatarUpload/index.vue';
 import {
@@ -11,7 +11,6 @@ import {
   deleteUserService,
   editUserService,
   resetUserService
-  // downloadUserService,
   // downloadTemService
 } from '@/api/user_manager';
 import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
@@ -24,19 +23,23 @@ import { useUserManageStore } from '@/store';
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
 
-const userManageStore = useUserManageStore();
-const btnAclArr = ref(
-  JSON.parse(localStorage.getItem('permissionButtton')) || []
-);
-
-const ifHasEdit = computed(() => {
-  return btnAclArr.value.includes('acl:user:edit');
+const uploadHeaders = ref({
+  Authorization: 'Bearer ' + localStorage.getItem('Authorization')
 });
 
+const userManageStore = useUserManageStore();
+// const btnAclArr = ref(
+//   JSON.parse(localStorage.getItem('permissionButtton')) || []
+// );
+
+// const ifHasEdit = computed(() => {
+//   return btnAclArr.value.includes('acl:user:edit');
+// });
+
 // 如果你有可能更新 localStorage，可以考虑一个方法来更新 btnAclArr
-const updatePermissions = () => {
-  btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
-};
+// const updatePermissions = () => {
+//   btnAclArr.value = JSON.parse(localStorage.getItem('permissionButtton')) || [];
+// };
 
 //表格上方搜素框的样式
 const customStyle = {
@@ -120,20 +123,20 @@ const columns = computed<TableColumnData[]>(() => [
       sortDirections: ['ascend', 'descend']
     },
     fixed: 'left',
-    minwidth: 100
+    width: 100
   },
   {
     title: '头像',
     dataIndex: 'avatar_path',
     slotName: 'avatar_path',
     fixed: 'left',
-    minwidth: 100
+    width: 100
   },
   {
     title: '用户名',
     dataIndex: 'nickname',
     fixed: 'left',
-    minwidth: 100
+    minwidth: 50
   },
   {
     title: '邮箱',
@@ -144,24 +147,24 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'heat',
     sortable: {
       sortDirections: ['ascend', 'descend']
-    },
-    filterable: {
-      filter: (value, record) => record.heat >= value,
-      slotName: 'name-filter',
-      icon: () => h(IconSearch)
     }
+    // filterable: {
+    //   filter: (value, record) => record.heat >= value,
+    //   slotName: 'name-filter',
+    //   icon: () => h(IconSearch)
+    // }
   },
   {
     title: '粉丝数',
     dataIndex: 'fans_count',
     sortable: {
       sortDirections: ['ascend', 'descend']
-    },
-    filterable: {
-      filter: (value, record) => record.fans_count >= value,
-      slotName: 'name-filter',
-      icon: () => h(IconSearch)
     }
+    // filterable: {
+    //   filter: (value, record) => record.fans_count >= value,
+    //   slotName: 'name-filter',
+    //   icon: () => h(IconSearch)
+    // }
   },
   {
     title: '用户身份',
@@ -185,12 +188,16 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '状态',
     dataIndex: 'user_status',
-    slotName: 'user_status'
+    slotName: 'user_status',
+    width: 150,
+    fixed: 'right'
   },
   {
     title: '操作',
     dataIndex: 'operations',
-    slotName: 'operations'
+    slotName: 'operations',
+    width: 350,
+    fixed: 'right'
   }
 ]);
 
@@ -199,9 +206,7 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getUserListService(userForm.value);
+    const { data } = await getUserListService(userForm.value);
     renderData.value = data.user_list;
     total.value = data.total;
   } catch (err) {
@@ -322,13 +327,67 @@ const handleCancelModal = () => {
 //------------------上传---------------
 //是否压缩文件
 const terserChecked = ref(false);
-//导出
+//重写导出接口
+const downloadUserService = async () => {
+  const token = localStorage.getItem('Authorization');
+  const response = await fetch('/api/user/export', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}` // 添加 Authorization 头
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.blob(); // 将响应转换为 Blob 对象
+};
+
 const outputFile = async () => {
-  // await downloadUserService();
+  try {
+    const blob = await downloadUserService();
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = 'users.xlsx'; // 设置下载文件的名称
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(a.href); // 释放 URL 对象
+  } catch (err) {
+    console.error('下载失败:', err);
+  }
+};
+
+const downloadTemService = async () => {
+  const token = localStorage.getItem('Authorization');
+  const response = await fetch('/api/user/download_template', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}` // 添加 Authorization 头
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.blob(); // 将响应转换为 Blob 对象
 };
 //下载模版
 const downloadTemExcel = async () => {
-  // await downloadTemService();
+  try {
+    const blob = await downloadTemService();
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.download = 'users.xlsx'; // 设置下载文件的名称
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(a.href); // 释放 URL 对象
+  } catch (err) {
+    console.error('下载失败:', err);
+  }
 };
 //-------添加、删除、编辑-----------------抽屉-----
 //表单
@@ -367,9 +426,7 @@ const editUser = async (id: number) => {
   state.value = 'edit';
 
   //回显当前用户的详情
-  const {
-    data: { data }
-  } = await getUserDetailService(id);
+  const { data } = await getUserDetailService(id);
   addUserForm.value.user_id = data.id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
@@ -422,16 +479,14 @@ const changePageSize = (pageSize: number) => {
 const handleChangeIntercept = async (newValue, id) => {
   //newValue为改变后的值
   //获取当前用户信息
-  const {
-    data: { data }
-  } = await getUserDetailService(id);
+  const { data } = await getUserDetailService(id);
   addUserForm.value.user_id = id;
   addUserForm.value.nickname = data.nickname;
   addUserForm.value.email = data.email;
   addUserForm.value.user_status = newValue;
   addUserForm.value.role_ids = data.role_ids;
   //回显用户头像
-  // addUserForm.value.avatar_path = data.avatar_path;
+  addUserForm.value.avatar_path = data.avatar_path;
   try {
     await editUserService(addUserForm.value);
     Message.success('编辑成功');
@@ -460,49 +515,33 @@ const loadData = async () => {
 };
 loadData();
 
-// const roleNameList = userManageStore.roleNameList;
-// const userRoleOptions = computed(() => {
-//   return roleNameList.map(option => ({
-//     label: option.name,
-//     value: option.id
-//   }));
-// });
-const fieldNames = { value: 'id', label: 'name' };
-const userRoleOptions = [
-  {
-    id: 125,
-    name: '用户'
-  },
-  {
-    id: 126,
-    name: '管理员'
-  },
-  {
-    id: 127,
-    name: '超级管理员'
-  }
-];
+const roleNameList = computed(() => userManageStore.roleNameList);
 
-//改变下拉框中的值调用
-const changeRole = async (value, id) => {
-  const {
-    data: { data }
-  } = await getUserDetailService(id);
-  addUserForm.value.user_id = data.id;
-  addUserForm.value.nickname = data.nickname;
-  addUserForm.value.email = data.email;
-  addUserForm.value.user_status = data.user_status;
-  addUserForm.value.role_ids = value;
-  try {
-    await editUserService(addUserForm.value);
-    Message.success('设定用户角色成功');
-  } catch {
-    Message.error('设定用户角色失败，用户身份不能为空');
-  } finally {
-    //清空数据
-    addUserForm.value = originAddForm();
-  }
-};
+const userRoleOptions = computed(() => {
+  return roleNameList.value.map(option => ({
+    label: option.name,
+    value: option.id
+  }));
+});
+
+// //改变下拉框中的值调用
+// const changeRole = async (value, id) => {
+//   const { data } = await getUserDetailService(id);
+//   addUserForm.value.user_id = data.id;
+//   addUserForm.value.nickname = data.nickname;
+//   addUserForm.value.email = data.email;
+//   addUserForm.value.user_status = data.user_status;
+//   addUserForm.value.role_ids = value;
+//   try {
+//     await editUserService(addUserForm.value);
+//     Message.success('设定用户角色成功');
+//   } catch {
+//     Message.error('设定用户角色失败，用户身份不能为空');
+//   } finally {
+//     //清空数据
+//     addUserForm.value = originAddForm();
+//   }
+// };
 
 //--------------重置密码-----------
 const resetUser = async (id: number) => {
@@ -555,20 +594,20 @@ const importUser = () => {
                     />
                   </a-form-item>
                 </a-col>
-                <a-col :span="8">
+                <!-- <a-col :span="8">
                   <a-form-item field="role_ids" label="用户身份">
                     <a-select
                       v-model="userForm.role_ids"
+                      :allow-search="false"
                       :default-value="[]"
                       placeholder="请选择用户身份"
                       multiple
                       :max-tag-count="2"
                       allow-clear
                       :options="userRoleOptions"
-                      :field-names="fieldNames"
                     ></a-select>
                   </a-form-item>
-                </a-col>
+                </a-col> -->
 
                 <a-col :span="8">
                   <a-form-item field="last_login_time" label="上次登录时间">
@@ -654,7 +693,8 @@ const importUser = () => {
               <template #title>用户导入</template>
               <a-upload
                 draggable
-                action="http://127.0.0.1:4523/m1/4891553-0-default/user/import"
+                action="/api/user/import"
+                :headers="uploadHeaders"
               />
               <div class="user-import">
                 <span>
@@ -742,6 +782,7 @@ const importUser = () => {
       </a-row>
       <a-table
         v-model:selectedKeys="selectedKeys"
+        style="overflow-x: auto"
         row-key="id"
         :loading="loading"
         :columns="cloneColumns as TableColumnData[]"
@@ -750,6 +791,8 @@ const importUser = () => {
         :bordered="false"
         :size="size"
         :pagination="false"
+        :scroll="{ x: 2300 }"
+        :scrollbar="false"
       >
         <template
           #name-filter="{
@@ -775,23 +818,24 @@ const importUser = () => {
         <!-- 头像 -->
         <template #avatar_path="{ record }">
           <a-avatar :size="32">
-            <img alt="avatar" :src="record.avatar_path" />
+            <img
+              alt="avatar"
+              :src="record.avatar_path || 'https://picsum.photos/200/200'"
+            />
           </a-avatar>
         </template>
 
         <!-- 用户身份 -->
         <template #role_ids="{ record }">
-          <a-select
-            v-model="record.role_ids"
-            :disabled="!ifHasEdit"
-            placeholder="请选择用户身份"
-            multiple
-            :max-tag-count="2"
-            :scrollbar="true"
-            :options="userRoleOptions"
-            :field-names="fieldNames"
-            @change="value => changeRole(value, record.id)"
-          ></a-select>
+          <a-space>
+            <a-tag
+              v-for="(item, index) in record.role_names"
+              :key="index"
+              color="arcoblue"
+            >
+              {{ item }}
+            </a-tag>
+          </a-space>
         </template>
 
         <!-- 状态开关 -->
@@ -904,13 +948,12 @@ const importUser = () => {
           <a-form-item field="role_ids" label="用户身份" required>
             <a-select
               v-model="addUserForm.role_ids"
+              :allow-search="false"
               placeholder="请选择用户身份"
               multiple
               :max-tag-count="2"
-              allow-clear
               :scrollbar="true"
               :options="userRoleOptions"
-              :field-names="fieldNames"
             ></a-select>
           </a-form-item>
         </a-form>
@@ -962,10 +1005,6 @@ const importUser = () => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
 .arco-pagination {
   justify-content: flex-end;
   margin-top: 10px;
@@ -994,5 +1033,13 @@ const importUser = () => {
 .custom-filter-footer {
   display: flex;
   justify-content: space-between;
+}
+
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
+}
+
+.arco-col:deep(.arco-picker-size-medium) {
+  width: 100%;
 }
 </style>

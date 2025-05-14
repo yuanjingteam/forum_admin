@@ -12,7 +12,8 @@ import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
 import { Message } from '@arco-design/web-vue';
 import cloneDeep from 'lodash/cloneDeep';
 import Sortable from 'sortablejs';
-import { dataForm } from '@/views/acl/menu/testData';
+// import { dataForm } from '@/views/acl/menu/testData';
+import { convertToHierarchy } from '@/utils/convertToHierarchy';
 import { useMenuStore } from '@/store';
 type SizeProps = 'mini' | 'small' | 'medium' | 'large';
 type Column = TableColumnData & { checked?: true };
@@ -32,22 +33,29 @@ const { loading, setLoading } = useLoading(true);
 const filterIconlistOptions = computed(() => {
   return menuStore.iconList;
 });
+
 //新建菜单单选框
 const typeOptions = menuStore.typeOptions;
 //下拉框权限点状态内容
 const aclStatusOptions = menuStore.aclStatusOptions;
 //下拉框权限点类型内容
 const aclTypesOptions = menuStore.aclTypesOptions;
+
 //初始化一些下拉框中的数据
 const loadData = async () => {
   //调用获取图标方法
   await menuStore.getIconList();
+  await menuStore.getMenuList();
+  await menuStore.getApiList();
 };
 loadData();
-
+//下拉框中按钮权限的api路径内容
+const aclApiOptions = computed(() => {
+  return menuStore.apiList;
+});
 //下拉框选择父级菜单内容
 const menuOptions = computed(() => {
-  return [];
+  return menuStore.menuList;
 });
 //----------------------表格相关----------------------
 //表格初始化属性值
@@ -57,7 +65,7 @@ const generateFormModel = () => {
     name: '',
     code: '',
     icon: '',
-    type: '',
+    type: 0,
     route_name: '',
     route_path: '',
     component_path: '',
@@ -73,15 +81,13 @@ const originForm = () => {
   return {
     icon: '',
     name: '',
-    type: '',
+    type: 0,
     route_name: '',
     route_path: '',
-    isVisible: undefined,
+    isVisible: 0,
     code: '',
     component_path: '',
-    pid: 0,
-    page: 1,
-    limit: 10
+    pid: 0
   };
 };
 //发送请求数据
@@ -105,11 +111,15 @@ const columns = computed<TableColumnData[]>(() => [
     dataIndex: 'id',
     sortable: {
       sortDirections: ['ascend', 'descend']
-    }
+    },
+    fixed: 'left',
+    width: 100
   },
   {
     title: '权限点名称',
-    dataIndex: 'name'
+    dataIndex: 'name',
+    fixed: 'left',
+    minwidth: 100
   },
   {
     title: '权限点标识',
@@ -153,7 +163,9 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '操作',
     dataIndex: 'operations',
-    slotName: 'operations'
+    slotName: 'operations',
+    fixed: 'right',
+    width: 200
   }
 ]);
 
@@ -162,10 +174,8 @@ const fetchData = async () => {
   //打开加载效果
   setLoading(true);
   try {
-    const {
-      data: { data }
-    } = await getAllMenuListService(menuForm.value);
-    renderData.value = data.menus;
+    const { data } = await getAllMenuListService(menuForm.value);
+    renderData.value = convertToHierarchy(data.menus);
     total.value = data.total;
   } catch (err) {
     // 处理错误信息
@@ -268,11 +278,11 @@ const originAddForm = () => {
   return {
     id: undefined,
     pid: undefined,
-    type: '1',
+    type: 1,
     icon: '',
     name: '',
     sort: 0,
-    isVisible: undefined,
+    isVisible: 0,
     route_name: '',
     route_param: '',
     route_path: '',
@@ -285,7 +295,8 @@ const originAddForm = () => {
 //添加菜单表格数据
 const addMenuForm = ref(originAddForm());
 //添加菜单
-const addMenu = () => {
+const addMenu = async () => {
+  await menuStore.getMenuList();
   title.value = '新建菜单';
   state.value = 'add';
   addMenuForm.value = originAddForm();
@@ -298,9 +309,7 @@ const editMenu = async (id: number) => {
   addMenuForm.value = originAddForm();
 
   //回显当前菜单的详情
-  const {
-    data: { data }
-  } = await getMenuDetailService(id);
+  const { data } = await getMenuDetailService(id);
   console.log(data);
 
   addMenuForm.value.id = data.id;
@@ -348,16 +357,16 @@ const handleCancelDrawer = () => {
 };
 //--------------------分页--------------------
 //点击跳转改变当前页数
-const changePage = (current: number) => {
-  menuForm.value.page = current;
-  fetchData();
-};
-//改变每页条数
-const changePageSize = (pageSize: number) => {
-  menuForm.value.page = 1;
-  menuForm.value.limit = pageSize;
-  fetchData();
-};
+// const changePage = (current: number) => {
+//   menuForm.value.page = current;
+//   fetchData();
+// };
+// //改变每页条数
+// const changePageSize = (pageSize: number) => {
+//   menuForm.value.page = 1;
+//   menuForm.value.limit = pageSize;
+//   fetchData();
+// };
 </script>
 
 <template>
@@ -524,10 +533,12 @@ const changePageSize = (pageSize: number) => {
         row-key="id"
         :loading="loading"
         :columns="cloneColumns as TableColumnData[]"
-        :data="dataForm"
+        :data="renderData"
         :bordered="false"
         :size="size"
         :pagination="false"
+        :scroll="{ x: 2300 }"
+        :scrollbar="false"
       >
         <!-- 状态 -->
         <template #isVisible="{ record }">
@@ -536,13 +547,13 @@ const changePageSize = (pageSize: number) => {
         </template>
         <!-- 图标名 -->
         <template #icon="{ record }">
-          <icon-settings />
+          <!-- <icon-settings /> -->
           <span style="margin-left: 5px">{{ record.icon }}</span>
         </template>
         <!-- 权限类型 -->
         <template #type="{ record }">
-          <a-tag v-if="record.type == '1'" color="purple">目录</a-tag>
-          <a-tag v-else-if="record.type == '2'" color="blue">菜单</a-tag>
+          <a-tag v-if="record.type == 1" color="purple">目录</a-tag>
+          <a-tag v-else-if="record.type == 2" color="blue">菜单</a-tag>
           <a-tag v-else color="green">按钮</a-tag>
         </template>
         <!-- 操作项 -->
@@ -567,18 +578,6 @@ const changePageSize = (pageSize: number) => {
           </a-popconfirm>
         </template>
       </a-table>
-      <a-pagination
-        v-permission="['acl:menu:search']"
-        :total="total"
-        :size="size"
-        show-total
-        show-jumper
-        show-page-size
-        :current="menuForm.page"
-        :page-size="menuForm.limit"
-        @change="changePage"
-        @page-size-change="changePageSize"
-      />
     </a-card>
     <a-drawer
       :width="700"
@@ -588,14 +587,18 @@ const changePageSize = (pageSize: number) => {
       @ok="handleOkDrawer"
       @cancel="handleCancelDrawer"
     >
-      <div v-if="addMenuForm.type == '1'">
+      <div v-if="addMenuForm.type == 1">
         <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
           <a-form-item v-if="state == 'edit'" field="id" label="ID">
             <a-input v-model="addMenuForm.id" disabled />
           </a-form-item>
           <a-form-item field="pid" label="父级菜单">
-            <a-select
-              v-model="addMenuForm.pid"
+            <a-cascader
+              check-strictly
+              :field-names="{
+                value: 'id',
+                label: 'name'
+              }"
               :options="menuOptions"
               placeholder="请选择父级菜单"
             />
@@ -677,17 +680,22 @@ const changePageSize = (pageSize: number) => {
           </a-form-item>
         </a-form>
       </div>
-      <div v-if="addMenuForm.type == '2'">
+      <div v-if="addMenuForm.type == 2">
         <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
           <a-form-item v-if="state == 'edit'" field="id" label="ID">
             <a-input v-model="addMenuForm.id" disabled />
           </a-form-item>
 
           <a-form-item field="pid" label="父级菜单">
-            <a-select
+            <a-cascader
               v-model="addMenuForm.pid"
+              :field-names="{
+                value: 'id',
+                label: 'name'
+              }"
               :options="menuOptions"
               placeholder="请选择父级菜单"
+              check-strictly
             />
           </a-form-item>
           <a-form-item
@@ -735,6 +743,18 @@ const changePageSize = (pageSize: number) => {
             />
           </a-form-item>
           <a-form-item
+            field="icon"
+            label="图标名"
+            required
+            :rules="[{ required: true, message: '请选择图标名' }]"
+          >
+            <a-select
+              v-model="addMenuForm.icon"
+              :options="filterIconlistOptions"
+              placeholder="请选择图标名"
+            />
+          </a-form-item>
+          <a-form-item
             field="component_path"
             label="组件路径"
             :rules="[{ required: true, message: '请输入组件路径' }]"
@@ -774,7 +794,7 @@ const changePageSize = (pageSize: number) => {
           </a-form-item>
         </a-form>
       </div>
-      <div v-if="addMenuForm.type == '3'">
+      <div v-if="addMenuForm.type == 3">
         <a-form ref="formRef" :model="addMenuForm" :style="{ width: '600px' }">
           <a-form-item v-if="state == 'edit'" field="id" label="ID">
             <a-input v-model="addMenuForm.id" disabled />
@@ -784,8 +804,13 @@ const changePageSize = (pageSize: number) => {
             label="父级菜单"
             :rules="[{ required: true, message: '请选择父级菜单' }]"
           >
-            <a-select
+            <a-cascader
               v-model="addMenuForm.pid"
+              check-strictly
+              :field-names="{
+                value: 'id',
+                label: 'name'
+              }"
               :options="menuOptions"
               placeholder="请选择父级菜单"
             />
@@ -827,10 +852,16 @@ const changePageSize = (pageSize: number) => {
             />
           </a-form-item>
           <a-form-item field="api_id" label="API路径">
-            <a-select
+            <a-cascader
               v-model="addMenuForm.api_id"
-              :options="aclStatusOptions"
+              multiple
+              :options="aclApiOptions"
               placeholder="请选择API路径"
+              :field-names="{
+                value: 'key',
+                label: 'title'
+              }"
+              :allow-search="false"
             />
           </a-form-item>
           <a-form-item field="sort" label="排序">
@@ -886,13 +917,7 @@ const changePageSize = (pageSize: number) => {
   }
 }
 
-.arco-collapse:deep(.arco-collapse-item-content) {
-  background-color: #fff;
-}
-
-.arco-pagination {
-  justify-content: flex-end;
-  margin-top: 10px;
-  margin-right: 10px;
+.arco-col:deep(.arco-form-item-content-wrapper) {
+  border: 1px solid #00000038;
 }
 </style>

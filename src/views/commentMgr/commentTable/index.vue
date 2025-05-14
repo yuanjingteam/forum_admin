@@ -48,16 +48,16 @@ const props = defineProps({
 // 定义更新,是否可以进行批量操作
 const emit = defineEmits(['update:enabled']);
 
-// 批量删除
-const delSelectVisible = defineModel('delete', {
-  type: Boolean,
-  required: true
-});
-// 批量审批
-const auditSelectVisible = defineModel('audit', {
-  type: Boolean,
-  required: true
-});
+// // 批量删除
+// const delSelectVisible = defineModel('delete', {
+//   type: Boolean,
+//   required: true
+// });
+// // 批量审批
+// const auditSelectVisible = defineModel('audit', {
+//   type: Boolean,
+//   required: true
+// });
 
 // 定义行
 const columns = computed<TableColumnData[]>(() => [
@@ -69,12 +69,13 @@ const columns = computed<TableColumnData[]>(() => [
   {
     title: '发布者',
     dataIndex: 'nickname',
-    slotName: 'author'
+    slotName: 'author',
+    width: 200
   },
   {
     title: '评论',
     dataIndex: 'content',
-    width: 400,
+    width: 300,
     slotName: 'content'
   },
   {
@@ -108,7 +109,7 @@ const comments: Ref<TableData[]> = ref([]);
 const { loading, setLoading } = useLoading(false);
 
 // 查看详情框
-const editVisible = ref<boolean>(false);
+// const editVisible = ref<boolean>(false);
 
 // 获取列表项
 const fetchComments = async (): Promise<void> => {
@@ -126,8 +127,8 @@ const fetchComments = async (): Promise<void> => {
     console.log(props.search.email, '筛选邮箱');
     console.log(props.itemType, '当前选项');
     console.log(curPage.value, '当前页');
-    comments.value = data.data.comlist;
-    total.value = data.data.total;
+    comments.value = data.comlist;
+    total.value = data.total;
   } catch (error) {
     Message.info(error.msg);
   } finally {
@@ -140,18 +141,18 @@ const fetchComments = async (): Promise<void> => {
 const curPage = ref<number>(1);
 
 // 编辑项  查看详情
-const viewDetail = ref<ViewDetail>({
-  nickname: '',
-  email: '',
-  path: '',
-  content: '',
-  comment_path: '',
-  parent_nickname: '',
-  parent_path: '',
-  parent_content: '',
-  parent_email: '',
-  parent_comment_path: ''
-});
+// const viewDetail = ref<ViewDetail>({
+//   nickname: '',
+//   email: '',
+//   path: '',
+//   content: '',
+//   comment_path: '',
+//   parent_nickname: '',
+//   parent_path: '',
+//   parent_content: '',
+//   parent_email: '',
+//   parent_comment_path: ''
+// });
 
 // 一共多少数据
 const total = defineModel('total', {
@@ -189,6 +190,35 @@ const handlePageChange = (current: number) => {
   if (current <= maxPage.value && current > 0) {
     pagination.current = current; // 更新当前页码
   }
+};
+
+// 控制按钮的启用状态
+const isButtonEnabled = ref<boolean>(false);
+
+const apiBaseUrl = import.meta.env.VITE_ARTICLE_URL;
+
+onMounted(() => {
+  console.log(apiBaseUrl, 438053450);
+});
+// 批量删除
+const deleteDialog = ref<boolean>(false);
+
+// 批量审核
+const auditDialog = ref<boolean>(false);
+
+// // 打开批量删除对话框
+const notifyDeleteSelect = () => {
+  deleteDialog.value = true;
+};
+
+// 打开一键审核对话框
+const notifyAudit = () => {
+  auditDialog.value = true;
+};
+
+// 更新按钮状态,是否可以进行批量操作/对于删除和审核
+const updateButtonState = (value: boolean) => {
+  isButtonEnabled.value = value; // 根据子组件的值更新按钮状态
 };
 
 // 全选,一次性选中当前页所有
@@ -266,11 +296,11 @@ const changePage = (item: number) => {
   fetchComments();
 };
 
-const editItem = (item: ViewDetail) => {
-  editVisible.value = true;
-  viewDetail.value = item;
-  console.log(viewDetail);
-};
+// const editItem = (item: ViewDetail) => {
+//   editVisible.value = true;
+//   viewDetail.value = item;
+//   console.log(viewDetail);
+// };
 
 // 处理每页条目数变化
 const handlePageSizeChange = (size: number) => {
@@ -282,7 +312,9 @@ const handlePageSizeChange = (size: number) => {
 
 // 监听 selectedCount 的变化并发射事件
 watch(selectedKeys, newCount => {
-  emit('update:enabled', newCount.length > 0);
+  if (newCount.length > 0) {
+    updateButtonState(true);
+  }
 });
 
 // 父组件刷新方法
@@ -301,26 +333,16 @@ defineExpose({ reFresh });
 
 <template>
   <div>
-    <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose>
+    <!-- <a-drawer v-model:visible="editVisible" :width="420" unmountOnClose>
       <template #title>查看评论详情:</template>
       <a-spin :loading="loading" tip="This may take a while..." class="main">
         <div class="drawer">
-          <a-form
-            :model="viewDetail"
-            :style="{ width: '380px' }"
-            layout="vertical"
-          >
+          <a-form :model="viewDetail" :style="{ width: '380px' }" layout="vertical">
             <div v-if="viewDetail.parent_email" class="details-other">
               <a-form-item field="userInfo">
                 <div class="details">
                   <div class="details-info">
-                    <a-image
-                      :src="viewDetail.parent_path"
-                      alt="图片"
-                      width="35"
-                      height="35"
-                      fit="cover"
-                    />
+                    <a-image :src="viewDetail.parent_path" alt="图片" width="35" height="35" fit="cover" />
                     <span>{{ viewDetail.parent_nickname }}</span>
                   </div>
                   <div>邮箱:{{ viewDetail.parent_email }}</div>
@@ -333,14 +355,8 @@ defineExpose({ reFresh });
                 <div class="pic_Details">
                   <a-image-preview-group infinite>
                     <a-space>
-                      <a-image
-                        v-for="(src, index) in viewDetail.parent_comment_path"
-                        :key="index"
-                        :src="src"
-                        width="50"
-                        height="50"
-                        style="object-fit: contain"
-                      />
+                      <a-image v-if="viewDetail.parent_comment_path" :src="viewDetail.parent_comment_path" width="50"
+                        height="50" style="object-fit: contain" />
                     </a-space>
                   </a-image-preview-group>
                 </div>
@@ -350,13 +366,7 @@ defineExpose({ reFresh });
               <a-form-item field="userInfo">
                 <div class="details">
                   <div class="details-info">
-                    <a-image
-                      :src="viewDetail.path"
-                      alt="图片"
-                      width="35"
-                      height="35"
-                      fit="cover"
-                    />
+                    <a-image :src="viewDetail.path" alt="图片" width="35" height="35" fit="cover" />
                     <span>{{ viewDetail.nickname }}</span>
                   </div>
                   <div>邮箱:{{ viewDetail.email }}</div>
@@ -370,14 +380,8 @@ defineExpose({ reFresh });
                 <div class="pic_Details">
                   <a-image-preview-group infinite>
                     <a-space>
-                      <a-image
-                        v-for="(src, index) in viewDetail.comment_path"
-                        :key="index"
-                        :src="src"
-                        width="50"
-                        height="50"
-                        style="object-fit: contain"
-                      />
+                      <a-image v-if="viewDetail.comment_path" :src="viewDetail.comment_path" width="50" height="50"
+                        style="object-fit: contain" />
                     </a-space>
                   </a-image-preview-group>
                 </div>
@@ -386,7 +390,7 @@ defineExpose({ reFresh });
           </a-form>
         </div>
       </a-spin>
-    </a-drawer>
+    </a-drawer> -->
     <!-- <a-modal>
       <template #title>修改评论</template>
       <a-mention type="textarea" placeholder="please enter your username..." />
@@ -409,17 +413,49 @@ defineExpose({ reFresh });
       </a-upload>
     </a-modal> -->
 
-    <a-modal v-model:visible="delSelectVisible" @ok="confirmDeleteSelect">
+    <a-modal v-model:visible="deleteDialog" @ok="confirmDeleteSelect">
       <template #title>批量删除</template>
       <div style="text-align: center">
         确认批量删除选中评论吗?删除之后将无法再恢复。
       </div>
     </a-modal>
 
-    <a-modal v-model:visible="auditSelectVisible" @ok="confirmAuditSelect">
+    <a-modal v-model:visible="auditDialog" @ok="confirmAuditSelect">
       <template #title>批量审核</template>
       <div style="text-align: center">确认一键审核选中评论吗？</div>
     </a-modal>
+
+    <a-row style="margin: 16px 0">
+      <a-space>
+        <a-button
+          v-permission="['acl:comment:search']"
+          type="primary"
+          @click="reFresh"
+        >
+          刷新
+        </a-button>
+      </a-space>
+      <a-button
+        v-permission="['acl:comment:delete']"
+        type="dashed"
+        status="danger"
+        :disabled="!isButtonEnabled"
+        @click="notifyDeleteSelect"
+      >
+        批量删除
+      </a-button>
+      <span v-if="itemType == '2'">
+        <a-button
+          v-permission="['acl:comment:audit']"
+          type="outline"
+          status="success"
+          :disabled="!isButtonEnabled"
+          @click="notifyAudit"
+        >
+          一键审核
+        </a-button>
+      </span>
+    </a-row>
 
     <a-spin :loading="loading" tip="This may take a while..." class="main">
       <a-table
@@ -469,19 +505,17 @@ defineExpose({ reFresh });
             >
               {{ record.content }}
               <div v-if="record.comment_path.length > 0">
-                <span
-                  v-for="index in record.comment_path.length"
-                  :key="index"
-                  style="color: #165dff"
-                >
-                  [图片]
-                </span>
+                <span style="color: #165dff">[图片]</span>
               </div>
             </a-typography-paragraph>
           </div>
         </template>
         <template #parent="{ record }">
-          <router-link :to="{ path: './article' }" class="custom-link">
+          <a
+            :href="`${apiBaseUrl}/articledetail/${record.article_id}`"
+            target="_blank"
+            class="custom-link"
+          >
             <p>《 {{ record.title }} 》</p>
             <a-typography-paragraph
               :ellipsis="{
@@ -492,21 +526,21 @@ defineExpose({ reFresh });
             >
               {{ record.summary }}
             </a-typography-paragraph>
-          </router-link>
+          </a>
         </template>
         <template #optional="{ record }">
           <div class="option">
-            <span>
-              <a-button type="text" @click="editItem(record)">
+            <!-- <span>
+              <a-button v-permission="['acl:comment:view']" type="text" @click="editItem(record)">
                 查看详情
               </a-button>
-            </span>
+            </span> -->
             <span>
               <a-popconfirm
                 content="您确定要删除吗？"
                 @ok="confirmDeleteOne(record.id)"
               >
-                <a-button type="text">
+                <a-button v-permission="['acl:comment:delete']" type="text">
                   <template #icon>
                     <icon-edit />
                   </template>
@@ -514,12 +548,12 @@ defineExpose({ reFresh });
                 </a-button>
               </a-popconfirm>
             </span>
-            <span v-if="props.itemType === '2' || record.examine === 1">
+            <span v-if="props.itemType === '2' || record.examine === 0">
               <a-popconfirm
                 content="您确定要审核吗？"
                 @ok="confirmAuditOne(record.id)"
               >
-                <a-button type="text">
+                <a-button v-permission="['acl:comment:audit']" type="text">
                   <template #icon>
                     <icon-edit />
                   </template>

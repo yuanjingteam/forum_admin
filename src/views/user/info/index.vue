@@ -12,7 +12,7 @@ export default {
 
 <template>
   <div class="container">
-    <Breadcrumb :items="['用户菜单', '用户信息']" />
+    <Breadcrumb :items="['个人中心', '用户信息']" />
     <a-row style="margin-bottom: 16px">
       <a-col :span="24">
         <UserPanel />
@@ -24,7 +24,7 @@ export default {
           <a-tab-pane key="1" title="基础信息">
             <BasicInformation />
           </a-tab-pane>
-          <a-tab-pane key="2" title="安全设置">
+          <a-tab-pane key="2" title="账号设置">
             <SecuritySettings />
           </a-tab-pane>
         </a-tabs>

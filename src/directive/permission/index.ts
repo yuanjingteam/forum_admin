@@ -1,37 +1,11 @@
 import type { DirectiveBinding } from 'vue';
 
 // 定义一个函数 checkPermission，用于检查元素的权限
-function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
+async function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   // 从绑定对象中获取权限值
   const { value } = binding;
 
-  // 获取当前角色的按钮权限数组
-  localStorage.setItem(
-    'permissionButtton',
-    JSON.stringify([
-      'acl:api:search',
-      'acl:api:add',
-      'acl:api:delete',
-      'acl:api:edit',
-      'acl:role:search',
-      'acl:role:add',
-      'acl:role:delete',
-      'acl:role:edit',
-      'acl:role:permission',
-      'acl:user:search',
-      'acl:user:add',
-      'acl:user:delete',
-      'acl:user:edit',
-      'acl:user:import',
-      'acl:user:export',
-      'acl:user:reset',
-      'acl:menu:search',
-      'acl:menu:add',
-      'acl:menu:edit',
-      'acl:menu:delete'
-    ])
-  );
-  const btnAclArr = JSON.parse(localStorage.getItem('permissionButtton'));
+  const btnAclArr = JSON.parse(localStorage.getItem('permissionButton')) || [];
 
   // 检查 value 是否为数组
   if (Array.isArray(value)) {

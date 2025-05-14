@@ -7,7 +7,12 @@ import useLoading from '@/hooks/useLoading';
 import type { LoginData } from '@/api/user';
 import { pick } from 'lodash';
 import { Message } from '@arco-design/web-vue';
-import CryptoJS from 'crypto-js';
+// import { getRoleAllCodeService, getRoleMenuService } from '@/api/menu';
+// import { restRouter } from '@/router';
+// import { usePermissionNavStore } from '@/store';
+// import { changeAppRoutes } from '@/router/routes';
+// CryptoJS 是一个广泛使用的 JavaScript 加密库，这里用不到
+// import CryptoJS from 'crypto-js';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -15,22 +20,18 @@ const formRef = ref();
 const tabActiveKey = ref('1');
 const { loading, setLoading } = useLoading();
 
-const encryptData = (data, password) => {
-  return CryptoJS.AES.encrypt(data, password).toString();
-};
-
 const loginConfig = useStorage('login-config', {
   rememberPassword: false,
-  username: '3240288774@qq.com', // 演示默认值
+  email: '', // 演示默认值
   password: '' // 演示密码
 });
 const form = reactive({
-  username: loginConfig.value.username,
+  email: loginConfig.value.email,
   password: loginConfig.value.password,
   agreement: false
 });
 const rules = {
-  username: [
+  email: [
     { required: true, message: '请输入正确邮箱账号' },
     {
       match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -51,6 +52,8 @@ const rules = {
 };
 
 const handleSubmit = () => {
+  console.log('登录');
+
   if (loading.value) return;
 
   // 账号登录
@@ -63,42 +66,32 @@ const handleSubmit = () => {
       setLoading(true);
       try {
         // 快速查询属性
-        const userInfoForm = pick(form, ['username', 'password']);
+        const userInfoForm = pick(form, ['email', 'password']);
 
         // userInfoForm 被断言为 LoginData 类型，以确保其符合登录所需的数据结构
         // 登录校验
         await userStore.login(userInfoForm as LoginData);
+
         // 从当前路由的查询参数中解构出 `redirect` 属性
         // `redirect` 用于存储重定向的目标地址
         // `...othersQuery` 收集其余的查询参数，存储在 `othersQuery` 对象中
-        const { redirect, ...othersQuery } = router.currentRoute.value.query;
+        // const { redirect, ...othersQuery } = router.currentRoute.value.query;
+
+        // restRouter();
+        // const usePermissionNav = usePermissionNavStore();
+        // usePermissionNav.formatRoutes(changeAppRoutes());
         // 使用 router.push 方法进行路由跳转
-        router.push({
-          // 设置路由名称为 `redirect` 的值，如果 `redirect` 为空，则默认跳转至 'Workplace'
-          name: (redirect as string) || 'Workplace',
-          // 将其他查询参数传递给新的路由
-          query: {
-            ...othersQuery // 展开其他查询参数
-          }
-        });
-        Message.success('登录成功');
-        // 从 loginConfig.value 对象中提取 rememberPassword 属性
-        // 该属性指示用户是否选择记住密码的选项
-        const { rememberPassword } = loginConfig.value;
-
-        // 从 userInfoForm 对象中提取 username 和 password 属性
-        // 这些属性包含用户输入的登录信息
-        const { username, password } = userInfoForm;
-        // 实际生产环境需要进行加密存储。
-        const secretKey = process.env.VUE_APP_SECRET_KEY;
-
-        loginConfig.value.username = rememberPassword
-          ? encryptData(username, secretKey)
-          : '';
-        loginConfig.value.password = rememberPassword
-          ? encryptData(password, secretKey)
-          : '';
+        // router.push({
+        //   // 设置路由名称为 `redirect` 的值，如果 `redirect` 为空，则默认跳转至 'Home'
+        //   name: (redirect as string) || 'Home',
+        //   // 将其他查询参数传递给新的路由
+        //   query: {
+        //     ...othersQuery // 展开其他查询参数
+        //   }
+        // });
+        router.push('/workplace');
       } catch (error) {
+        console.log('登录路由跳转出错');
       } finally {
         // 表示加载状态已经结束，通常用于更新用户界面的加载指示器。
         setLoading(false);
@@ -106,10 +99,6 @@ const handleSubmit = () => {
     });
   }
 };
-
-// const setRememberPassword = (value: boolean) => {
-//   loginConfig.value.rememberPassword = value;
-// };
 </script>
 
 <template>
@@ -125,8 +114,8 @@ const handleSubmit = () => {
       <a-tab-pane key="1" title="邮箱登录" destroy-on-hide>
         <a-form-item field="username" validate-trigger="blur" hide-label>
           <a-input
-            v-model="form.username"
-            autocomplete="username"
+            v-model="form.email"
+            autocomplete="current-email"
             placeholder="邮箱"
           >
             <template #prefix>

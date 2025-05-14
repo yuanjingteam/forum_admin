@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { getTagList } from '@/api/tag';
 import type { ArticleForm } from '@/api/article';
 import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
@@ -26,8 +26,8 @@ const total_3 = ref(0);
 // 原始数据
 const searchFromModel = (): ArticleForm => {
   return {
-    startTime: '',
-    endTime: '',
+    startTime: '2025-01-09T00:00:00.000Z',
+    endTime: '2125-02-09T00:00:00.000Z',
     keyword: '',
     article_tags: [],
     nickname: '',
@@ -55,7 +55,7 @@ const getTags = async () => {
     limit: 1000,
     name: ''
   });
-  tag_list.value = data.data.tag_list;
+  tag_list.value = data.tag_list;
 };
 
 // 初始化
@@ -73,20 +73,20 @@ const tagTypeOptions = computed<SelectOptionData[]>(() => [
 ]);
 
 // 状态栏
-const stateTypeOptions = computed<SelectOptionData[]>(() => [
-  {
-    label: '全部',
-    value: 0
-  },
-  {
-    label: '公开',
-    value: 1
-  },
-  {
-    label: '封禁',
-    value: 2
-  }
-]);
+// const stateTypeOptions = computed<SelectOptionData[]>(() => [
+//   {
+//     label: '公开',
+//     value: 0
+//   },
+//   {
+//     label: '全部',
+//     value: 1
+//   },
+//   {
+//     label: '封禁',
+//     value: 2
+//   }
+// ]);
 
 // 排序
 const hotOptions = computed<SelectOptionData[]>(() => [
@@ -106,8 +106,14 @@ const treeData = ref([]);
 
 // 搜索时间
 const onChangeTime = dateString => {
-  searchModel.value.startTime = dateString[0];
-  searchModel.value.endTime = dateString[1];
+  // searchModel.value.startTime = dateString[0];
+  // searchModel.value.endTime = dateString[1];
+  const startDate = new Date(dateString[0]); // 从输入的字符串创建日期对象
+  const endDate = new Date(dateString[1]); // 从输入的字符串创建日期对象
+
+  // 将日期转换为 ISO 格式并添加时区偏移
+  searchModel.value.startTime = startDate.toISOString(); // 例如 "2024-11-05T07:21:28.000Z"
+  searchModel.value.endTime = endDate.toISOString(); // 例如 "2024-11-05T07:21:28.000Z"
 };
 
 // 搜索
@@ -127,7 +133,12 @@ const search = () => {
 // 重置
 const reset = () => {
   searchModel.value = searchFromModel();
+  search();
 };
+
+watch(itemType, newvalue => {
+  search();
+});
 </script>
 
 <script lang="ts">
@@ -228,13 +239,17 @@ export default {
           </a-col>
           <a-col :flex="'86px'" style="text-align: right">
             <a-space direction="vertical" :size="18">
-              <a-button type="primary" @click="search">
+              <a-button
+                v-permission="['acl:article:search']"
+                type="primary"
+                @click="search"
+              >
                 <template #icon>
                   <icon-search />
                 </template>
                 查询
               </a-button>
-              <a-button @click="reset">
+              <a-button v-permission="['acl:article:search']" @click="reset">
                 <template #icon>
                   <icon-refresh />
                 </template>
@@ -254,6 +269,7 @@ export default {
               v-model:total="total_1"
               :itemType="itemType"
               :searchModel="searchModel"
+              :article_condition="1"
             ></article-table>
           </a-tab-pane>
           <a-tab-pane key="2" :title="`已批准${total_2}`">
@@ -262,6 +278,7 @@ export default {
               v-model:total="total_2"
               :itemType="itemType"
               :searchModel="searchModel"
+              :article_condition="0"
             ></article-table>
           </a-tab-pane>
           <a-tab-pane key="3" :title="`已封禁${total_3}`">
@@ -270,6 +287,7 @@ export default {
               v-model:total="total_3"
               :itemType="itemType"
               :searchModel="searchModel"
+              :article_condition="2"
             ></article-table>
           </a-tab-pane>
         </a-tabs>

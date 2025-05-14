@@ -87,7 +87,7 @@ const useAppStore = defineStore('tabBar', {
       this.tagList
         .filter(el => !el.ignoreCache) // 过滤掉需要忽略缓存的标签
         .map(el => el.name) // 获取标签名称
-        .forEach(x => this.cacheTabList.add(x)); // 添加到缓存列表
+        ?.forEach(x => this.cacheTabList.add(x)); // 添加到缓存列表
     },
 
     // 重置标签列表

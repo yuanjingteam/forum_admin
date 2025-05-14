@@ -5,15 +5,16 @@ import { getDicType, delDicType } from '@/api/dictionary';
 import { GetDicList, EditDicList } from '@/api/dictionary';
 import EditItem from '@/views/dictionaryMgr/dictionaryType/EditItem/index.vue';
 import AddItem from '@/views/dictionaryMgr/dictionaryType/AddItem/index.vue';
-type DictTypeItem = GetDicList['data']['dict_type_list'][number];
-type DictType = GetDicList['data']['dict_type_list'];
+type DictTypeItem = GetDicList['dict_type_list'][number];
+type DictType = GetDicList['dict_type_list'];
 
 const dic_list = ref<DictType>([]);
 
 // 定义 `check` 事件,切换列表
 const emit = defineEmits<{
   (e: 'check', payload: string);
-  (e: 'update'): void; // 可以根据需要指定 payload 的类型
+  (e: 'update', payload?: string); // 可以根据需要指定 payload 的类型
+  (e: 'init', payload: string); // 初始化
 }>();
 
 // 绑定选中行
@@ -63,7 +64,10 @@ const featchDicList = async () => {
     page: 1,
     limit: 100
   });
-  dic_list.value = data.data.dict_type_list;
+  console.log(data, 11111111);
+
+  dic_list.value = data.dict_type_list;
+
   selectedKeys.value[0] = dic_list.value[0].id;
 };
 
@@ -105,13 +109,15 @@ const switchCheck = (itemCode: string) => {
 };
 
 // 更新表格数据
-const updateDicType = () => {
-  featchDicList();
-  emit('update');
+const updateDicType = async () => {
+  await featchDicList();
+  emit('update', dic_list.value[0].code);
 };
 
 onMounted(async () => {
+  // 初始化
   await featchDicList();
+  emit('check', dic_list.value[0].code);
 });
 </script>
 
@@ -130,7 +136,9 @@ onMounted(async () => {
     <a-space direction="vertical" size="large" class="main">
       <div class="header">
         <strong>字典列表</strong>
-        <a-button @click="addSelect">新增</a-button>
+        <a-button v-permission="['acl:dic:add']" @click="addSelect">
+          新增
+        </a-button>
       </div>
       <a-menu
         v-model:selected-keys="selectedKeys"
@@ -141,8 +149,16 @@ onMounted(async () => {
             {{ item.name }}
           </span>
           <span>
-            <icon-edit :size="16" @click.stop="editSelect(item)" />
-            <icon-delete :size="16" @click.stop="deleteSelect(item.id)" />
+            <icon-edit
+              v-permission="['acl:dic:edit']"
+              :size="16"
+              @click.stop="editSelect(item)"
+            />
+            <icon-delete
+              v-permission="['acl:dic:delete']"
+              :size="16"
+              @click.stop="deleteSelect(item.id)"
+            />
           </span>
         </a-menu-item>
       </a-menu>
@@ -161,10 +177,11 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   padding: 15px 10px 0;
+  color: #c5c5c5;
 }
 
 .title {
-  min-width: 95px;
+  min-width: 120px;
 }
 
 .layout {
@@ -176,7 +193,7 @@ onMounted(async () => {
 }
 
 .layout:hover {
-  background: #eff6ff;
+  background: #e9eef29e;
 }
 
 :deep(.arco-menu .arco-menu-item .arco-icon) {

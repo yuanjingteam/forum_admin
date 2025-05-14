@@ -45,7 +45,13 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       // 端口号（这里使用了变量 VITE_PORT）
       port: Number(VITE_PORT),
       // 本地跨域代理-> 代理到服务器的接口地址
-      proxy: {},
+      proxy: {
+        '^/api': {
+          target: 'http://192.168.10.7:8081', // 目标服务器
+          changeOrigin: true, // 允许跨域
+          rewrite: path => path.replace(/^\/api/, '') // 重写路径
+        }
+      },
       // 预热文件以降低启动期间的初始页面加载时长
       warmup: {
         // 预热的客户端文件：首页、views、 components
@@ -57,21 +63,26 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       target: 'es2015',
       // 是否生成 source map 文件
       sourcemap: false,
+      outDir: 'dist', // 输出目录
       rollupOptions: {
         output: {
+          // 输出文件名格式
           entryFileNames: 'static/js/[name]-[hash].js',
           chunkFileNames: 'static/js/[name]-[hash].js',
           assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+          // 是否压缩输出
           compact: true,
           // 自定义 chunk
           manualChunks: {
             arco: ['@arco-design/web-vue'],
             chart: ['@visactor/vchart'],
             vue: ['vue', 'vue-router', 'pinia', '@vueuse/core']
-          }
+          },
+          // 禁用 gzip 输出
+          interop: 'auto' // 确保没有 gzip 输出
         }
       },
-      // chunk 大小警告的限制
+      // chunk 大小警告的限制（单位：KB）
       chunkSizeWarningLimit: 2000
     }
   };

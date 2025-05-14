@@ -1,51 +1,229 @@
-// 导入 Vue Router 的类型定义
-import type { RouteRecordNormalized } from 'vue-router';
+export default function generateDynamicRoutes(data) {
+  const map = new Map();
+  const routes = [];
+  // 定义静态映射
+  const componentMap = {
+    '/userManager/index': () => import('../../views/userManager/index.vue'),
+    '/articleManager/index': () =>
+      import('../../views/articleManager/index.vue'),
+    '/commentMgr/index': () => import('../../views/commentMgr/index.vue'),
+    '/tagMgr/index': () => import('../../views/tagMgr/index.vue'),
+    '/dictionaryMgr/index': () => import('../../views/dictionaryMgr/index.vue'),
+    '/acl/role/index': () => import('../../views/acl/role/index.vue'),
+    '/acl/menu/index': () => import('../../views/acl/menu/index.vue'),
+    '/acl/apiManage/index': () => import('../../views/acl/apiManage/index.vue'),
+    '/result/success/index': () =>
+      import('../../views/result/success/index.vue'),
+    '/result/error/index': () => import('../../views/result/error/index.vue'),
+    '/exception/403/index': () => import('../../views/exception/403/index.vue'),
+    '/exception/404/index': () => import('../../views/exception/404/index.vue'),
+    '/exception/500/index': () => import('../../views/exception/500/index.vue'),
+    '/managerMgr/index': () => import('../../views/managerMgr/index.vue')
+  };
 
-// 使用 glob API 动态导入指定目录下的所有模块
-const modules = import.meta.glob('./modules/*.ts', { eager: true });
-
-// 定义一个函数 formatModules，用于格式化导入的路由模块
-function formatModules(_modules: any, result: RouteRecordNormalized[]) {
-  // 遍历所有导入的模块
-  Object.keys(_modules).forEach(key => {
-    // 获取模块的默认导出
-    const defaultModule = _modules[key].default;
-    // 如果模块没有默认导出，直接返回
-    if (!defaultModule) return;
-
-    // 将默认导出转换为数组，以便统一处理
-    const moduleList = Array.isArray(defaultModule)
-      ? [...defaultModule] // 如果已经是数组，复制一份
-      : [defaultModule]; // 如果不是，包装成数组
-
-    // 将模块列表添加到结果数组中
-    result.push(...moduleList);
+  // 首先将所有节点存入 map
+  data?.forEach(item => {
+    map.set(item.id, { ...item, children: [] });
   });
-  // 返回格式化后的结果数组
-  return result;
+
+  // 构建树结构
+  data?.forEach(item => {
+    if (item.pid !== 0) {
+      const parent = map.get(item.pid);
+      if (parent) {
+        parent.children.push(map.get(item.id));
+      }
+    }
+  });
+
+  // 生成路由配置
+  map?.forEach(item => {
+    if (item.pid === 0) {
+      if (item.children.length > 0) {
+        // 有子菜单的情况
+        routes.push({
+          path: item.route_path,
+          name: item.route_name,
+          component: () => import('../../layout/default-layout.vue'),
+          meta: {
+            locale: item.name,
+            icon: item.icon,
+            order: item.sort,
+            requiresAuth: true,
+            hideChildrenMenu: false
+          },
+          children: item.children.map(child => ({
+            path: child.route_path,
+            name: child.route_name,
+            component: componentMap[child.component_path],
+            meta: {
+              locale: child.name,
+              requiresAuth: true
+            }
+          }))
+        });
+      } else {
+        // 无子菜单的情况
+        routes.push({
+          path: item.route_path,
+          name: item.route_name,
+          redirect: item.route_path,
+          component: () => import('../../layout/default-layout.vue'),
+          meta: {
+            locale: item.name,
+            icon: item.icon,
+            order: item.sort,
+            requiresAuth: true,
+            hideChildrenMenu: true
+          },
+          children: [
+            {
+              path: item.route_path,
+              name: item.route_name,
+              component: componentMap[item.component_path],
+              meta: {
+                activeMenu: item.route_name,
+                requiresAuth: true
+              }
+            }
+          ]
+        });
+      }
+    }
+  });
+
+  routes.push({
+    path: '/',
+    name: 'Home',
+    component: () => import('../../layout/default-layout.vue'),
+    redirect: '/workplace',
+    meta: {
+      locale: '工作台',
+      requiresAuth: true,
+      hideChildrenMenu: true,
+      icon: 'icon-dashboard',
+      order: 0
+    },
+    children: [
+      {
+        path: '/workplace',
+        name: 'Home',
+        component: () => import('@/views/workplace/index.vue'),
+        meta: {
+          activeMenu: 'Home'
+        }
+      }
+    ]
+  });
+  console.log(routes, 'routes');
+
+  return routes;
 }
 
-// 导出格式化后的应用路由数组
-export const appRoutes: RouteRecordNormalized[] = formatModules(modules, []);
+//测试数据
+// const data = [
+//   {
+//     id: 1,
+//     pid: 0,
+//     route_name: 'Acl',
+//     name: '权限管理',
+//     icon: 'icon-desktop',
+//     sort: 2,
+//     route_path: '/acl',
+//     component_path: ''
+//   },
+//   {
+//     id: 2,
+//     pid: 1,
+//     route_name: 'Role',
+//     name: '角色管理',
+//     icon: '',
+//     sort: 0,
+//     route_path: 'role',
+//     component_path: '/acl/role/index'
+//   },
+//   ,
+//   {
+//     id: 3,
+//     pid: 1,
+//     route_name: 'Menu',
+//     name: '菜单管理',
+//     icon: '',
+//     sort: 0,
+//     route_path: 'menu',
+//     component_path: '/acl/menu/index'
+//   },
+//   {
+//     id: 4,
+//     pid: 1,
+//     route_name: 'Api',
+//     name: 'api管理',
+//     icon: '',
+//     sort: 0,
+//     route_path: 'api',
+//     component_path: '/acl/api/index'
+//   },
+//   {
+//     id: 5,
+//     pid: 0,
+//     route_name: 'comment',
+//     name: '评论管理',
+//     icon: 'icon-list',
+//     sort: 1,
+//     route_path: '/comment',
+//     component_path: '/commentMgr/index'
+//   }
+// ];
+//数据模板
+//pid-0但children.length！==0
+// const hasChildrenMenu = {
+//   id: 'id',
+//   path: 'route_path',
+//   name: 'route_name',
+//   component: () => import('@/layout/default-layout.vue'),
+//   meta: {
+//     locale: 'name',
+//     icon: 'icon',
+//     order: 'sort',
+//     requiresAuth: true,
+//     hideChildrenMenu: false
+//   }
+// };
 
-// 动态路由加载
-// 模块化路由: 通过动态导入多个路由模块，您可以将路由逻辑分散到多个文件中，使代码结构更加清晰和可维护。
-// 按需加载: 仅在需要时加载特定的路由模块，可以提高应用程序的性能，减少初始加载时间。
-// 2. 统一的路由结构
-// 格式化统一: formatModules 函数确保所有导入的路由模块具有统一的格式，这样后续处理（如添加守卫、权限检查等）就会变得简单。
-// 便于扩展: 随着应用程序的扩展，可以方便地添加新的路由模块，只需在./ modules / 目录中添加新文件，自动纳入路由配置。
-// 3. 集中管理
-// 集中路由配置: appRoutes 提供了一个集中管理应用路由的方式。其他部分的代码（如路由器实例）可以直接使用这个数组来配置路由。
-// 提高可读性: 将所有路由定义集中在一个地方，便于开发者快速了解应用程序的路由结构。
-// 4. 支持路由元信息
-// 附加元信息: 在不同的路由模块中可以定义各自的元信息（如 requiresAuth、hideInMenu），这些信息可以用于路由守卫、菜单生成等逻辑。
-// 5. 灵活性和可维护性
-// 便于维护: 分散的路由模块使得管理和维护变得更加容易，开发者可以专注于各自的功能模块，而不必担心整个路由文件。
-// 团队协作: 在团队开发中，不同的开发者可以独立工作在不同的路由模块上，减少冲突。
-// 示例
-// 假设您在./ modules / 目录中有以下文件：
+// //pid==0且children.length==0
+// const singleMenu = {
+//   id: 'id',
+//   path: 'route_path',
+//   name: 'route_name',
+//   redirect: 'route_path',
+//   component: () => import('@/layout/default-layout.vue'),
+//   meta: {
+//     locale: 'name',
+//     icon: 'icon',
+//     order: 'sort',
+//     requiresAuth: true,
+//     hideChildrenMenu: true
+//   },
+//   children: [
+//     {
+//       path: 'route_path',
+//       name: 'route_name',
+//       // component: () => import('@/views${component_path}.vue')
+//       meta: {
+//         activeMenu: 'route_name',
+//         requiresAuth: true
+//       }
+//     }
+//   ]
+// };
 
-// userRoutes.ts
-// adminRoutes.ts
-// productRoutes.ts
-// 每个文件定义了一组相关的路由，最终通过 appRoutes 组合成一个完整的路由配置供 Vue Router 使用。
+// //pid!==0,作为孩子
+// const childrenMenu = {
+//   path: 'route_path',
+//   name: 'route_name',
+//   // component: () => import('@/views${component_path}.vue')
+//   meta: {
+//     locale: 'name',
+//     requiresAuth: true
+//   }
+// };
