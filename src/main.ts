@@ -32,7 +32,8 @@ const componentMap = {
   '/exception/403/index': () => import('./views/exception/403/index.vue'),
   '/exception/404/index': () => import('./views/exception/404/index.vue'),
   '/exception/500/index': () => import('./views/exception/500/index.vue'),
-  '/managerMgr/index': () => import('./views/managerMgr/index.vue')
+  '/managerMgr/index': () => import('./views/managerMgr/index.vue'),
+  '/categoryMgr/index': () => import('./views/categoryMgr/index.vue')
 };
 
 //获取本地存储的当前用户的菜单权限
