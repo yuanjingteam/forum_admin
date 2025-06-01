@@ -82,8 +82,9 @@ const cancelEdit = () => {
 </script>
 
 <template>
-  <a-modal
+  <a-drawer
     v-model:visible="editVisible"
+    :width="500"
     title="编辑分类"
     @cancel="cancelEdit"
     @before-ok="submitEdit"
@@ -117,5 +118,5 @@ const cancelEdit = () => {
         确定
       </a-button>
     </template>
-  </a-modal>
+  </a-drawer>
 </template>

@@ -62,3 +62,9 @@ const handleReset = () => {
     </a-row>
   </a-card>
 </template>
+
+<style scoped lang="less">
+.general-card {
+  margin-bottom: 20px;
+}
+</style>

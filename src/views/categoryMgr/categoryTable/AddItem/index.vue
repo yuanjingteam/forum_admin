@@ -74,8 +74,9 @@ const cancelAdd = () => {
 </script>
 
 <template>
-  <a-modal
+  <a-drawer
     v-model:visible="addVisible"
+    :width="500"
     title="添加分类"
     @cancel="cancelAdd"
     @before-ok="submitAdd"
@@ -110,5 +111,5 @@ const cancelAdd = () => {
         确定
       </a-button>
     </template>
-  </a-modal>
+  </a-drawer>
 </template>

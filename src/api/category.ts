@@ -15,20 +15,23 @@ export interface dynamicMenuList {
 
 // 获取所有分类
 export function getAllCategories() {
-  return request.get<dynamicMenuList[]>('/category/getAllCategories');
+  return request.get<dynamicMenuList[]>('/backstage_category/getAllCategories');
 }
 
-// 添加菜单
+// 添加分类
 export function addCategory(data: any) {
-  return request.post('/category/add', data);
+  return request.post('/backstage_category/add', data);
 }
 
-// 修改菜单
+// 修改分类
 export function updateCategory(data: any) {
-  return request.post('/category/update', data);
+  return request.post('/backstage_category/update', data);
 }
 
-// 批量删除菜单
-export function deleteCategory(data: any) {
-  return request.post('/category/delete', data);
+// 批量删除分类
+// 批量删除分类
+export function deleteCategory(ids: number[]) {
+  return request.delete('/backstage_category/delete', {
+    data: { id_list: ids } // 将数据放在请求体中
+  });
 }

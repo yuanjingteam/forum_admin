@@ -175,7 +175,7 @@ const onPageChange = (current: number) => {
 const confirmDeleteSelect = async (selectArray: Array<number>) => {
   try {
     // 删除选中的分类
-    await deleteCategory({ ids: selectArray });
+    await deleteCategory(selectArray);
     // 删除
     selectedKeys.value = selectedKeys.value.filter(
       key => !selectArray.includes(key)
@@ -237,7 +237,7 @@ defineExpose({ reFresh });
 </script>
 
 <template>
-  <div class="main">
+  <div>
     <edit-item
       v-model:visible="editVisible"
       :editData="editData"
